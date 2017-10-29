@@ -1,4 +1,4 @@
-function sensor = mlad111_makePublicImageset(readRoot, saveRoot, sensorNum, dateStart, dateEnd, k, sensorClustRatio, sensorPSize, fs, step, labelName)
+function sensor = mlad111_xmakePublicImageset(readRoot, saveRoot, sensorNum, dateStart, dateEnd, k, sensorClustRatio, sensorPSize, fs, step, labelName)
 % DESCRIPTION:
 %   This is a machine learning based anomaly detection (MLAD) pre-processing
 %   function for structural health monitoring data. The work flow is:

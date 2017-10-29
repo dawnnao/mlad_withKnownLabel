@@ -1,4 +1,4 @@
- function sensor = mlad011_withKnownLabel_new(readRoot, saveRoot, sensorNum, dateStart, dateEnd, sensorTrainRatio, sensorPSize, fs, step, labelName, seed, maxEpoch, publicImagesetPath, labelPath)
+ function sensor = mlad111_withKnownLabel(readRoot, saveRoot, sensorNum, dateStart, dateEnd, sensorTrainRatio, sensorPSize, fs, step, labelName, seed, maxEpoch, batchSize, publicImagesetPath, labelPath)
 % DESCRIPTION:
 %   This is a machine vision based anomaly detection (MVAD) pre-processing
 %   function for structural health monitoring data. The work flow is:
@@ -141,9 +141,9 @@ elseif groupTotal > 1 && groupTotal < sensorTotal
     netLayout = '_customGroups';
 end
 
-dirName.home = sprintf('%s/%s--%s_sensor%s%s_seed_%d_trainRatio_%dpct/', saveRoot, date.start, date.end, sensorStr, netLayout, seed, sensorTrainRatio*100);
+dirName.home = sprintf('%s/%s--%s_sensor%s%s_trainRatio_%dpct_seed_%d/', saveRoot, date.start, date.end, sensorStr, netLayout, sensorTrainRatio*100, seed);
 dirName.home = GetFullPath(dirName.home);
-dirName.file = sprintf('%s--%s_sensor%s%s_globalEpoch_%d.mat', date.start, date.end, sensorStr, netLayout, maxEpoch(1));
+dirName.file = sprintf('%s--%s_sensor%s%s_globalEpoch_%d_batchSize_%d.mat', date.start, date.end, sensorStr, netLayout, maxEpoch(1), batchSize);
 dirName.status = sprintf('%s--%s_sensor%s%s_status.mat', date.start, date.end, sensorStr, netLayout);
 
 if ~exist(dirName.home,'dir'), mkdir(dirName.home); end
@@ -232,7 +232,7 @@ end
 
 %% 2 make training set
 if ismember(2, step) || isempty(step)
-dirName.trainSetByType = [GetFullPath(dirName.home) sprintf('trainingSetByType_globalEpoch_%d/', maxEpoch(1))];
+dirName.trainSetByType = [GetFullPath(dirName.home) sprintf('trainingSetByType/')];
 if exist(dirName.trainSetByType,'dir')
     check = ls(dirName.trainSetByType);
     if ispc, check(1:4) = []; end
@@ -470,7 +470,7 @@ if ~isempty(step) && step(1) == 3
     end
     newP{2,1} = sensor.pSize;
     newP{3,1} = step;
-    dirName.trainSetByType = [GetFullPath(dirName.home) sprintf('/trainingSetByType_globalEpoch_%d/', maxEpoch(1))];
+    dirName.trainSetByType = [GetFullPath(dirName.home) sprintf('/trainingSetByType/')];
     
     for g = 1 : groupTotal
         load([dirName.trainSetByType 'trainSetByType.mat']);
@@ -520,7 +520,7 @@ for n = 1 : numTemp
     feature{g}.image(:, :, 3, n) = ones(100, 100);
 end
 
-dirName.net = [dirName.home sprintf('/net_globalEpoch_%d/', maxEpoch(1))];
+dirName.net = [dirName.home sprintf('/net_globalEpoch_%d_batchSize_%d/', maxEpoch(1), batchSize)];
 if ~exist(dirName.net,'dir'), mkdir(dirName.net); end
 
 rng(seed,'twister');
@@ -544,7 +544,7 @@ for g = 1 : groupTotal
 
         % set options of training
         options = trainingOptions('sgdm','MaxEpochs',maxEpoch(1), ...
-            'InitialLearnRate',0.0001, 'MiniBatchSize',25, 'Momentum',0.8,...
+            'InitialLearnRate',0.0001, 'MiniBatchSize',batchSize, 'Momentum',0.8,...
             'OutputFcn',@plotTrainingAccuracy,'ExecutionEnvironment','gpu');
 
         % train CNN

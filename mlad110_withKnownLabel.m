@@ -1,4 +1,4 @@
- function sensor = mlad010_withKnownLabel(readRoot, saveRoot, sensorNum, dateStart, dateEnd, sensorTrainRatio, sensorPSize, fs, step, labelName, seed, maxEpoch, publicImagesetPath, labelPath)
+ function sensor = mlad110_withKnownLabel(readRoot, saveRoot, sensorNum, dateStart, dateEnd, sensorTrainRatio, sensorPSize, fs, step, labelName, seed, maxEpoch, publicImagesetPath, labelPath)
 % DESCRIPTION:
 %   This is a machine vision based anomaly detection (MVAD) pre-processing
 %   function for structural health monitoring data. The work flow is:
@@ -141,7 +141,7 @@ elseif groupTotal > 1 && groupTotal < sensorTotal
     netLayout = '_customGroups';
 end
 
-dirName.home = sprintf('%s/%s--%s_sensor%s%s_seed_%d_trainRatio_%dpct/', saveRoot, date.start, date.end, sensorStr, netLayout, seed, sensorTrainRatio*100);
+dirName.home = sprintf('%s/%s--%s_sensor%s%s_trainRatio_%dpct_seed_%d/', saveRoot, date.start, date.end, sensorStr, netLayout, sensorTrainRatio*100, seed);
 dirName.home = GetFullPath(dirName.home);
 dirName.file = sprintf('%s--%s_sensor%s%s_autoenc1epoch_%d_globalEpoch_%d.mat', date.start, date.end, sensorStr, netLayout, maxEpoch(1), maxEpoch(2));
 dirName.status = sprintf('%s--%s_sensor%s%s_status.mat', date.start, date.end, sensorStr, netLayout);
@@ -232,7 +232,7 @@ end
 
 %% 2 make training set
 if ismember(2, step) || isempty(step)
-dirName.trainSetByType = [GetFullPath(dirName.home) sprintf('trainingSetByType_autoenc1epoch_%d_globalEpoch_%d/', maxEpoch(1), maxEpoch(2))];
+dirName.trainSetByType = [GetFullPath(dirName.home) sprintf('trainingSetByType/')];
 if exist(dirName.trainSetByType,'dir')
     check = ls(dirName.trainSetByType);
     if ispc, check(1:4) = []; end
@@ -470,7 +470,7 @@ if ~isempty(step) && step(1) == 3
     end
     newP{2,1} = sensor.pSize;
     newP{3,1} = step;
-    dirName.trainSetByType = [GetFullPath(dirName.home) sprintf('/trainingSetByType_autoenc1epoch_%d_globalEpoch_%d/', maxEpoch(1), maxEpoch(2))];
+    dirName.trainSetByType = [GetFullPath(dirName.home) sprintf('/trainingSetByType/')];
     
     for g = 1 : groupTotal
         load([dirName.trainSetByType 'trainSetByType.mat']);
@@ -533,7 +533,7 @@ for g = 1 : groupTotal
             'SparsityRegularization',4, ...
             'SparsityProportion',0.15, ...
             'ScaleData', false, ...
-            'UseGPU', true);
+            'UseGPU', false);
         feat{1} = encode(autoenc{1},feature{g}.image(:,1 : feature{g}.trainSize));
         % hidden layer 2
         hiddenSize(2) = 75;
