@@ -96,9 +96,9 @@ for day = dayStart : dayEnd
             end
             
             pathSaveAll = [pathSaveNet{s,labelIdx} labelName{labelIdx} '_' num2str(count) '_time.png'];
-            imwrite(imgTime, pathSaveAll);
+%             imwrite(imgTime, pathSaveAll);
             pathSaveAll = [pathSaveNet{s,labelIdx} labelName{labelIdx} '_' num2str(count) '_freq.png'];
-            imwrite(imgFreq, pathSaveAll);
+%             imwrite(imgFreq, pathSaveAll);
             
             tocRemain = toc(ticRemain);
             tRemain = tocRemain * (hourTotal - count) * length(sensorNum);

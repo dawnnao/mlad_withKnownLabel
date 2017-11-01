@@ -1,4 +1,4 @@
- function sensor = mlad001_withKnownLabel(readRoot, saveRoot, sensorNum, dateStart, dateEnd, sensorTrainRatio, sensorPSize, fs, step, labelName, seed, maxEpoch, batchSize, publicImagesetPath, labelPath)
+ function sensor = mlad001_withKnownLabel(readRoot, saveRoot, sensorNum, dateStart, dateEnd, sensorTrainRatio, sensorPSize, fs, step, labelName, seed, maxEpoch, batchSize, sizeFilter, numFilter, publicImagesetPath, labelPath)
 % DESCRIPTION:
 %   This is a machine vision based anomaly detection (MVAD) pre-processing
 %   function for structural health monitoring data. The work flow is:
@@ -143,7 +143,7 @@ end
 
 dirName.home = sprintf('%s/%s--%s_sensor%s%s_trainRatio_%dpct_seed_%d/', saveRoot, date.start, date.end, sensorStr, netLayout, sensorTrainRatio*100, seed);
 dirName.home = GetFullPath(dirName.home);
-dirName.file = sprintf('%s--%s_sensor%s%s_globalEpoch_%d_batchSize_%d.mat', date.start, date.end, sensorStr, netLayout, maxEpoch(1), batchSize);
+dirName.file = sprintf('%s--%s_sensor%s%s_globalEpoch_%d_batchSize_%d_sizeFilter_%d_numFilter_%d.mat', date.start, date.end, sensorStr, netLayout, maxEpoch(1), batchSize, sizeFilter, numFilter);
 dirName.status = sprintf('%s--%s_sensor%s%s_status.mat', date.start, date.end, sensorStr, netLayout);
 
 if ~exist(dirName.home,'dir'), mkdir(dirName.home); end
@@ -466,7 +466,7 @@ date.serial.start = datenum(date.start, dirName.formatIn);  % day numbers from y
 date.serial.end   = datenum(date.end, dirName.formatIn);
 % hourTotal = (date.serial.end-date.serial.start+1)*24;
 
-dirName.net = [dirName.home sprintf('/net_globalEpoch_%d_batchSize_%d/', maxEpoch(1), batchSize)];
+dirName.net = [dirName.home sprintf('/net_globalEpoch_%d_batchSize_%d_sizeFilter_%d_numFilter_%d/', maxEpoch(1), batchSize, sizeFilter, numFilter)];
 if ~exist(dirName.net,'dir'), mkdir(dirName.net); end
 
 fprintf('\nData combining...\n')
@@ -498,9 +498,14 @@ for g = 1 : groupTotal
         feature{g}.trainSize = floor(size(feature{g}.image,4) * feature{g}.trainRatio);
         % design architecture of CNN
         layers = [imageInputLayer([100 100 1])
-                  convolution2dLayer(80, 10)
+                  convolution2dLayer(sizeFilter, numFilter)
                   reluLayer
                   maxPooling2dLayer(2,'Stride',2)
+                  
+%                   convolution2dLayer(80, 10)
+%                   reluLayer
+%                   maxPooling2dLayer(2,'Stride',2)
+                  
                   fullyConnectedLayer(feature{g}.label.activeLabelNum)
                   softmaxLayer
                   classificationLayer()];
