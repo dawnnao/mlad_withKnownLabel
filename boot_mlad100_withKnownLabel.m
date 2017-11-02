@@ -20,7 +20,7 @@ publicImagesetPath = 'D:/results/results_mlad_withKnownLabel/publicImageset/2012
 labelPath = 'C:/Users/Owner/Documents/GitHub/adi/trainingSet_justLabel_inSensorCell_latest.mat';
 
 %%
-for sensorTrainRatio = 0.01 : 0.01 : 0.03
+for sensorTrainRatio = 0.01 : 0.01 : 0.02
     for seed = 1 : 10
         sensor = mlad100_withKnownLabel(readRoot, saveRoot, sensorNum, dateStart, dateEnd, ...
             sensorTrainRatio, sensorPSize, fs, step, [], seed, maxEpoch, publicImagesetPath, labelPath);

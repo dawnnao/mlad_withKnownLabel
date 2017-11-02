@@ -1,6 +1,6 @@
-function [label, labelCount, dateVec, dateSerial] = classifierMultiInTimeFreq(pathRead, sensorNum, dayStart, dayEnd, pathSave, labelName, neuralNet, fs)
+function [label, labelCount, dateVec, dateSerial] = classifierMultiInTime(pathRead, sensorNum, dayStart, dayEnd, pathSave, labelName, neuralNet)
 % DESCRIPTION:
-%   This is a subfunction of mvad.m, to do step 4 - anomaly detection.
+%   This is a subfunction of mvad.m, to do step 4 anomaly detection.
 
 % AUTHOR:
 %   Zhiyi Tang
@@ -14,12 +14,12 @@ path.root = pathRead;
 hourTotal = (dayEnd-dayStart+1)*24;
 for s = sensorNum
     for l = 1 : length(labelName)
-        pathSaveType{s,l} = [pathSave sprintf('sensor%02d/', s) labelName{l} '/'];
-        pathSaveNet{s,l} = [pathSaveType{s,l} 'neuralNet/'];
+        pathSaveType{s,l} = [pathSave sprintf('/sensor%02d/', s) labelName{l}];
+        pathSaveNet{s,l} = [pathSaveType{s,l} '/neuralNet'];
         if ~exist(pathSaveNet{s,l},'dir'), mkdir(pathSaveNet{s,l}); end
         if strcmp(class(neuralNet{s}), 'SeriesNetwork') % CNN
             label{s} = categorical(zeros(hourTotal,1));
-        elseif strcmp(class(neuralNet{s}), 'network') % ANN 
+        elseif strcmp(class(neuralNet{s}), 'Neural Network') % ANN 
             label{s} = zeros(hourTotal,1);
         end
     end
@@ -47,9 +47,8 @@ for day = dayStart : dayEnd
         data = [];
 %         set(gcf, 'visible', 'off');
         
-        for s = sensorNum
+        for s = sensorNum % !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             ticRemain = tic;
-            % time series signals plot
             plot(sensorData(:, s),'color','k');
             position = get(gcf,'Position');
             set(gcf,'Units','pixels','Position',[position(1), position(2), 100, 100]);  % control figure's position
@@ -57,48 +56,28 @@ for day = dayStart : dayEnd
             set(gca,'visible','off');
             xlim([0 size(sensorData(:,s),1)]);
             set(gcf,'color','white');
-            
-            imgTime = getframe(gcf);
-            imgTime = imresize(imgTime.cdata, [100 100]);  % expected dimension
-            imgTime = rgb2gray(imgTime);
-            imgTime = im2double(imgTime);
-            
-            % frequency domain plot
-            N = size(sensorData, 1);
-            f = (0 : N/2-1)*(fs/N);
-            sensorData(isnan(sensorData(:, s)), s) = 0;
-            freqData = fft(sensorData(:, s)-median(sensorData(:, s)));
-            
-            plot(f, abs(real(freqData(1:N/2))),'color','k');
-            set(gca, 'visible', 'off');
-            set(gcf,'color','white');
-            set(gcf,'Units','pixels','Position',[position(1), position(2), 100, 100]);  % control figure's position
-            set(gca,'Units','normalized', 'Position',[0 0 1 1]);  % control axis's position in figure
-            imgFreq = getframe(gcf);
-            imgFreq = imresize(imgFreq.cdata, [100 100]);  % expected dimension
-            imgFreq = rgb2gray(imgFreq);
-            imgFreq = im2double(imgFreq);
+
+            img = getframe(gcf);
+            img = imresize(img.cdata, [100 100]);  % expected dimension
+            img = rgb2gray(img);
+            img = im2double(img);
+    %         imshow(img)
+    %         set(gcf, 'visible', 'on');
             
             if strcmp(class(neuralNet{s}), 'SeriesNetwork') % CNN
-                img(:, :, 1) = imgTime;
-                img(:, :, 2) = imgFreq;
-                img(:, :, 3) = ones(100, 100);
-%                 imshow(img)
-%                 set(gcf, 'visible', 'on');
+                imshow(img)
+                set(gcf, 'visible', 'on');
                 label{s}(count) = classify(neuralNet{s}, img);
-                labelIdx = str2double(str2mat(label{s}(count)));
+                labelIdx = str2double(char(label{s}(count)));
             elseif strcmp(class(neuralNet{s}), 'network') % ANN
-                img = [imgTime(:); imgFreq(:)];
-%                 imshow(img)
-%                 set(gcf, 'visible', 'on');
-                label{s}(count) = vec2ind(neuralNet{s}(img));
+                imshow(img)
+                set(gcf, 'visible', 'on');
+                label{s}(count) = vec2ind(neuralNet{s}(img(:)));
                 labelIdx = label{s}(count);
             end
-            
-            pathSaveAll = [pathSaveNet{s,labelIdx} labelName{labelIdx} '_' num2str(count) '_time.png'];
-%             imwrite(imgTime, pathSaveAll);
-            pathSaveAll = [pathSaveNet{s,labelIdx} labelName{labelIdx} '_' num2str(count) '_freq.png'];
-%             imwrite(imgFreq, pathSaveAll);
+
+            pathSaveAll = [pathSaveNet{s,labelIdx} '/' labelName{labelIdx} '_' num2str(count) '.png'];
+            imwrite(img, pathSaveAll);
             
             tocRemain = toc(ticRemain);
             tRemain = tocRemain * (hourTotal - count) * length(sensorNum);
@@ -108,6 +87,9 @@ for day = dayStart : dayEnd
                 hour, hour+1, labelName{labelIdx})
             fprintf('\nTotal: %d  Now: %d  ', hourTotal, count)
             fprintf('About %02dh%02dm%05.2fs left.\n', hours, mins, secs)
+            
+            
+        
         end
         count = count+1;
         sensorData = [];

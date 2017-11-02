@@ -1,4 +1,4 @@
-function [label, labelCount, dateVec, dateSerial] = classifierMultiInTimeFreq(pathRead, sensorNum, dayStart, dayEnd, pathSave, labelName, neuralNet, fs)
+function [label, labelCount, dateVec, dateSerial] = classifierMultiInTimeFreq_fromRAM(pathRead, sensorNum, dayStart, dayEnd, pathSave, labelName, neuralNet, fs, img2012)
 % DESCRIPTION:
 %   This is a subfunction of mvad.m, to do step 4 - anomaly detection.
 
@@ -26,65 +26,32 @@ for s = sensorNum
 end
 
 count = 1;
-figure
-set(gcf,'Units','pixels','Position',[1180, 70, 100, 100]);
+% figure
+% set(gcf,'Units','pixels','Position',[1180, 70, 100, 100]);
 for day = dayStart : dayEnd
     string = datestr(day);
     for hour = 0:23
         dateVec(count,:) = datevec(string,'dd-mmm-yyyy');
         dateVec(count,4) = hour;
-        dateSerial(count,1) = datenum(dateVec(count,:));
-        path.folder = sprintf('%04d-%02d-%02d',dateVec(count,1), dateVec(count,2), dateVec(count,3));
-        path.file = [path.folder sprintf(' %02d-VIB.mat',hour)];
-        path.full = [path.root '/' path.folder '/' path.file];
-        if ~exist(path.full, 'file')
-            fprintf('\nCAUTION:\n%s\nNo such file! Filled with a zero.\n', path.full)
-            sensorData(1, sensorNum) = zeros;  % always save in column 1
-        else
-            read = ['load(''' path.full ''');']; eval(read);
-            sensorData(:, sensorNum) = data(:, sensorNum);  % always save in column 1
-        end
-        data = [];
-%         set(gcf, 'visible', 'off');
+        dateSerial(count,1) = datenum(dateVec(count,:));       
         
         for s = sensorNum
+            sensorData(:, s) = img2012.sensor.image{s}(:, count);
+        end
+        
+%         set(gcf, 'visible', 'off');
+        for s = sensorNum
             ticRemain = tic;
-            % time series signals plot
-            plot(sensorData(:, s),'color','k');
-            position = get(gcf,'Position');
-            set(gcf,'Units','pixels','Position',[position(1), position(2), 100, 100]);  % control figure's position
-            set(gca,'Units','normalized', 'Position',[0 0 1 1]);  % control axis's position in figure
-            set(gca,'visible','off');
-            xlim([0 size(sensorData(:,s),1)]);
-            set(gcf,'color','white');
+            % time series signals plot            
+            imgTime = reshape(sensorData(1:10000,s), [100 100]);           
             
-            imgTime = getframe(gcf);
-            imgTime = imresize(imgTime.cdata, [100 100]);  % expected dimension
-            imgTime = rgb2gray(imgTime);
-            imgTime = im2double(imgTime);
-            
-            % frequency domain plot
-            N = size(sensorData, 1);
-            f = (0 : N/2-1)*(fs/N);
-            sensorData(isnan(sensorData(:, s)), s) = 0;
-            freqData = fft(sensorData(:, s)-median(sensorData(:, s)));
-            
-            plot(f, abs(real(freqData(1:N/2))),'color','k');
-            set(gca, 'visible', 'off');
-            set(gcf,'color','white');
-            set(gcf,'Units','pixels','Position',[position(1), position(2), 100, 100]);  % control figure's position
-            set(gca,'Units','normalized', 'Position',[0 0 1 1]);  % control axis's position in figure
-            imgFreq = getframe(gcf);
-            imgFreq = imresize(imgFreq.cdata, [100 100]);  % expected dimension
-            imgFreq = rgb2gray(imgFreq);
-            imgFreq = im2double(imgFreq);
-            
+            % frequency domain plot            
+            imgFreq = reshape(sensorData(10001:20000,s), [100 100]);
+
             if strcmp(class(neuralNet{s}), 'SeriesNetwork') % CNN
                 img(:, :, 1) = imgTime;
                 img(:, :, 2) = imgFreq;
                 img(:, :, 3) = ones(100, 100);
-%                 imshow(img)
-%                 set(gcf, 'visible', 'on');
                 label{s}(count) = classify(neuralNet{s}, img);
                 labelIdx = str2double(str2mat(label{s}(count)));
             elseif strcmp(class(neuralNet{s}), 'network') % ANN
@@ -103,11 +70,13 @@ for day = dayStart : dayEnd
             tocRemain = toc(ticRemain);
             tRemain = tocRemain * (hourTotal - count) * length(sensorNum);
             [hours, mins, secs] = sec2hms(tRemain);
-            fprintf('\nSensor-%02d  %d-%02d-%02d  %02d:00-%02d:00  %s', ...
-                s, dateVec(count,1), dateVec(count,2), dateVec(count,3), ...
-                hour, hour+1, labelName{labelIdx})
-            fprintf('\nTotal: %d  Now: %d  ', hourTotal, count)
-            fprintf('About %02dh%02dm%05.2fs left.\n', hours, mins, secs)
+            if mod(count, 24) == 0 
+                fprintf('\nSensor-%02d  %d-%02d-%02d  %02d:00-%02d:00  %s', ...
+                    s, dateVec(count,1), dateVec(count,2), dateVec(count,3), ...
+                    hour, hour+1, labelName{labelIdx})
+                fprintf('\nTotal: %d  Now: %d  ', hourTotal, count)
+                fprintf('About %02dh%02dm%05.2fs left.\n', hours, mins, secs)
+            end
         end
         count = count+1;
         sensorData = [];

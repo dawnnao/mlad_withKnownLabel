@@ -688,6 +688,7 @@ fprintf('\nDetecting...\n')
 [labelTempNeural, countTempNeural, dateVec, dateSerial] = ...
     classifierMultiInTimeFreq(readRoot, sensor.numVec, date.serial.start, date.serial.end, ...
     dirName.home, sensor.label.name, sensor.neuralNet, fs);
+
 for s = sensor.numVec
     sensor.label.neuralNet{s} = labelTempNeural{s};
     for l = 1 : labelTotal
@@ -811,7 +812,7 @@ for s = sensor.numVec
     for n = 1 : 12
         for l = 1 : labelTotal
             aim = find(sensor.date.vec{s}(:,2) == n);
-            sensor.statsPerSensor{s}(n, l) = length(find(sensor.label.neuralNet{s}(aim) == l));
+            sensor.statsPerSensor{s}(n, l) = length(find(sensor.label.neuralNet{s}(aim) == categorical(l)));
         end
     end
     monthStatsPerSensorForPaper(sensor.statsPerSensor{s}, s, sensor.label.name, color);
@@ -832,7 +833,7 @@ for l = 1 : labelTotal
    for s = sensor.numVec
        for n = 1 : 12
            aim = find(sensor.date.vec{s}(:,2) == n);
-           sensor.statsPerLabel{l}(n, s) = length(find(sensor.label.neuralNet{s}(aim) == l));
+           sensor.statsPerLabel{l}(n, s) = length(find(sensor.label.neuralNet{s}(aim) == categorical(l)));
        end
    end
    if sum(sum(sensor.statsPerLabel{l})) > 0
@@ -853,7 +854,7 @@ dirName.plotSum = [dirName.plot 'statsSumUp/'];
 if ~exist(dirName.plotSum, 'dir'), mkdir(dirName.plotSum); end
 for s = sensor.numVec
    for l = 1 : labelTotal
-       statsSum(s, l) = length(find(sensor.label.neuralNet{s} == l));
+       statsSum(s, l) = length(find(sensor.label.neuralNet{s} == categorical(l)));
    end
 end
 
@@ -936,7 +937,11 @@ save(savePath, 'sensorLabelNetSerial', '-v7.3')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% temp
 
 %% comparison between detection results and actual labels of 2012
-labelNet = sensorLabelNetSerial';
+
+labelNet = [];
+for n = 1 : length(sensorLabelNetSerial)
+    labelNet(n) = str2double(str2mat(sensorLabelNetSerial(n)));
+end
 labelNet = ind2vec(labelNet);
 
 fprintf('\nLoading actual labels of 2012...\n')
