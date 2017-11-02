@@ -1,4 +1,6 @@
- function sensor = mlad111_withKnownLabel(readRoot, saveRoot, sensorNum, dateStart, dateEnd, sensorTrainRatio, sensorPSize, fs, step, labelName, seed, maxEpoch, batchSize, sizeFilter, numFilter, publicImagesetPath, labelPath)
+ function sensor = mlad000_withKnownLabel_fromRAM(readRoot, saveRoot, sensorNum, ...
+     dateStart, dateEnd, sensorTrainRatio, sensorPSize, fs, step, labelName, ...
+     seed, maxEpoch, publicImagesetPath, labelPath, img2012)
 % DESCRIPTION:
 %   This is a machine vision based anomaly detection (MVAD) pre-processing
 %   function for structural health monitoring data. The work flow is:
@@ -143,7 +145,7 @@ end
 
 dirName.home = sprintf('%s/%s--%s_sensor%s%s_trainRatio_%dpct_seed_%d/', saveRoot, date.start, date.end, sensorStr, netLayout, sensorTrainRatio*100, seed);
 dirName.home = GetFullPath(dirName.home);
-dirName.file = sprintf('%s--%s_sensor%s%s_globalEpoch_%d_batchSize_%d_sizeFilter_%d_numFilter_%d.mat', date.start, date.end, sensorStr, netLayout, maxEpoch(1), batchSize, sizeFilter, numFilter);
+dirName.file = sprintf('%s--%s_sensor%s%s_autoenc1epoch_%d_globalEpoch_%d.mat', date.start, date.end, sensorStr, netLayout, maxEpoch(1), maxEpoch(2));
 dirName.status = sprintf('%s--%s_sensor%s%s_status.mat', date.start, date.end, sensorStr, netLayout);
 
 if ~exist(dirName.home,'dir'), mkdir(dirName.home); end
@@ -187,14 +189,15 @@ for g = 1 : groupTotal
                 end
             end
         end
-    end
-            [~, sensor.date.vec{s}, sensor.date.serial{s}] = ...
-            glanceInTimeFreqMulti(readRoot, sensor.num{g}, date.serial.start, date.serial.end, dirName.all, '0-all_');
+
+        [~, sensor.date.vec{s}, sensor.date.serial{s}] = ...
+            glanceInTime(readRoot, s, date.serial.start, date.serial.end, dirName.all{s}, '0-all_');
     %     util.hours = size(sensor.date.vec{s}, 1);
 
         elapsedTime(1) = toc(t(1)); [hours, mins, secs] = sec2hms(elapsedTime(1));
         fprintf('\nSTEP1:\nSensor-%02d data plot completes, using %02d:%02d:%05.2f .\n', ...
             s, hours, mins, secs)
+    end
 end
 
 % update work flow status
@@ -283,7 +286,6 @@ while goNext == 0
                 labelByType = [s*ones(size(labelByType)) labelByType];
                 label2012.byType{n} = cat(1, label2012.byType{n}, labelByType);
                 labelByType = [];
-                label2012.actualNum(1, n) = size(label2012.byType{n}, 1);
             end
         end
         clear labelByType
@@ -294,24 +296,20 @@ while goNext == 0
             label2012.ratioByType(n) = size(label2012.byType{n}, 1) / label2012.amount * 100;
         end
         
-        [actualNumSorted, idx] = sort(label2012.actualNum);
+        label2012.trainRatioByType = label2012.ratioByType; %+ [-10.2679 -2 -2 3 -1.4321 6 6.7];
+        label2012.trainNum = ceil(label2012.amount * label2012.trainRatioByType/100 * sensorTrainRatio);
         
-        leftNumToTrain = ceil(label2012.amount * sensorTrainRatio);
-        averageNumToTrain =  ceil(leftNumToTrain / labelTotal);
-        count = 0;
-        for n = idx
-            if averageNumToTrain <= label2012.actualNum(n)
-                label2012.trainNum(n) = averageNumToTrain;
-                leftNumToTrain = leftNumToTrain - averageNumToTrain;
-                count = count + 1;
-            else
-                label2012.trainNum(n) = label2012.actualNum(n);
-                leftNumToTrain = leftNumToTrain - label2012.actualNum(n);
-                count = count + 1;
-                averageNumToTrain = ceil(leftNumToTrain/(labelTotal - count));
-            
+        % extra numbers will add to the previous type
+        for n = 1 : labelTotal
+            nn = labelTotal+1 - n;
+            if label2012.trainNum(nn) > (size(label2012.byType{nn}, 1) - 33)
+                diffe(nn) = label2012.trainNum(nn) - size(label2012.byType{nn}, 1) + 33;
+                label2012.trainNum(nn) = size(label2012.byType{nn}, 1) - 33;
+                label2012.trainNum(nn-1) = label2012.trainNum(nn-1) + diffe(nn);
             end
         end
+        % remove redundant number
+        label2012.trainNum(1) = label2012.trainNum(1) - (sum(label2012.trainNum) - ceil(label2012.amount * sensorTrainRatio));
         
         % get abs index
         for n = 1 : labelTotal
@@ -327,18 +325,14 @@ while goNext == 0
             end
             for m = 1 : label2012.trainNum(n)
                 path.sourceFolder = sprintf('%ssensor%02d/0-all/',publicImagesetPath , label2012.absIdx{n}(m, 1));
+                path.sourceFile = sprintf('%s0-all_absIdx_%d_%d_time.png', path.sourceFolder, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
+                path.goalFile = sprintf('%s%s/%s_absIdx_%02d_%d.png', dirName.trainSetByType, labelName{n}, labelName{n}, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
                 
-                path.sourceFile1 = sprintf('%s0-all_absIdx_%d_%d_time.png', path.sourceFolder, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
-                path.goalFile1 = sprintf('%s%s/%s_absIdx_%02d_%d_time.png', dirName.trainSetByType, labelName{n}, labelName{n}, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
-                
-                path.sourceFile2 = sprintf('%s0-all_absIdx_%d_%d_freq.png', path.sourceFolder, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
-                path.goalFile2 = sprintf('%s%s/%s_absIdx_%02d_%d_freq.png', dirName.trainSetByType, labelName{n}, labelName{n}, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
-                
-                if exist(path.sourceFile1, 'file')
+                if exist(path.sourceFile, 'file')
                    fprintf('\nGenerating training set... %s Now: %d Total: %d\n', labelName{n}, m, label2012.trainNum(n))
-                   img1 = imread(path.sourceFile1);
-                   img1 = im2double(img1);
-                   copyfile(path.sourceFile1, path.goalFile1, 'f');                   
+                   img = imread(path.sourceFile);
+                   img = im2double(img);
+                   copyfile(path.sourceFile, path.goalFile, 'f');
                 else
                    fprintf('\nCAUTION:\n%s\nNo such file! Filled with a zero.\n', path.full)
                    sensorData(1, 1) = zeros;
@@ -349,38 +343,14 @@ while goNext == 0
                    set(gca,'visible','off');
                    xlim([0 size(sensorData,1)]);
                    set(gcf,'color','white');
-                   img1 = getframe(gcf);
-                   img1 = imresize(img1.cdata, [100 100]);  % expected dimension
-                   img1 = rgb2gray(img1);
-                   img1 = im2double(img1);
-                   imwrite(img1, path.goalFile);
+                   img = getframe(gcf);
+                   img = imresize(img.cdata, [100 100]);  % expected dimension
+                   img = rgb2gray(img);
+                   img = im2double(img);
+                   imwrite(img, path.goalFile);
                 end
-                   imshow(img1)
-                   label2012.image{n}(1:10000, m) = single(img1(:));
-                   
-                if exist(path.sourceFile2, 'file')
-                   fprintf('\nGenerating training set... %s Now: %d Total: %d\n', labelName{n}, m, label2012.trainNum(n))
-                   img2 = imread(path.sourceFile2);
-                   img2 = im2double(img2);
-                   copyfile(path.sourceFile2, path.goalFile2, 'f');                   
-                else
-                   fprintf('\nCAUTION:\n%s\nNo such file! Filled with a zero.\n', path.full)
-                   sensorData(1, 1) = zeros;
-                   plot(sensorData(:, 1),'color','k');
-                   position = get(gcf,'Position');
-                   set(gcf,'Units','pixels','Position',[position(1), position(2), 100, 100]);  % control figure's position
-                   set(gca,'Units','normalized', 'Position',[0 0 1 1]);  % control axis's position in figure
-                   set(gca,'visible','off');
-                   xlim([0 size(sensorData,1)]);
-                   set(gcf,'color','white');
-                   img2 = getframe(gcf);
-                   img2 = imresize(img2.cdata, [100 100]);  % expected dimension
-                   img2 = rgb2gray(img2);
-                   img2 = im2double(img2);
-                   imwrite(img2, path.goalFile2);
-                end
-                   imshow(img2)
-                   label2012.image{n}(10001:20000, m) = single(img2(:));
+                   imshow(img)
+                   label2012.image{n}(:, m) = single(img(:));
                 
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                 [day, hour] = colLocation(label2012.absIdx{n}(m, 2) ,'2012-01-01');
@@ -498,9 +468,6 @@ date.serial.start = datenum(date.start, dirName.formatIn);  % day numbers from y
 date.serial.end   = datenum(date.end, dirName.formatIn);
 % hourTotal = (date.serial.end-date.serial.start+1)*24;
 
-dirName.net = [dirName.home sprintf('/net_globalEpoch_%d_batchSize_%d_sizeFilter_%d_numFilter_%d/', maxEpoch(1), batchSize, sizeFilter, numFilter)];
-if ~exist(dirName.net,'dir'), mkdir(dirName.net); end
-
 fprintf('\nData combining...\n')
 for g = 1 : groupTotal
     feature{g}.image = [];
@@ -511,101 +478,141 @@ for g = 1 : groupTotal
         feature{g}.label.manual = [feature{g}.label.manual label2012.imgLabel{l}];
     end
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % convert feature into 4D matrices for CNN training
-    numTemp = size(feature{g}.image, 2);
-    feature{g}.image = reshape(feature{g}.image, [100, 100, 2, numTemp]);
-    % for define output layer size
-    feature{g}.label.activeLabelNum = length(unique(vec2ind(feature{g}.label.manual)));
-end
-
-% add channel-3 into image
-for n = 1 : numTemp
-    feature{g}.image(:, :, 3, n) = ones(100, 100);
 end
 
 rng(seed,'twister');
 fprintf('\nTraining...\n')
 for g = 1 : groupTotal
     ticRemain = tic;
-    randp{g} = randperm(size(feature{g}.image, 4));  % randomization
-    feature{g}.image = feature{g}.image(:, :, :, randp{g});
+    randp{g} = randperm(size(feature{g}.image,2));  % randomization
+    feature{g}.image = feature{g}.image(:, randp{g});
     feature{g}.label.manual = feature{g}.label.manual(:, randp{g});
     for s = sensor.num{g}(1)
+        % train deep neural network
         feature{g}.trainRatio = 50/100;
-        feature{g}.trainSize = floor(size(feature{g}.image,4) * feature{g}.trainRatio);
-        % design architecture of CNN
-        layers = [imageInputLayer([100 100 3])
-                  
-                  % design 1
-                  convolution2dLayer(sizeFilter, numFilter)
-                  reluLayer
-                  maxPooling2dLayer(2,'Stride',2)
+        feature{g}.trainSize = floor(size(feature{g}.image,2) * feature{g}.trainRatio);
+        % hidden layer 1
+        hiddenSize(1) = 100;
+        autoenc{1} = trainAutoencoder(feature{g}.image(:,1 : feature{g}.trainSize),...
+            hiddenSize(1), ...
+            'MaxEpochs',maxEpoch(1), ...
+            'L2WeightRegularization',0.004, ...
+            'SparsityRegularization',4, ...
+            'SparsityProportion',0.15, ...
+            'ScaleData', false, ...
+            'UseGPU', true);
+        feat{1} = encode(autoenc{1},feature{g}.image(:,1 : feature{g}.trainSize));
+        % hidden layer 2
+        hiddenSize(2) = 75;
+        autoenc{2} = trainAutoencoder(feat{1},hiddenSize(2), ...
+            'MaxEpochs',maxEpoch(2), ...
+            'L2WeightRegularization',0.002, ...
+            'SparsityRegularization',4, ...
+            'SparsityProportion',0.1, ...
+            'ScaleData', false, ...
+            'UseGPU', true);
+        feat{2} = encode(autoenc{2},feat{1});
+        % hidden layer 3
+        hiddenSize(3) = 50;
+        autoenc{3} = trainAutoencoder(feat{2},hiddenSize(3), ...
+            'MaxEpochs',maxEpoch(2), ...
+            'L2WeightRegularization',0.002, ...
+            'SparsityRegularization',4, ...
+            'SparsityProportion',0.1, ...
+            'ScaleData', false, ...
+            'UseGPU', true);
+        feat{3} = encode(autoenc{3},feat{2});
+        % softmax classifier
+        softnet = trainSoftmaxLayer(feat{3}, feature{g}.label.manual(:,1 : feature{g}.trainSize),...
+            'MaxEpochs',maxEpoch(2));
+        % stack
+        sensor.neuralNet{s} = stack(autoenc{1},autoenc{2},autoenc{3},softnet);
+%         view(sensor.neuralNet{s})
+%         plotWeights(autoenc{1});
+%         plotWeights(autoenc{2});
+%         plotWeights(autoenc{3});
+%         set(findobj(0,'type','figure'),'visible','on');
+%         set(gcf,'color','white');
 
-%                   % design 2
-%                   convolution2dLayer(10, numFilter)
-%                   convolution2dLayer(6, 40)
-%                   reluLayer
-%                   maxPooling2dLayer(2,'Stride',2)
-                  
-                  fullyConnectedLayer(feature{g}.label.activeLabelNum)
-                  softmaxLayer
-                  classificationLayer()];
-
-        % set options of training
-        options = trainingOptions('sgdm','MaxEpochs',maxEpoch(1), ...
-            'InitialLearnRate',0.0001, 'MiniBatchSize',batchSize, 'Momentum',0.8,...
-            'OutputFcn',@plotTrainingAccuracy,'ExecutionEnvironment','gpu');
-
-        % train CNN
-        trainLabel = categorical(vec2ind(feature{g}.label.manual));
-        [sensor.neuralNet{s},sensor.trainRecord{s}] = ...
-            trainNetwork(feature{g}.image(:, :, :, 1:feature{g}.trainSize), ...
-            trainLabel(1:feature{g}.trainSize), layers, options);
+        % fine tuning
+%         sensor.neuralNet{s}.divideParam.trainRatio = 70/100;
+%         sensor.neuralNet{s}.divideParam.valRatio = 15/100;
+%         sensor.neuralNet{s}.divideParam.testRatio = 15/100;
+        [sensor.neuralNet{s},sensor.trainRecord{s}] = train(sensor.neuralNet{s}, ...
+            feature{g}.image(:,1 : feature{g}.trainSize), ...
+            feature{g}.label.manual(:,1 : feature{g}.trainSize), 'useGPU','yes');
+        nntraintool close
+        
+        
+        yTrain = sensor.neuralNet{s}(feature{g}.image(:,1 : feature{g}.trainSize));
+        yVali = sensor.neuralNet{s}(feature{g}.image(:,feature{g}.trainSize+1 : end));
+        
+        dirName.net = [dirName.home sprintf('/net_autoenc1epoch_%d_globalEpoch_%d/', maxEpoch(1), maxEpoch(2))];
+        if ~exist(dirName.net,'dir'), mkdir(dirName.net); end
+        
+        temp.jFrame = view(sensor.neuralNet{s});
+        % create it in a MATLAB figure
+        temp.hFig = figure('Menubar','none', 'Position',[100 100 960 166]);
+        jpanel = get(temp.jFrame,'ContentPane');
+        [~,h] = javacomponent(jpanel);
+        set(h, 'units','normalized', 'position',[0 0 1 1]);
+        % close java window
+        temp.jFrame.setVisible(false);
+        temp.jFrame.dispose();
+        % print to file
+        set(temp.hFig, 'PaperPositionMode', 'auto');
+        saveas(temp.hFig, [dirName.net sprintf('group-%d_netArchitecture.png', g)]);
+        % close figure
+        close(temp.hFig)
+        
+        figure
+        plotperform(sensor.trainRecord{s});
         box on
+        ylabel('Cross-Entropy');
+%         set(gca, 'YScale', 'log');
         set(gca, 'fontsize',11, 'fontname', 'Times New Roman', 'fontweight', 'bold');
-        saveas(gcf,[dirName.net sprintf('group-%d_netAccuracy.png', g)]);
+        saveas(gcf,[dirName.net sprintf('group-%d_netPerform.png', g)]);
         close
+        
+        figure
+        plotconfusion(yTrain, feature{g}.label.manual(:,1 : feature{g}.trainSize));
+        xlabel('Predicted');
+        ylabel('Actual');
+        title([]);
+        set(gca,'fontname', 'Times New Roman', 'fontweight', 'bold', 'fontsize', 12);
+        % minimize white space
+        ax = gca;
+        outerpos = ax.OuterPosition;
+        ti = ax.TightInset; 
+        left = outerpos(1) + ti(1);
+        bottom = outerpos(2) + ti(2) + 0.03;
+        ax_width = outerpos(3) - ti(1) - ti(3);
+        ax_height = outerpos(4) - ti(2) - ti(4) - 0.03;
+        ax.Position = [left bottom ax_width ax_height];
+        saveas(gcf,[dirName.net sprintf('group-%d_netConfuseTrain.png', g)]);
+        close
+        
+        figure
+        plotconfusion(yVali, feature{g}.label.manual(:,feature{g}.trainSize+1 : end));
+        xlabel('Predicted');
+        ylabel('Actual');
+        title([]);
+        set(gca,'fontname', 'Times New Roman', 'fontweight', 'bold', 'fontsize', 12);
+        % minimize white space
+        ax = gca;
+        outerpos = ax.OuterPosition;
+        ti = ax.TightInset; 
+        left = outerpos(1) + ti(1);
+        bottom = outerpos(2) + ti(2) + 0.03;
+        ax_width = outerpos(3) - ti(1) - ti(3);
+        ax_height = outerpos(4) - ti(2) - ti(4) - 0.03;
+        ax.Position = [left bottom ax_width ax_height];
+        saveas(gcf,[dirName.net sprintf('group-%d_netConfuseVali.png', g)]);
+        close
+        clear h jpanel
+        temp = rmfield(temp, {'jFrame', 'hFig'});
+        
     end
-    
-    yTrain = predict(sensor.neuralNet{s}, feature{g}.image(:, :, :, 1:feature{g}.trainSize));
-    figure
-    plotconfusion(feature{g}.label.manual(:, 1:feature{g}.trainSize), yTrain');
-    xlabel('Predicted');
-    ylabel('Actual');
-    title([]);
-    set(gca,'fontname', 'Times New Roman', 'fontweight', 'bold', 'fontsize', 12);
-    % minimize white space
-    ax = gca;
-    outerpos = ax.OuterPosition;
-    ti = ax.TightInset; 
-    left = outerpos(1) + ti(1);
-    bottom = outerpos(2) + ti(2) + 0.03;
-    ax_width = outerpos(3) - ti(1) - ti(3);
-    ax_height = outerpos(4) - ti(2) - ti(4) - 0.03;
-    ax.Position = [left bottom ax_width ax_height];
-    saveas(gcf,[dirName.net sprintf('group-%d_netConfuseTrain.png', g)]);
-    close
-    
-    yVali = predict(sensor.neuralNet{s}, feature{g}.image(:, :, :, feature{g}.trainSize+1:end));
-    figure
-    plotconfusion(feature{g}.label.manual(:, feature{g}.trainSize+1:end), yVali');
-%     plotconfusion(feature{g}.label.manual, yTrain);
-    xlabel('Predicted');
-    ylabel('Actual');
-    title([]);
-    set(gca,'fontname', 'Times New Roman', 'fontweight', 'bold', 'fontsize', 12);
-    % minimize white space
-    ax = gca;
-    outerpos = ax.OuterPosition;
-    ti = ax.TightInset; 
-    left = outerpos(1) + ti(1);
-    bottom = outerpos(2) + ti(2) + 0.03;
-    ax_width = outerpos(3) - ti(1) - ti(3);
-    ax_height = outerpos(4) - ti(2) - ti(4) - 0.03;
-    ax.Position = [left bottom ax_width ax_height];
-    saveas(gcf,[dirName.net sprintf('group-%d_netConfuseVali.png', g)]);
-    close
-    
     % copy to every sensor
     if length(sensor.num{g} > 1)
         for s = sensor.num{g}(2:end)
@@ -623,7 +630,7 @@ for g = 1 : groupTotal
 end
 
 elapsedTime(3) = toc(t(3)); [hours, mins, secs] = sec2hms(elapsedTime(3));
-fprintf('\n\n\nSTEP3:\nNeural network(s) training completes, using %02dh%02dm%05.2fs .\n', ...
+fprintf('\n\n\nSTEP3:\nDeep neural network(s) training completes, using %02dh%02dm%05.2fs .\n', ...
     hours, mins, secs)
 
 % update work flow status
@@ -638,7 +645,7 @@ tail = 'Continue to anomaly detection...';
 savePath = [dirName.home dirName.file];
 fprintf('\nSaving results...\nLocation: %s\n', savePath)
 if exist(savePath, 'file'), delete(savePath); end
-save(savePath, '-v7.3')
+save(savePath, '-v7.3', '-regexp', '^(?!(img2012)$).') 
 if isempty(step)
     rightInput = 0;
     while rightInput == 0
@@ -686,9 +693,8 @@ date.serial.end   = datenum(date.end, dirName.formatIn);
 % anomaly detection
 fprintf('\nDetecting...\n')
 [labelTempNeural, countTempNeural, dateVec, dateSerial] = ...
-    classifierMultiInTimeFreq(readRoot, sensor.numVec, date.serial.start, date.serial.end, ...
-    dirName.home, sensor.label.name, sensor.neuralNet, fs);
-
+    classifierMultiInTime_fromRAM(readRoot, sensor.numVec, date.serial.start, date.serial.end, ...
+    dirName.home, sensor.label.name, sensor.neuralNet, img2012);
 for s = sensor.numVec
     sensor.label.neuralNet{s} = labelTempNeural{s};
     for l = 1 : labelTotal
@@ -715,7 +721,7 @@ tail = 'Continue to do anomaly statistics...';
 savePath = [dirName.home dirName.file];
 fprintf('\nSaving results...\nLocation: %s\n', savePath)
 if exist(savePath, 'file'), delete(savePath); end
-save(savePath, '-v7.3')
+save(savePath, '-v7.3', '-regexp', '^(?!(img2012)$).')
 if isempty(step)
     rightInput = 0;
     while rightInput == 0
@@ -762,7 +768,7 @@ hourTotal = (date.serial.end-date.serial.start+1)*24;
 
 % reportCover; % make report cover!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-dirName.plot = [dirName.home sprintf('/plot_globalEpoch_%d/', maxEpoch(1))];
+dirName.plot = [dirName.home sprintf('/plot__autoenc1epoch_%d_globalEpoch_%d/', maxEpoch(1), maxEpoch(2))];
 if ~exist(dirName.plot, 'dir'), mkdir(dirName.plot); end
 
 % plot panorama
@@ -812,7 +818,7 @@ for s = sensor.numVec
     for n = 1 : 12
         for l = 1 : labelTotal
             aim = find(sensor.date.vec{s}(:,2) == n);
-            sensor.statsPerSensor{s}(n, l) = length(find(sensor.label.neuralNet{s}(aim) == categorical(l)));
+            sensor.statsPerSensor{s}(n, l) = length(find(sensor.label.neuralNet{s}(aim) == l));
         end
     end
     monthStatsPerSensorForPaper(sensor.statsPerSensor{s}, s, sensor.label.name, color);
@@ -833,7 +839,7 @@ for l = 1 : labelTotal
    for s = sensor.numVec
        for n = 1 : 12
            aim = find(sensor.date.vec{s}(:,2) == n);
-           sensor.statsPerLabel{l}(n, s) = length(find(sensor.label.neuralNet{s}(aim) == categorical(l)));
+           sensor.statsPerLabel{l}(n, s) = length(find(sensor.label.neuralNet{s}(aim) == l));
        end
    end
    if sum(sum(sensor.statsPerLabel{l})) > 0
@@ -854,7 +860,7 @@ dirName.plotSum = [dirName.plot 'statsSumUp/'];
 if ~exist(dirName.plotSum, 'dir'), mkdir(dirName.plotSum); end
 for s = sensor.numVec
    for l = 1 : labelTotal
-       statsSum(s, l) = length(find(sensor.label.neuralNet{s} == categorical(l)));
+       statsSum(s, l) = length(find(sensor.label.neuralNet{s} == l));
    end
 end
 
@@ -932,15 +938,12 @@ sensorLabelNetSerial = [];
 for mTemp = 1 : 38
     sensorLabelNetSerial = cat(1, sensorLabelNetSerial, sensor.label.neuralNet{mTemp});
 end
-% savePath = [GetFullPath(dirName.home) '/' 'sensorLabelNetSerial.mat'];
-% save(savePath, 'sensorLabelNetSerial', '-v7.3')
+savePath = [GetFullPath(dirName.home) '/' 'sensorLabelNetSerial.mat'];
+save(savePath, 'sensorLabelNetSerial', '-v7.3')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% temp
 
 %% comparison between detection results and actual labels of 2012
-labelNet = [];
-for n = 1 : length(sensorLabelNetSerial)
-    labelNet(n) = str2double(str2mat(sensorLabelNetSerial(n)));
-end
+labelNet = sensorLabelNetSerial';
 labelNet = ind2vec(labelNet);
 
 fprintf('\nLoading actual labels of 2012...\n')
@@ -989,7 +992,7 @@ tail = 'Continue to automatically remove outliers...';
 savePath = [dirName.home dirName.file];
 fprintf('\nSaving results...\nLocation: %s\n', savePath)
 if exist(savePath, 'file'), delete(savePath); end
-save(savePath, '-v7.3')
+save(savePath, '-v7.3', '-regexp', '^(?!(img2012)$).') 
 if isempty(step)
     rightInput = 0;
     while rightInput == 0

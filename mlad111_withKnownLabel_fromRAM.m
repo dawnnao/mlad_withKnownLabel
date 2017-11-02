@@ -640,7 +640,7 @@ tail = 'Continue to anomaly detection...';
 savePath = [dirName.home dirName.file];
 fprintf('\nSaving results...\nLocation: %s\n', savePath)
 if exist(savePath, 'file'), delete(savePath); end
-save(savePath, '-v7.3')
+save(savePath, '-v7.3', '-regexp', '^(?!(img2012)$).')
 if isempty(step)
     rightInput = 0;
     while rightInput == 0
@@ -939,7 +939,6 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% temp
 
 %% comparison between detection results and actual labels of 2012
-
 labelNet = [];
 for n = 1 : length(sensorLabelNetSerial)
     labelNet(n) = str2double(str2mat(sensorLabelNetSerial(n)));
@@ -992,7 +991,7 @@ tail = 'Continue to automatically remove outliers...';
 savePath = [dirName.home dirName.file];
 fprintf('\nSaving results...\nLocation: %s\n', savePath)
 if exist(savePath, 'file'), delete(savePath); end
-save(savePath, '-v7.3')
+save(savePath, '-v7.3', '-regexp', '^(?!(img2012)$).')
 if isempty(step)
     rightInput = 0;
     while rightInput == 0

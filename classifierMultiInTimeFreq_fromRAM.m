@@ -1,4 +1,5 @@
-function [label, labelCount, dateVec, dateSerial] = classifierMultiInTimeFreq_fromRAM(pathRead, sensorNum, dayStart, dayEnd, pathSave, labelName, neuralNet, fs, img2012)
+function [label, labelCount, dateVec, dateSerial] = classifierMultiInTimeFreq_fromRAM(pathRead, ...
+    sensorNum, dayStart, dayEnd, pathSave, labelName, neuralNet, fs, img2012)
 % DESCRIPTION:
 %   This is a subfunction of mvad.m, to do step 4 - anomaly detection.
 
@@ -39,14 +40,13 @@ for day = dayStart : dayEnd
             sensorData(:, s) = img2012.sensor.image{s}(:, count);
         end
         
-%         set(gcf, 'visible', 'off');
         for s = sensorNum
             ticRemain = tic;
             % time series signals plot            
-            imgTime = reshape(sensorData(1:10000,s), [100 100]);           
+            imgTime = reshape(sensorData(1:10000, s), [100 100]);           
             
             % frequency domain plot            
-            imgFreq = reshape(sensorData(10001:20000,s), [100 100]);
+            imgFreq = reshape(sensorData(10001:20000, s), [100 100]);
 
             if strcmp(class(neuralNet{s}), 'SeriesNetwork') % CNN
                 img(:, :, 1) = imgTime;
@@ -70,7 +70,7 @@ for day = dayStart : dayEnd
             tocRemain = toc(ticRemain);
             tRemain = tocRemain * (hourTotal - count) * length(sensorNum);
             [hours, mins, secs] = sec2hms(tRemain);
-            if mod(count, 24) == 0 
+            if mod(count, 24) == 0
                 fprintf('\nSensor-%02d  %d-%02d-%02d  %02d:00-%02d:00  %s', ...
                     s, dateVec(count,1), dateVec(count,2), dateVec(count,3), ...
                     hour, hour+1, labelName{labelIdx})

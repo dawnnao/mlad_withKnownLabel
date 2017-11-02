@@ -1,4 +1,6 @@
- function sensor = mlad111_withKnownLabel(readRoot, saveRoot, sensorNum, dateStart, dateEnd, sensorTrainRatio, sensorPSize, fs, step, labelName, seed, maxEpoch, batchSize, sizeFilter, numFilter, publicImagesetPath, labelPath)
+ function sensor = mlad011_withKnownLabel_fromRAM(readRoot, saveRoot, sensorNum, ...
+     dateStart, dateEnd, sensorTrainRatio, sensorPSize, fs, step, labelName, ...
+     seed, maxEpoch, batchSize, sizeFilter, numFilter, publicImagesetPath, labelPath, img2012)
 % DESCRIPTION:
 %   This is a machine vision based anomaly detection (MVAD) pre-processing
 %   function for structural health monitoring data. The work flow is:
@@ -283,7 +285,6 @@ while goNext == 0
                 labelByType = [s*ones(size(labelByType)) labelByType];
                 label2012.byType{n} = cat(1, label2012.byType{n}, labelByType);
                 labelByType = [];
-                label2012.actualNum(1, n) = size(label2012.byType{n}, 1);
             end
         end
         clear labelByType
@@ -294,24 +295,20 @@ while goNext == 0
             label2012.ratioByType(n) = size(label2012.byType{n}, 1) / label2012.amount * 100;
         end
         
-        [actualNumSorted, idx] = sort(label2012.actualNum);
+        label2012.trainRatioByType = label2012.ratioByType; %+ [-10.2679 -2 -2 3 -1.4321 6 6.7];
+        label2012.trainNum = ceil(label2012.amount * label2012.trainRatioByType/100 * sensorTrainRatio);
         
-        leftNumToTrain = ceil(label2012.amount * sensorTrainRatio);
-        averageNumToTrain =  ceil(leftNumToTrain / labelTotal);
-        count = 0;
-        for n = idx
-            if averageNumToTrain <= label2012.actualNum(n)
-                label2012.trainNum(n) = averageNumToTrain;
-                leftNumToTrain = leftNumToTrain - averageNumToTrain;
-                count = count + 1;
-            else
-                label2012.trainNum(n) = label2012.actualNum(n);
-                leftNumToTrain = leftNumToTrain - label2012.actualNum(n);
-                count = count + 1;
-                averageNumToTrain = ceil(leftNumToTrain/(labelTotal - count));
-            
+        % extra numbers will add to the previous type
+        for n = 1 : labelTotal
+            nn = labelTotal+1 - n;
+            if label2012.trainNum(nn) > (size(label2012.byType{nn}, 1) - 33)
+                diffe(nn) = label2012.trainNum(nn) - size(label2012.byType{nn}, 1) + 33;
+                label2012.trainNum(nn) = size(label2012.byType{nn}, 1) - 33;
+                label2012.trainNum(nn-1) = label2012.trainNum(nn-1) + diffe(nn);
             end
         end
+        % remove redundant number
+        label2012.trainNum(1) = label2012.trainNum(1) - (sum(label2012.trainNum) - ceil(label2012.amount * sensorTrainRatio));
         
         % get abs index
         for n = 1 : labelTotal
@@ -535,18 +532,9 @@ for g = 1 : groupTotal
         feature{g}.trainSize = floor(size(feature{g}.image,4) * feature{g}.trainRatio);
         % design architecture of CNN
         layers = [imageInputLayer([100 100 3])
-                  
-                  % design 1
                   convolution2dLayer(sizeFilter, numFilter)
                   reluLayer
                   maxPooling2dLayer(2,'Stride',2)
-
-%                   % design 2
-%                   convolution2dLayer(10, numFilter)
-%                   convolution2dLayer(6, 40)
-%                   reluLayer
-%                   maxPooling2dLayer(2,'Stride',2)
-                  
                   fullyConnectedLayer(feature{g}.label.activeLabelNum)
                   softmaxLayer
                   classificationLayer()];
@@ -638,7 +626,7 @@ tail = 'Continue to anomaly detection...';
 savePath = [dirName.home dirName.file];
 fprintf('\nSaving results...\nLocation: %s\n', savePath)
 if exist(savePath, 'file'), delete(savePath); end
-save(savePath, '-v7.3')
+save(savePath, '-v7.3', '-regexp', '^(?!(img2012)$).') 
 if isempty(step)
     rightInput = 0;
     while rightInput == 0
@@ -686,9 +674,8 @@ date.serial.end   = datenum(date.end, dirName.formatIn);
 % anomaly detection
 fprintf('\nDetecting...\n')
 [labelTempNeural, countTempNeural, dateVec, dateSerial] = ...
-    classifierMultiInTimeFreq(readRoot, sensor.numVec, date.serial.start, date.serial.end, ...
-    dirName.home, sensor.label.name, sensor.neuralNet, fs);
-
+    classifierMultiInTimeFreq_fromRAM(readRoot, sensor.numVec, date.serial.start, date.serial.end, ...
+    dirName.home, sensor.label.name, sensor.neuralNet, fs, img2012);
 for s = sensor.numVec
     sensor.label.neuralNet{s} = labelTempNeural{s};
     for l = 1 : labelTotal
@@ -715,7 +702,7 @@ tail = 'Continue to do anomaly statistics...';
 savePath = [dirName.home dirName.file];
 fprintf('\nSaving results...\nLocation: %s\n', savePath)
 if exist(savePath, 'file'), delete(savePath); end
-save(savePath, '-v7.3')
+save(savePath, '-v7.3', '-regexp', '^(?!(img2012)$).')
 if isempty(step)
     rightInput = 0;
     while rightInput == 0
@@ -812,7 +799,7 @@ for s = sensor.numVec
     for n = 1 : 12
         for l = 1 : labelTotal
             aim = find(sensor.date.vec{s}(:,2) == n);
-            sensor.statsPerSensor{s}(n, l) = length(find(sensor.label.neuralNet{s}(aim) == categorical(l)));
+            sensor.statsPerSensor{s}(n, l) = length(find(sensor.label.neuralNet{s}(aim) == l));
         end
     end
     monthStatsPerSensorForPaper(sensor.statsPerSensor{s}, s, sensor.label.name, color);
@@ -833,7 +820,7 @@ for l = 1 : labelTotal
    for s = sensor.numVec
        for n = 1 : 12
            aim = find(sensor.date.vec{s}(:,2) == n);
-           sensor.statsPerLabel{l}(n, s) = length(find(sensor.label.neuralNet{s}(aim) == categorical(l)));
+           sensor.statsPerLabel{l}(n, s) = length(find(sensor.label.neuralNet{s}(aim) == l));
        end
    end
    if sum(sum(sensor.statsPerLabel{l})) > 0
@@ -854,7 +841,7 @@ dirName.plotSum = [dirName.plot 'statsSumUp/'];
 if ~exist(dirName.plotSum, 'dir'), mkdir(dirName.plotSum); end
 for s = sensor.numVec
    for l = 1 : labelTotal
-       statsSum(s, l) = length(find(sensor.label.neuralNet{s} == categorical(l)));
+       statsSum(s, l) = length(find(sensor.label.neuralNet{s} == l));
    end
 end
 
@@ -931,7 +918,7 @@ sensor.ratioOfCategory(3,:) = (sensor.ratioOfCategory(1,:)./sensor.ratioOfCatego
 sensorLabelNetSerial = [];
 for mTemp = 1 : 38
     sensorLabelNetSerial = cat(1, sensorLabelNetSerial, sensor.label.neuralNet{mTemp});
-end
+% end
 % savePath = [GetFullPath(dirName.home) '/' 'sensorLabelNetSerial.mat'];
 % save(savePath, 'sensorLabelNetSerial', '-v7.3')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% temp
@@ -989,7 +976,7 @@ tail = 'Continue to automatically remove outliers...';
 savePath = [dirName.home dirName.file];
 fprintf('\nSaving results...\nLocation: %s\n', savePath)
 if exist(savePath, 'file'), delete(savePath); end
-save(savePath, '-v7.3')
+save(savePath, '-v7.3', '-regexp', '^(?!(img2012)$).') 
 if isempty(step)
     rightInput = 0;
     while rightInput == 0

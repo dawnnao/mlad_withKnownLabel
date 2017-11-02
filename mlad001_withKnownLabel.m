@@ -890,12 +890,15 @@ sensorLabelNetSerial = [];
 for mTemp = 1 : 38
     sensorLabelNetSerial = cat(1, sensorLabelNetSerial, sensor.label.neuralNet{mTemp});
 end
-savePath = [GetFullPath(dirName.home) '/' 'sensorLabelNetSerial.mat'];
-save(savePath, 'sensorLabelNetSerial', '-v7.3')
+% savePath = [GetFullPath(dirName.home) '/' 'sensorLabelNetSerial.mat'];
+% save(savePath, 'sensorLabelNetSerial', '-v7.3')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% temp
 
 %% comparison between detection results and actual labels of 2012
-labelNet = sensorLabelNetSerial';
+labelNet = [];
+for n = 1 : length(sensorLabelNetSerial)
+    labelNet(n) = str2double(str2mat(sensorLabelNetSerial(n)));
+end
 labelNet = ind2vec(labelNet);
 
 fprintf('\nLoading actual labels of 2012...\n')
