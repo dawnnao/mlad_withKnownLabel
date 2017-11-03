@@ -579,6 +579,14 @@ for g = 1 : groupTotal
         saveas(gcf,[dirName.net sprintf('group-%d_netPerform.png', g)]);
         close
         
+        [confTrainC, confTrainCM, confTrainInd, confTrainPer] = ...
+            confusion(feature{g}.label.manual(:, 1:feature{g}.trainSize), yTrain); %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        confTrainAccuracy = 1 - confTrainC;
+        confTrainPrecision = confTrainPer(:, 3);        
+        for m = 1 : 7
+           confTrainRecall(m, 1) = confTrainCM(m, m) / sum(confTrainCM(m, :)); 
+        end
+        
         figure
         plotconfusion(yTrain, feature{g}.label.manual(:,1 : feature{g}.trainSize));
         xlabel('Predicted');
@@ -596,6 +604,14 @@ for g = 1 : groupTotal
         ax.Position = [left bottom ax_width ax_height];
         saveas(gcf,[dirName.net sprintf('group-%d_netConfuseTrain.png', g)]);
         close
+        
+        [confValiC, confValiCM, confValiInd, confValiPer] = ...
+            confusion(feature{g}.label.manual(:,feature{g}.trainSize+1 : end), yVali); %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        confValiAccuracy = 1 - confValiC;
+        confValiPrecision = confValiPer(:, 3);        
+        for m = 1 : 7
+           confValiRecall(m, 1) = confValiCM(m, m) / sum(confValiCM(m, :)); 
+        end
         
         figure
         plotconfusion(yVali, feature{g}.label.manual(:,feature{g}.trainSize+1 : end));
@@ -959,6 +975,13 @@ for mTemp = 1 : 38
     labelMan = cat(1, labelMan, sensorTemp.sensor.label.manual{mTemp}');
 end
 labelMan = ind2vec(labelMan');
+
+[confTestC, confTestCM, confTestInd, confTestPer] = confusion(labelMan, labelNet); %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+confTestAccuracy = 1 - confTestC;
+confTestPrecision = confTestPer(:, 3);        
+for m = 1 : 7
+   confTestRecall(m, 1) = confTestCM(m, m) / sum(confTestCM(m, :)); 
+end
 
 figure
 plotconfusion(labelNet, labelMan)

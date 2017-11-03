@@ -491,62 +491,64 @@ for g = 1 : groupTotal
     feature{g}.image = feature{g}.image(:, randp{g});
     feature{g}.label.manual = feature{g}.label.manual(:, randp{g});
     for s = sensor.num{g}(1)
-        % train deep neural network
-        feature{g}.trainRatio = 50/100;
-        feature{g}.trainSize = floor(size(feature{g}.image,2) * feature{g}.trainRatio);
-        % hidden layer 1
-        hiddenSize(1) = 100;
-        autoenc{1} = trainAutoencoder(feature{g}.image(:,1 : feature{g}.trainSize),...
-            hiddenSize(1), ...
-            'MaxEpochs',maxEpoch(1), ...
-            'L2WeightRegularization',0.004, ...
-            'SparsityRegularization',4, ...
-            'SparsityProportion',0.15, ...
-            'ScaleData', false, ...
-            'UseGPU', true);
-        feat{1} = encode(autoenc{1},feature{g}.image(:,1 : feature{g}.trainSize));
-        % hidden layer 2
-        hiddenSize(2) = 75;
-        autoenc{2} = trainAutoencoder(feat{1},hiddenSize(2), ...
-            'MaxEpochs',maxEpoch(2), ...
-            'L2WeightRegularization',0.002, ...
-            'SparsityRegularization',4, ...
-            'SparsityProportion',0.1, ...
-            'ScaleData', false, ...
-            'UseGPU', true);
-        feat{2} = encode(autoenc{2},feat{1});
-        % hidden layer 3
-        hiddenSize(3) = 50;
-        autoenc{3} = trainAutoencoder(feat{2},hiddenSize(3), ...
-            'MaxEpochs',maxEpoch(2), ...
-            'L2WeightRegularization',0.002, ...
-            'SparsityRegularization',4, ...
-            'SparsityProportion',0.1, ...
-            'ScaleData', false, ...
-            'UseGPU', true);
-        feat{3} = encode(autoenc{3},feat{2});
-        % softmax classifier
-        softnet = trainSoftmaxLayer(feat{3}, feature{g}.label.manual(:,1 : feature{g}.trainSize),...
-            'MaxEpochs',maxEpoch(2));
-        % stack
-        sensor.neuralNet{s} = stack(autoenc{1},autoenc{2},autoenc{3},softnet);
-%         view(sensor.neuralNet{s})
-%         plotWeights(autoenc{1});
-%         plotWeights(autoenc{2});
-%         plotWeights(autoenc{3});
-%         set(findobj(0,'type','figure'),'visible','on');
-%         set(gcf,'color','white');
+%         % train deep neural network
+%         feature{g}.trainRatio = 50/100;
+%         feature{g}.trainSize = floor(size(feature{g}.image,2) * feature{g}.trainRatio);
+%         % hidden layer 1
+%         hiddenSize(1) = 100;
+%         autoenc{1} = trainAutoencoder(feature{g}.image(:,1 : feature{g}.trainSize),...
+%             hiddenSize(1), ...
+%             'MaxEpochs',maxEpoch(1), ...
+%             'L2WeightRegularization',0.004, ...
+%             'SparsityRegularization',4, ...
+%             'SparsityProportion',0.15, ...
+%             'ScaleData', false, ...
+%             'UseGPU', false);
+%         feat{1} = encode(autoenc{1},feature{g}.image(:,1 : feature{g}.trainSize));
+%         % hidden layer 2
+%         hiddenSize(2) = 75;
+%         autoenc{2} = trainAutoencoder(feat{1},hiddenSize(2), ...
+%             'MaxEpochs',maxEpoch(2), ...
+%             'L2WeightRegularization',0.002, ...
+%             'SparsityRegularization',4, ...
+%             'SparsityProportion',0.1, ...
+%             'ScaleData', false, ...
+%             'UseGPU', true);
+%         feat{2} = encode(autoenc{2},feat{1});
+%         % hidden layer 3
+%         hiddenSize(3) = 50;
+%         autoenc{3} = trainAutoencoder(feat{2},hiddenSize(3), ...
+%             'MaxEpochs',maxEpoch(2), ...
+%             'L2WeightRegularization',0.002, ...
+%             'SparsityRegularization',4, ...
+%             'SparsityProportion',0.1, ...
+%             'ScaleData', false, ...
+%             'UseGPU', true);
+%         feat{3} = encode(autoenc{3},feat{2});
+%         % softmax classifier
+%         softnet = trainSoftmaxLayer(feat{3}, feature{g}.label.manual(:,1 : feature{g}.trainSize),...
+%             'MaxEpochs',maxEpoch(2));
+%         % stack
+%         sensor.neuralNet{s} = stack(autoenc{1},autoenc{2},autoenc{3},softnet);
+% %         view(sensor.neuralNet{s})
+% %         plotWeights(autoenc{1});
+% %         plotWeights(autoenc{2});
+% %         plotWeights(autoenc{3});
+% %         set(findobj(0,'type','figure'),'visible','on');
+% %         set(gcf,'color','white');
+% 
+%         % fine tuning
+% %         sensor.neuralNet{s}.divideParam.trainRatio = 70/100;
+% %         sensor.neuralNet{s}.divideParam.valRatio = 15/100;
+% %         sensor.neuralNet{s}.divideParam.testRatio = 15/100;
+%         [sensor.neuralNet{s},sensor.trainRecord{s}] = train(sensor.neuralNet{s}, ...
+%             feature{g}.image(:,1 : feature{g}.trainSize), ...
+%             feature{g}.label.manual(:,1 : feature{g}.trainSize), 'useGPU','yes');
+%         nntraintool close
+        
+        fprintf('\nLoading original mat file...\n')
+        load([dirName.home '2012-01-01--2012-12-31_sensor_1-38_fusion_autoenc1epoch_300_globalEpoch_500.mat']); %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-        % fine tuning
-%         sensor.neuralNet{s}.divideParam.trainRatio = 70/100;
-%         sensor.neuralNet{s}.divideParam.valRatio = 15/100;
-%         sensor.neuralNet{s}.divideParam.testRatio = 15/100;
-        [sensor.neuralNet{s},sensor.trainRecord{s}] = train(sensor.neuralNet{s}, ...
-            feature{g}.image(:,1 : feature{g}.trainSize), ...
-            feature{g}.label.manual(:,1 : feature{g}.trainSize), 'useGPU','yes');
-        nntraintool close
-        
-        
         yTrain = sensor.neuralNet{s}(feature{g}.image(:,1 : feature{g}.trainSize));
         yVali = sensor.neuralNet{s}(feature{g}.image(:,feature{g}.trainSize+1 : end));
         
@@ -577,6 +579,14 @@ for g = 1 : groupTotal
         saveas(gcf,[dirName.net sprintf('group-%d_netPerform.png', g)]);
         close
         
+        [confTrainC, confTrainCM, confTrainInd, confTrainPer] = ...
+            confusion(feature{g}.label.manual(:, 1:feature{g}.trainSize), yTrain); %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        confTrainAccuracy = 1 - confTrainC;
+        confTrainPrecision = confTrainPer(:, 3);        
+        for m = 1 : 7
+           confTrainRecall(m, 1) = confTrainCM(m, m) / sum(confTrainCM(m, :)); 
+        end
+        
         figure
         plotconfusion(yTrain, feature{g}.label.manual(:,1 : feature{g}.trainSize));
         xlabel('Predicted');
@@ -594,6 +604,14 @@ for g = 1 : groupTotal
         ax.Position = [left bottom ax_width ax_height];
         saveas(gcf,[dirName.net sprintf('group-%d_netConfuseTrain.png', g)]);
         close
+        
+        [confValiC, confValiCM, confValiInd, confValiPer] = ...
+            confusion(feature{g}.label.manual(:,feature{g}.trainSize+1 : end), yVali); %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        confValiAccuracy = 1 - confValiC;
+        confValiPrecision = confValiPer(:, 3);        
+        for m = 1 : 7
+           confValiRecall(m, 1) = confValiCM(m, m) / sum(confValiCM(m, :)); 
+        end
         
         figure
         plotconfusion(yVali, feature{g}.label.manual(:,feature{g}.trainSize+1 : end));
@@ -957,6 +975,13 @@ for mTemp = 1 : 38
     labelMan = cat(1, labelMan, sensorTemp.sensor.label.manual{mTemp}');
 end
 labelMan = ind2vec(labelMan');
+
+[confTestC, confTestCM, confTestInd, confTestPer] = confusion(labelMan, labelNet); %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+confTestAccuracy = 1 - confTestC;
+confTestPrecision = confTestPer(:, 3);        
+for m = 1 : 7
+   confTestRecall(m, 1) = confTestCM(m, m) / sum(confTestCM(m, :)); 
+end
 
 figure
 plotconfusion(labelNet, labelMan)
