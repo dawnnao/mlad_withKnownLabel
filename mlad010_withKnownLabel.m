@@ -717,6 +717,8 @@ if ~isempty(step) && step(1) == 4
     newP{2,1} = sensor.pSize;
     newP{3,1} = step;
     newP{4,1} = sensor.label.name;
+    newP{5,1} = readRoot;
+    newP{6,1} = saveRoot;
     
     readPath = [dirName.home dirName.file];
     load(readPath)
@@ -724,7 +726,11 @@ if ~isempty(step) && step(1) == 4
     sensor.pSize =  newP{2,1};
     step = newP{3,1};
     sensor.label.name = newP{4,1};
+    readRoot = newP{5,1};
+    saveRoot = newP{6,1};
     clear newP
+    dirName.home = sprintf('%s/%s--%s_sensor%s%s_trainRatio_%dpct_seed_%d/', ...
+        saveRoot, date.start, date.end, sensorStr, netLayout, sensorTrainRatio*100, seed);
 end
 
 t(4) = tic;
@@ -736,8 +742,8 @@ date.serial.end   = datenum(date.end, dirName.formatIn);
 % anomaly detection
 fprintf('\nDetecting...\n')
 [labelTempNeural, countTempNeural, dateVec, dateSerial] = ...
-    classifierMultiInTime(readRoot, sensor.numVec, date.serial.start, date.serial.end, ...
-    dirName.home, sensor.label.name, sensor.neuralNet);
+    classifierMultiInTimeFreq(readRoot, sensor.numVec, date.serial.start, date.serial.end, ...
+    dirName.home, sensor.label.name, sensor.neuralNet, fs);
 for s = sensor.numVec
     sensor.label.neuralNet{s} = labelTempNeural{s};
     for l = 1 : labelTotal
@@ -979,14 +985,14 @@ sensor.ratioOfCategory(3,:) = (sensor.ratioOfCategory(1,:)./sensor.ratioOfCatego
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% temp
 sensorLabelNetSerial = [];
 for mTemp = 1 : 38
-    sensorLabelNetSerial = cat(1, sensorLabelNetSerial, sensor.label.neuralNet{mTemp});
+    sensorLabelNetSerial = cat(2, sensorLabelNetSerial, sensor.label.neuralNet{mTemp});
 end
 savePath = [GetFullPath(dirName.home) '/' 'sensorLabelNetSerial.mat'];
 save(savePath, 'sensorLabelNetSerial', '-v7.3')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% temp
 
 %% comparison between detection results and actual labels of 2012
-labelNet = sensorLabelNetSerial';
+labelNet = sensorLabelNetSerial;
 labelNet = ind2vec(labelNet);
 
 for n = 1 : labelTotal
