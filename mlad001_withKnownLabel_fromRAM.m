@@ -740,7 +740,7 @@ hourTotal = (date.serial.end-date.serial.start+1)*24;
 
 % reportCover; % make report cover!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-dirName.plot = [dirName.home sprintf('/plot_globalEpoch_%d/', maxEpoch(1))];
+dirName.plot = [dirName.home sprintf('/plot_globalEpoch_%d_batchSize_%d_sizeFilter_%d_numFilter_%d/', maxEpoch(1), batchSize, sizeFilter, numFilter)];
 if ~exist(dirName.plot, 'dir'), mkdir(dirName.plot); end
 
 % plot panorama
@@ -921,6 +921,12 @@ for n = 1 : length(sensorLabelNetSerial)
 end
 labelNet = ind2vec(labelNet);
 
+for n = 1 : labelTotal
+    if ~ismember(categorical(n), sensorLabelNetSerial)
+       labelNet(n, :) = 0;
+    end
+end
+
 fprintf('\nLoading actual labels of 2012...\n')
 sensorTemp = load('C:\Users\Owner\Documents\GitHub\adi\trainingSet_justLabel_inSensorCell_latest.mat');
 
@@ -930,6 +936,7 @@ for mTemp = 1 : 38
 end
 labelMan = ind2vec(labelMan');
 
+fprintf('\nPlotting confusion matrix...\n')
 [confTestC, confTestCM, confTestInd, confTestPer] = confusion(labelMan, labelNet); %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 confTestAccuracy = 1 - confTestC;
 confTestPrecision = confTestPer(:, 3);        

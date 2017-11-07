@@ -1,4 +1,5 @@
-clear;clc;close all;
+% clear;
+clc;close all;
 
 readRoot = 'C:/dataArchiveTemp/Sutong/';
 saveRoot = 'D:/results/results_mlad_withKnownLabel/mlad001/';
@@ -28,11 +29,18 @@ if ~exist('img2012', 'var')
 end
 
 %%
-for sensorTrainRatio = 0.01 : 0.01 : 0.03
-    for seed = 1 : 10
+for sensorTrainRatio = 0.01 %: 0.01 : 0.03
+    for seed = 8 : 10
         sensor = mlad001_withKnownLabel_fromRAM(readRoot, saveRoot, sensorNum, dateStart, dateEnd, ...
             sensorTrainRatio, sensorPSize, fs, step, [], seed, maxEpoch, batchSize, sizeFilter, numFilter, ...
             publicImagesetPath, labelPath, img2012);
     end
 end
 
+for sensorTrainRatio = 0.02 : 0.01 : 0.03
+    for seed = 1 : 10
+        sensor = mlad001_withKnownLabel_fromRAM(readRoot, saveRoot, sensorNum, dateStart, dateEnd, ...
+            sensorTrainRatio, sensorPSize, fs, step, [], seed, maxEpoch, batchSize, sizeFilter, numFilter, ...
+            publicImagesetPath, labelPath, img2012);
+    end
+end

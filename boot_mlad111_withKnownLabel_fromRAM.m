@@ -1,7 +1,7 @@
-clear;clc;close all;
+% clear;
+clc;close all;
 
 readRoot = 'C:/dataArchiveTemp/Sutong/';
-% saveRoot = 'D:/results/results_mlad_withKnownLabel/mlad111/';
 saveRoot = 'D:/results/results_mlad_withKnownLabel/mlad111/';
 
 % readRoot = '/Volumes/BOOTCAMP/data/Sutong/';

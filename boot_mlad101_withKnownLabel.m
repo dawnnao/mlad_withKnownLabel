@@ -30,3 +30,14 @@ for sensorTrainRatio = 0.01 : 0.01 : 0.03
             publicImagesetPath, labelPath);
     end
 end
+
+for sensorTrainRatio = 0.01 : 0.01 : 0.03
+    for seed = 1 : 10
+        sensor = mlad101_withKnownLabel(readRoot, saveRoot, sensorNum, dateStart, dateEnd, ...
+            sensorTrainRatio, sensorPSize, fs, step, [], seed, maxEpoch, batchSize, sizeFilter, numFilter, ...
+            publicImagesetPath, labelPath);
+    end
+end
+
+
+

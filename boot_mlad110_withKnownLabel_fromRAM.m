@@ -1,4 +1,5 @@
-clear;clc;close all;
+% clear;
+clc;close all;
 
 readRoot = 'C:/dataArchiveTemp/Sutong/';
 saveRoot = 'D:/results/results_mlad_withKnownLabel/mlad110/';

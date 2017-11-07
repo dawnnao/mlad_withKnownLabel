@@ -42,17 +42,17 @@ for day = dayStart : dayEnd
         
         for s = sensorNum
             ticRemain = tic;
-            img = reshape(sensorData(:, s), [100 100]);
-
+            img = sensorData(:, s);
     %         imshow(img)            
             if strcmp(class(neuralNet{s}), 'SeriesNetwork') % CNN
 %                 imshow(img)
-                set(gcf, 'visible', 'on');
+%                 set(gcf, 'visible', 'on');
+                img = reshape(img, [100 100]);
                 label{s}(count) = classify(neuralNet{s}, img);
                 labelIdx = str2double(char(label{s}(count)));
             elseif strcmp(class(neuralNet{s}), 'network') % ANN
 %                 imshow(img)
-                set(gcf, 'visible', 'on');
+%                 set(gcf, 'visible', 'on');
                 label{s}(count) = vec2ind(neuralNet{s}(img(:)));
                 labelIdx = label{s}(count);
             end

@@ -952,15 +952,21 @@ sensor.ratioOfCategory(3,:) = (sensor.ratioOfCategory(1,:)./sensor.ratioOfCatego
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% temp
 sensorLabelNetSerial = [];
 for mTemp = 1 : 38
-    sensorLabelNetSerial = cat(1, sensorLabelNetSerial, sensor.label.neuralNet{mTemp});
+    sensorLabelNetSerial = cat(2, sensorLabelNetSerial, sensor.label.neuralNet{mTemp});
 end
 savePath = [GetFullPath(dirName.home) '/' 'sensorLabelNetSerial.mat'];
 save(savePath, 'sensorLabelNetSerial', '-v7.3')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% temp
 
 %% comparison between detection results and actual labels of 2012
-labelNet = sensorLabelNetSerial';
+labelNet = sensorLabelNetSerial;
 labelNet = ind2vec(labelNet);
+
+for n = 1 : labelTotal
+    if ~ismember(n, sensorLabelNetSerial)
+       labelNet(n, :) = 0;
+    end
+end
 
 fprintf('\nLoading actual labels of 2012...\n')
 sensorTemp = load('C:\Users\Owner\Documents\GitHub\adi\trainingSet_justLabel_inSensorCell_latest.mat');
@@ -971,6 +977,7 @@ for mTemp = 1 : 38
 end
 labelMan = ind2vec(labelMan');
 
+fprintf('\nPlotting confusion matrix...\n')
 [confTestC, confTestCM, confTestInd, confTestPer] = confusion(labelMan, labelNet); %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 confTestAccuracy = 1 - confTestC;
 confTestPrecision = confTestPer(:, 3);        

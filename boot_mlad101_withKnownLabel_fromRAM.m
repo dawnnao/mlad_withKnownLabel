@@ -1,3 +1,4 @@
+% clear;
 clc;close all;
 
 readRoot = 'C:/dataArchiveTemp/Sutong/';
