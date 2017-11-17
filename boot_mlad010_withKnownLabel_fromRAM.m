@@ -30,12 +30,12 @@ if ~exist('img2012', 'var')
 end
 
 %%
-for sensorTrainRatio = 0.01 : 0.01 : 0.03
-    for seed = 1 : 10
-        sensor = mlad010_withKnownLabel_fromRAM(readRoot, saveRoot, sensorNum, dateStart, dateEnd, ...
-            sensorTrainRatio, sensorPSize, fs, step, [], seed, maxEpoch, publicImagesetPath, labelPath, img2012);
-    end
-end
+% for sensorTrainRatio = 0.01 : 0.01 : 0.03
+%     for seed = 1 : 10
+%         sensor = mlad010_withKnownLabel_fromRAM(readRoot, saveRoot, sensorNum, dateStart, dateEnd, ...
+%             sensorTrainRatio, sensorPSize, fs, step, [], seed, maxEpoch, publicImagesetPath, labelPath, img2012);
+%     end
+% end
 
 % for sensorTrainRatio = 0.01 : 0.01 : 0.03
 %     for seed = 1 : 10

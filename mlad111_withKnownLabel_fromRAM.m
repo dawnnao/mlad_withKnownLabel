@@ -269,7 +269,7 @@ goNext = 0;
 while goNext == 0
     for g = 1 : groupTotal % ingore group in mvad2.m
         labelTemp = load(labelPath); % label2012
-        label2012.bySensor = labelTemp.sensor.label.manual;
+        label2012.bySensor = labelTemp.label2012.sensor.label.manual;
         clear labelTemp;
         
         for n = 1 : labelTotal
@@ -782,7 +782,7 @@ hourTotal = (date.serial.end-date.serial.start+1)*24;
 
 % reportCover; % make report cover!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-dirName.plot = [dirName.home sprintf('/plot_globalEpoch_%d/', maxEpoch(1))];
+dirName.plot = [dirName.home sprintf('/plot_globalEpoch_%d_batchSize_%d_sizeFilter_%d_numFilter_%d/', maxEpoch(1), batchSize, sizeFilter, numFilter)];
 if ~exist(dirName.plot, 'dir'), mkdir(dirName.plot); end
 
 % plot panorama
@@ -970,11 +970,11 @@ for n = 1 : labelTotal
 end
 
 fprintf('\nLoading actual labels of 2012...\n')
-sensorTemp = load('C:\Users\Owner\Documents\GitHub\adi\trainingSet_justLabel_inSensorCell_latest.mat');
+sensorTemp = load(labelPath);
 
 labelMan = [];
 for mTemp = 1 : 38
-    labelMan = cat(1, labelMan, sensorTemp.sensor.label.manual{mTemp}');
+    labelMan = cat(1, labelMan, sensorTemp.label2012.sensor.label.manual{mTemp}');
 end
 labelMan = ind2vec(labelMan');
 

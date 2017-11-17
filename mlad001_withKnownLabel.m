@@ -738,7 +738,7 @@ hourTotal = (date.serial.end-date.serial.start+1)*24;
 
 % reportCover; % make report cover!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-dirName.plot = [dirName.home sprintf('/plot_globalEpoch_%d/', maxEpoch(1))];
+dirName.plot = [dirName.home sprintf('/plot_globalEpoch_%d_batchSize_%d_sizeFilter_%d_numFilter_%d/', maxEpoch(1), batchSize, sizeFilter, numFilter)];
 if ~exist(dirName.plot, 'dir'), mkdir(dirName.plot); end
 
 % plot panorama

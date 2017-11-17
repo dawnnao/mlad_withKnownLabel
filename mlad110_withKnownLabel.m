@@ -1001,11 +1001,11 @@ for n = 1 : labelTotal
 end
 
 fprintf('\nLoading actual labels of 2012...\n')
-sensorTemp = load('C:\Users\Owner\Documents\GitHub\adi\trainingSet_justLabel_inSensorCell_latest.mat');
+sensorTemp = load(labelPath);
 
 labelMan = [];
 for mTemp = 1 : 38
-    labelMan = cat(1, labelMan, sensorTemp.sensor.label.manual{mTemp}');
+    labelMan = cat(1, labelMan, sensorTemp.label2012.sensor.label.manual{mTemp}');
 end
 labelMan = ind2vec(labelMan');
 

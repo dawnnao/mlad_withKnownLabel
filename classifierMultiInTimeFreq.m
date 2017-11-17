@@ -83,7 +83,7 @@ for day = dayStart : dayEnd
                 img(:, :, 1) = imgTime;
                 img(:, :, 2) = imgFreq;
                 img(:, :, 3) = ones(100, 100);
-%                 imshow(img)
+                imshow(img)
 %                 set(gcf, 'visible', 'on');
                 label{s}(count) = classify(neuralNet{s}, img);
                 labelIdx = str2double(str2mat(label{s}(count)));

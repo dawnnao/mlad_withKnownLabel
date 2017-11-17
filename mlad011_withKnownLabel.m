@@ -765,7 +765,7 @@ hourTotal = (date.serial.end-date.serial.start+1)*24;
 
 % reportCover; % make report cover!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-dirName.plot = [dirName.home sprintf('/plot_globalEpoch_%d/', maxEpoch(1))];
+dirName.plot = [dirName.home sprintf('/plot_globalEpoch_%d_batchSize_%d_sizeFilter_%d_numFilter_%d/', maxEpoch(1), batchSize, sizeFilter, numFilter)];
 if ~exist(dirName.plot, 'dir'), mkdir(dirName.plot); end
 
 % plot panorama
@@ -815,7 +815,7 @@ for s = sensor.numVec
     for n = 1 : 12
         for l = 1 : labelTotal
             aim = find(sensor.date.vec{s}(:,2) == n);
-            sensor.statsPerSensor{s}(n, l) = length(find(sensor.label.neuralNet{s}(aim) == l));
+            sensor.statsPerSensor{s}(n, l) = length(find(sensor.label.neuralNet{s}(aim) == categorical(l)));
         end
     end
     monthStatsPerSensorForPaper(sensor.statsPerSensor{s}, s, sensor.label.name, color);
@@ -836,7 +836,7 @@ for l = 1 : labelTotal
    for s = sensor.numVec
        for n = 1 : 12
            aim = find(sensor.date.vec{s}(:,2) == n);
-           sensor.statsPerLabel{l}(n, s) = length(find(sensor.label.neuralNet{s}(aim) == l));
+           sensor.statsPerLabel{l}(n, s) = length(find(sensor.label.neuralNet{s}(aim) == categorical(l)));
        end
    end
    if sum(sum(sensor.statsPerLabel{l})) > 0
@@ -857,7 +857,7 @@ dirName.plotSum = [dirName.plot 'statsSumUp/'];
 if ~exist(dirName.plotSum, 'dir'), mkdir(dirName.plotSum); end
 for s = sensor.numVec
    for l = 1 : labelTotal
-       statsSum(s, l) = length(find(sensor.label.neuralNet{s} == l));
+       statsSum(s, l) = length(find(sensor.label.neuralNet{s} == categorical(l)));
    end
 end
 

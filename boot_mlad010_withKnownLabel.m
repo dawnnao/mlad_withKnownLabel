@@ -12,7 +12,7 @@ dateEnd = '2012-12-31';
 % sensorTrainRatio = 1/100;
 sensorPSize = 10;
 fs = 20;
-step = [3];
+step = [4 5];
 % labelName = {'1-normal','2-missing','3-minor','4-outlier','5-square','6-trend','7-drift'};
 % seed = 6; % for random number generation
 maxEpoch = [300 500];
@@ -20,8 +20,8 @@ publicImagesetPath = 'D:/results/results_mlad_withKnownLabel/publicImageset/2012
 labelPath = 'C:/Users/Owner/Documents/GitHub/adi/trainingSet_justLabel_inSensorCell_latest.mat';
 
 %%
-for sensorTrainRatio = 0.01 : 0.01 : 0.03
-    for seed = 1 : 10
+for sensorTrainRatio = 0.03 %: 0.01 : 0.03
+    for seed = 3 : 5
         sensor = mlad010_withKnownLabel(readRoot, saveRoot, sensorNum, dateStart, dateEnd, ...
             sensorTrainRatio, sensorPSize, fs, step, [], seed, maxEpoch, publicImagesetPath, labelPath);
     end
