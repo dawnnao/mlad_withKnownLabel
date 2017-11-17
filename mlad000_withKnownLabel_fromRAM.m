@@ -1,6 +1,6 @@
- function sensor = mlad000_withKnownLabel_fromRAM(readRoot, saveRoot, sensorNum, ...
-     dateStart, dateEnd, sensorTrainRatio, sensorPSize, fs, step, labelName, ...
-     seed, maxEpoch, publicImagesetPath, labelPath, img2012)
+function sensor = mlad000_withKnownLabel_fromRAM(readRoot, saveRoot, sensorNum, ...
+    dateStart, dateEnd, sensorTrainRatio, sensorPSize, fs, step, labelName, ...
+    seed, maxEpoch, publicImagesetPath, labelPath, img2012)
 % DESCRIPTION:
 %   This is a machine vision based anomaly detection (MVAD) pre-processing
 %   function for structural health monitoring data. The work flow is:
@@ -690,6 +690,9 @@ if ~isempty(step) && step(1) == 4
     newP{2,1} = sensor.pSize;
     newP{3,1} = step;
     newP{4,1} = sensor.label.name;
+    newP{5,1} = readRoot;
+    newP{6,1} = dirName.home;
+    newP{7,1} = labelPath;
     
     readPath = [dirName.home dirName.file];
     load(readPath)
@@ -697,6 +700,9 @@ if ~isempty(step) && step(1) == 4
     sensor.pSize =  newP{2,1};
     step = newP{3,1};
     sensor.label.name = newP{4,1};
+    readRoot = newP{5,1};
+    dirName.home = newP{6,1};
+    labelPath = newP{7,1};
     clear newP
 end
 
@@ -765,7 +771,10 @@ if ismember(5, step) || isempty(step)
 if ~isempty(step) && step(1) == 5
     newP{2,1} = sensor.pSize;
     newP{3,1} = step;
-    newP{4,1} = dirName.home;
+    newP{4,1} = sensor.label.name;
+    newP{5,1} = readRoot;
+    newP{6,1} = dirName.home;
+    newP{7,1} = labelPath;
     
     readPath = [dirName.home dirName.file];
     fprintf('Loading...\n')
@@ -773,7 +782,10 @@ if ~isempty(step) && step(1) == 5
     
     sensor.pSize =  newP{2,1};
     step = newP{3,1};
-    dirName.home = newP{4,1};
+    sensor.label.name = newP{4,1};
+    readRoot = newP{5,1};
+    dirName.home = newP{6,1};
+    labelPath = newP{7,1};
     clear newP
 end
 t(5) = tic;

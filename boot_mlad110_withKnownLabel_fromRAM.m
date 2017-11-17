@@ -28,9 +28,11 @@ if ~exist('img2012', 'var')
 end
 
 %%
-for sensorTrainRatio = 0.01 : 0.01 : 0.03
-    for seed = 1 : 2
+for sensorTrainRatio = 0.01 : 0.01 : 0.02
+    for seed = 1 : 5
         sensor = mlad110_withKnownLabel_fromRAM(readRoot, saveRoot, sensorNum, dateStart, dateEnd, ...
             sensorTrainRatio, sensorPSize, fs, step, [], seed, maxEpoch, publicImagesetPath, labelPath, img2012);
     end
 end
+
+% Do not use GPU to train autoencoder 1 when sensorTrainRatio = 0.03!

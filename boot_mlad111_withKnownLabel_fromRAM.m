@@ -21,9 +21,7 @@ batchSize = 100;
 sizeFilter = [40];
 numFilter = [20];
 publicImagesetPath = 'D:/results/results_mlad_withKnownLabel/publicImageset/2012-01-01--2012-12-31_sensor_1-38_fusion/';
-% labelPath = 'C:/Users/Owner/Documents/GitHub/adi/trainingSet_justLabel_inSensorCell_latest.mat';
 labelPath = 'C:/Users/Owner/Documents/GitHub/mlad_withKnownLabel/labelMan/label2012_modifiedAfterRound1Test.mat';
-
 if ~exist('img2012', 'var')
     fprintf('\nLoading image set of 2012...\n')
     global img2012
@@ -31,20 +29,11 @@ if ~exist('img2012', 'var')
 end
 
 %%
-for sensorTrainRatio = 0.01 : 0.01 : 0.02
+for sensorTrainRatio = 0.01 : 0.01 : 0.03
     for seed = 1 : 5
         sensor = mlad111_withKnownLabel_fromRAM(readRoot, saveRoot, sensorNum, dateStart, dateEnd, ...
             sensorTrainRatio, sensorPSize, fs, step, [], seed, maxEpoch, batchSize, sizeFilter, numFilter, ...
             publicImagesetPath, labelPath, img2012);
     end
 end
-
-for sensorTrainRatio = 0.03 %: 0.01 : 0.03
-    for seed = 2 : 5
-        sensor = mlad111_withKnownLabel_fromRAM(readRoot, saveRoot, sensorNum, dateStart, dateEnd, ...
-            sensorTrainRatio, sensorPSize, fs, step, [], seed, maxEpoch, batchSize, sizeFilter, numFilter, ...
-            publicImagesetPath, labelPath, img2012);
-    end
-end
-
 

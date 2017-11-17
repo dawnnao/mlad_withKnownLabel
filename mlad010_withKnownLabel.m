@@ -1,4 +1,6 @@
- function sensor = mlad010_withKnownLabel(readRoot, saveRoot, sensorNum, dateStart, dateEnd, sensorTrainRatio, sensorPSize, fs, step, labelName, seed, maxEpoch, publicImagesetPath, labelPath)
+function sensor = mlad010_withKnownLabel(readRoot, saveRoot, sensorNum, ...
+    dateStart, dateEnd, sensorTrainRatio, sensorPSize, fs, step, labelName, ...
+    seed, maxEpoch, publicImagesetPath, labelPath)
 % DESCRIPTION:
 %   This is a machine vision based anomaly detection (MVAD) pre-processing
 %   function for structural health monitoring data. The work flow is:
@@ -516,60 +518,60 @@ for g = 1 : groupTotal
     feature{g}.image = feature{g}.image(:, randp{g});
     feature{g}.label.manual = feature{g}.label.manual(:, randp{g});
     for s = sensor.num{g}(1)
-%         % train deep neural network
-%         feature{g}.trainRatio = 50/100;
-%         feature{g}.trainSize = floor(size(feature{g}.image,2) * feature{g}.trainRatio);
-%         % hidden layer 1
-%         hiddenSize(1) = 100;
-%         autoenc{1} = trainAutoencoder(feature{g}.image(:,1 : feature{g}.trainSize),...
-%             hiddenSize(1), ...
-%             'MaxEpochs',maxEpoch(1), ...
-%             'L2WeightRegularization',0.004, ...
-%             'SparsityRegularization',4, ...
-%             'SparsityProportion',0.15, ...
-%             'ScaleData', false, ...
-%             'UseGPU', false);
-%         feat{1} = encode(autoenc{1},feature{g}.image(:,1 : feature{g}.trainSize));
-%         % hidden layer 2
-%         hiddenSize(2) = 75;
-%         autoenc{2} = trainAutoencoder(feat{1},hiddenSize(2), ...
-%             'MaxEpochs',maxEpoch(2), ...
-%             'L2WeightRegularization',0.002, ...
-%             'SparsityRegularization',4, ...
-%             'SparsityProportion',0.1, ...
-%             'ScaleData', false, ...
-%             'UseGPU', true);
-%         feat{2} = encode(autoenc{2},feat{1});
-%         % hidden layer 3
-%         hiddenSize(3) = 50;
-%         autoenc{3} = trainAutoencoder(feat{2},hiddenSize(3), ...
-%             'MaxEpochs',maxEpoch(2), ...
-%             'L2WeightRegularization',0.002, ...
-%             'SparsityRegularization',4, ...
-%             'SparsityProportion',0.1, ...
-%             'ScaleData', false, ...
-%             'UseGPU', true);
-%         feat{3} = encode(autoenc{3},feat{2});
-%         % softmax classifier
-%         softnet = trainSoftmaxLayer(feat{3}, feature{g}.label.manual(:,1 : feature{g}.trainSize),...
-%             'MaxEpochs',maxEpoch(2));
-%         % stack
-%         sensor.neuralNet{s} = stack(autoenc{1},autoenc{2},autoenc{3},softnet);
-% %         view(sensor.neuralNet{s})
-% %         plotWeights(autoenc{1});
-% %         plotWeights(autoenc{2});
-% %         plotWeights(autoenc{3});
-% %         set(findobj(0,'type','figure'),'visible','on');
-% %         set(gcf,'color','white');
-% 
-%         % fine tuning
-% %         sensor.neuralNet{s}.divideParam.trainRatio = 70/100;
-% %         sensor.neuralNet{s}.divideParam.valRatio = 15/100;
-% %         sensor.neuralNet{s}.divideParam.testRatio = 15/100;
-%         [sensor.neuralNet{s},sensor.trainRecord{s}] = train(sensor.neuralNet{s}, ...
-%             feature{g}.image(:,1 : feature{g}.trainSize), ...
-%             feature{g}.label.manual(:,1 : feature{g}.trainSize), 'useGPU','yes');
-%         nntraintool close
+        % train deep neural network
+        feature{g}.trainRatio = 50/100;
+        feature{g}.trainSize = floor(size(feature{g}.image,2) * feature{g}.trainRatio);
+        % hidden layer 1
+        hiddenSize(1) = 100;
+        autoenc{1} = trainAutoencoder(feature{g}.image(:,1 : feature{g}.trainSize),...
+            hiddenSize(1), ...
+            'MaxEpochs',maxEpoch(1), ...
+            'L2WeightRegularization',0.004, ...
+            'SparsityRegularization',4, ...
+            'SparsityProportion',0.15, ...
+            'ScaleData', false, ...
+            'UseGPU', true);
+        feat{1} = encode(autoenc{1},feature{g}.image(:,1 : feature{g}.trainSize));
+        % hidden layer 2
+        hiddenSize(2) = 75;
+        autoenc{2} = trainAutoencoder(feat{1},hiddenSize(2), ...
+            'MaxEpochs',maxEpoch(2), ...
+            'L2WeightRegularization',0.002, ...
+            'SparsityRegularization',4, ...
+            'SparsityProportion',0.1, ...
+            'ScaleData', false, ...
+            'UseGPU', true);
+        feat{2} = encode(autoenc{2},feat{1});
+        % hidden layer 3
+        hiddenSize(3) = 50;
+        autoenc{3} = trainAutoencoder(feat{2},hiddenSize(3), ...
+            'MaxEpochs',maxEpoch(2), ...
+            'L2WeightRegularization',0.002, ...
+            'SparsityRegularization',4, ...
+            'SparsityProportion',0.1, ...
+            'ScaleData', false, ...
+            'UseGPU', true);
+        feat{3} = encode(autoenc{3},feat{2});
+        % softmax classifier
+        softnet = trainSoftmaxLayer(feat{3}, feature{g}.label.manual(:,1 : feature{g}.trainSize),...
+            'MaxEpochs',maxEpoch(2));
+        % stack
+        sensor.neuralNet{s} = stack(autoenc{1},autoenc{2},autoenc{3},softnet);
+%         view(sensor.neuralNet{s})
+%         plotWeights(autoenc{1});
+%         plotWeights(autoenc{2});
+%         plotWeights(autoenc{3});
+%         set(findobj(0,'type','figure'),'visible','on');
+%         set(gcf,'color','white');
+
+        % fine tuning
+%         sensor.neuralNet{s}.divideParam.trainRatio = 70/100;
+%         sensor.neuralNet{s}.divideParam.valRatio = 15/100;
+%         sensor.neuralNet{s}.divideParam.testRatio = 15/100;
+        [sensor.neuralNet{s},sensor.trainRecord{s}] = train(sensor.neuralNet{s}, ...
+            feature{g}.image(:,1 : feature{g}.trainSize), ...
+            feature{g}.label.manual(:,1 : feature{g}.trainSize), 'useGPU','yes');
+        nntraintool close
 
         fprintf('\nLoading original mat file...\n')
         load([dirName.home '2012-01-01--2012-12-31_sensor_1-38_fusion_autoenc1epoch_300_globalEpoch_500.mat']); %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -718,7 +720,8 @@ if ~isempty(step) && step(1) == 4
     newP{3,1} = step;
     newP{4,1} = sensor.label.name;
     newP{5,1} = readRoot;
-    newP{6,1} = saveRoot;
+    newP{6,1} = dirName.home;
+    newP{7,1} = labelPath;
     
     readPath = [dirName.home dirName.file];
     load(readPath)
@@ -727,7 +730,8 @@ if ~isempty(step) && step(1) == 4
     step = newP{3,1};
     sensor.label.name = newP{4,1};
     readRoot = newP{5,1};
-    saveRoot = newP{6,1};
+    dirName.home = newP{6,1};
+    labelPath = newP{7,1};
     clear newP
     dirName.home = sprintf('%s/%s--%s_sensor%s%s_trainRatio_%dpct_seed_%d/', ...
         saveRoot, date.start, date.end, sensorStr, netLayout, sensorTrainRatio*100, seed);
@@ -798,7 +802,10 @@ if ismember(5, step) || isempty(step)
 if ~isempty(step) && step(1) == 5
     newP{2,1} = sensor.pSize;
     newP{3,1} = step;
-    newP{4,1} = dirName.home;
+    newP{4,1} = sensor.label.name;
+    newP{5,1} = readRoot;
+    newP{6,1} = dirName.home;
+    newP{7,1} = labelPath;
     
     readPath = [dirName.home dirName.file];
     fprintf('Loading...\n')
@@ -806,7 +813,10 @@ if ~isempty(step) && step(1) == 5
     
     sensor.pSize =  newP{2,1};
     step = newP{3,1};
-    dirName.home = newP{4,1};
+    sensor.label.name = newP{4,1};
+    readRoot = newP{5,1};
+    dirName.home = newP{6,1};
+    labelPath = newP{7,1};
     clear newP
 end
 t(5) = tic;
