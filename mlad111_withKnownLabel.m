@@ -441,7 +441,10 @@ fprintf('\n\n\nSTEP2:\nSensor(s) training set making completes, using %02d:%02d:
 % ask go on or stop
 head = 'Continue to step3, automatically train deep neural network(s) now?';
 tail = 'Continue to automatically train deep neural network(s)...';
-
+savePath = [dirName.home dirName.file];
+fprintf('\nSaving results...\nLocation: %s\n', savePath)
+if exist(savePath, 'file'), delete(savePath); end
+save(savePath, '-v7.3')
 if isempty(step)
     rightInput = 0;
     while rightInput == 0

@@ -414,7 +414,10 @@ fprintf('\n\n\nSTEP2:\nSensor(s) training set making completes, using %02d:%02d:
 % ask go on or stop
 head = 'Continue to step3, automatically train deep neural network(s) now?';
 tail = 'Continue to automatically train deep neural network(s)...';
-
+savePath = [dirName.home dirName.file];
+fprintf('\nSaving results...\nLocation: %s\n', savePath)
+if exist(savePath, 'file'), delete(savePath); end
+save(savePath, '-v7.3')
 if isempty(step)
     rightInput = 0;
     while rightInput == 0
@@ -752,7 +755,7 @@ hourTotal = (date.serial.end-date.serial.start+1)*24;
 
 % reportCover; % make report cover!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-dirName.plot = [dirName.home sprintf('/plot_globalEpoch_%d/', maxEpoch(1))];
+dirName.plot = [dirName.home sprintf('/plot_globalEpoch_%d_batchSize_%d_sizeFilter_%d_numFilter_%d/', maxEpoch(1), batchSize, sizeFilter, numFilter)];
 if ~exist(dirName.plot, 'dir'), mkdir(dirName.plot); end
 
 % plot panorama
