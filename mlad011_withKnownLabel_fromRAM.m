@@ -269,7 +269,7 @@ goNext = 0;
 while goNext == 0
     for g = 1 : groupTotal % ingore group in mvad2.m
         labelTemp = load(labelPath); % label2012
-        label2012.bySensor = labelTemp.sensor.label.manual;
+        label2012.bySensor = labelTemp.label2012.sensor.label.manual;
         clear labelTemp;
         
         for n = 1 : labelTotal

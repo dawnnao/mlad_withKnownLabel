@@ -26,8 +26,8 @@ labelPath = 'C:/Users/Owner/Documents/GitHub/mlad_withKnownLabel/labelMan/label2
 if ~exist('img2012', 'var')
     fprintf('\nLoading image set of 2012...\n')
     global img2012
-%     img2012 = load('E:\results\mlad111\2012-01-01--2012-12-31_sensor_1-38_fusion\data2imageSet\data2imageSet.mat'); % file path of img2012
-    img2012 = load('D:\results\mlad_new\additional\data2imageSet.mat'); % file path of img2012
+    img2012 = load('E:\results\mlad111\2012-01-01--2012-12-31_sensor_1-38_fusion\data2imageSet\data2imageSet.mat'); % file path of img2012
+%     img2012 = load('D:\results\mlad_new\additional\data2imageSet.mat'); % file path of img2012
 end
 
 %%
