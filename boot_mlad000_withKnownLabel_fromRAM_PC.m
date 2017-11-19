@@ -34,9 +34,9 @@ for sensorTrainRatio = 0.02 : 0.01 : 0.03
     end
 end
 
-for sensorTrainRatio = 0.01 % : 0.01 : 0.03
-    for seed = 3 : 5
-        sensor = mlad000_withKnownLabel_fromRAM(readRoot, saveRoot, sensorNum, dateStart, dateEnd, ...
-            sensorTrainRatio, sensorPSize, fs, step, [], seed, maxEpoch, publicImagesetPath, labelPath, img2012);
-    end
-end
+% for sensorTrainRatio = 0.01 % : 0.01 : 0.03
+%     for seed = 3 : 5
+%         sensor = mlad000_withKnownLabel_fromRAM(readRoot, saveRoot, sensorNum, dateStart, dateEnd, ...
+%             sensorTrainRatio, sensorPSize, fs, step, [], seed, maxEpoch, publicImagesetPath, labelPath, img2012);
+%     end
+% end
