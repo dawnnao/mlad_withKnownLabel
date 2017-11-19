@@ -1,4 +1,4 @@
-function sensor = mlad111temp(readRoot, saveRoot, sensorNum, dateStart, dateEnd, k, sensorClustRatio, sensorPSize, fs, step, labelName)
+function sensor = mlad111_temp_forReportGen(readRoot, saveRoot, sensorNum, dateStart, dateEnd, k, sensorClustRatio, sensorPSize, fs, step, labelName)
 % DESCRIPTION:
 %   This is a machine learning based anomaly detection (MLAD) pre-processing
 %   function for structural health monitoring data. The work flow is:
@@ -228,6 +228,7 @@ for g = 1 : groupTotal
             end
         end
     end
+
 %         [~, sensor.date.vec, sensor.date.serial] = ...
         [~, sensor.date.vec{s}, sensor.date.serial{s}] = ...
             glanceInTimeFreqMulti(readRoot, sensor.num{g}, date.serial.start, date.serial.end, dirName.all, '0-all_', fs);
@@ -236,6 +237,8 @@ for g = 1 : groupTotal
         elapsedTime(1) = toc(t(1)); [hours, mins, secs] = sec2hms(elapsedTime(1));
         fprintf('\nSTEP1:\nData plot completes, using %02d:%02d:%05.2f .\n', ...
             hours, mins, secs)
+    
+    
 end
 
 % update work flow status
@@ -331,214 +334,214 @@ while goNext == 0
         save(dirName.imageSetFile, 'sensor', '-v7.3')
     end
     
-%     %% clustering
-%     % check before clustering
-%     dirName.clustMain = [dirName.home sprintf('clusterOverview/clusteringIn%d/', k)];
-%     if exist(dirName.clustMain,'dir')
-%         fprintf('\nFolder [%s] already exists. Re-clustering?\n', dirName.clustMain)
-%         rightInput = 0;
-%         while rightInput == 0
-%             str = input('Y/y -- yes to go on\nN/n -- no and stop\nInput: ', 's');
-%             if strcmp(str,'Y') || strcmp(str,'y')
-%                 rightInput = 1;
-%                 rmdir(dirName.clustMain,'s');
-%                 mkdir(dirName.clustMain)                
-%             elseif strcmp(str,'N') || strcmp(str,'n')
-%                 rightInput = 1;
-%                 fprintf('\nFinish.\n')
-%                 return
-%             else
-%                 fprintf('Invalid input! Please re-input.\n')
-%             end
-%         end
-%     else
-%         mkdir(dirName.clustMain) 
-%     end
-%     
-%     % random sampling from sensor.image
-%     downSampRatio = 4; % for width and height respectively of image
-%     [clust.data, clust.absIdx] = genDataForClust(sensor.numVec, sensorClustRatio, ...
-%                                                  sensor.image, downSampRatio);    
-%     % clustering
-%     fprintf('\nClustering...\n')
-%     ticClust = tic;
-% %     clust.data = clust.data';
-%     clustDataInGPU = gpuArray(clust.data');
-%     clust.clustIdx = gather(kmeans(clustDataInGPU, k,'MaxIter', 1000, 'Display', 'iter'));
-%     clust.label = zeros(size(labelName, 2), size(clust.data, 2));  % label initialization
-%     tocClust = toc(ticClust);
-%     [hours, mins, secs] = sec2hms(tocClust);
-%     fprintf('\nDone. Elapsed time for clustering: %02dh%02dm%05.2fs.\n', hours, mins, secs)
-%     fprintf('\nCluster overview:\n')
-%     
-%     % plot clustering results
-%     NP = 100; % sample number per plot
-%     numPlotPerClust = 5; % number of big plots for each cluster
-%     for kk = 1 : k
-%         count = 0;
-%         countPlot = 0;
-%         idxTemp = find(clust.clustIdx == kk);
-%         randTemp{kk} = randperm(length(idxTemp));
-% %         idxTemp = idxTemp(randTemp{kk});
-%         nIdxTemp = length(idxTemp);
-%         
-%         dirName.clustSub = sprintf('cluster-%02d/', kk);
-%         if ~exist([dirName.clustMain dirName.clustSub], 'dir')
-%             mkdir([dirName.clustMain dirName.clustSub]);
-%         end
-%         
-%         for pBig = 1 : ceil(nIdxTemp/NP) % overview plot
-%             ticPlot = tic;
-%             figure('position', [40, 40, 2000, 960])
-%             fprintf('\nPloting... Cluster %d, sample %d-%d (total %d)\n', ...
-%                 kk, 100*(pBig-1)+1, min([nIdxTemp, 100*pBig]), nIdxTemp)
-%             for pSmall = 1 : NP
-%                 count = count + 1;
-%                 if pSmall == 1
-%                    set(gcf,'Name', sprintf('cluster %d, sample %d-%d (total %d)', ...
-%                        kk, 100*(pBig-1)+1, min([nIdxTemp, 100*pBig]), nIdxTemp));
-%                 end
-%                 % plot each sample in overview
-%                 if count <= nIdxTemp
-%                    s = size(clust.data(:, idxTemp(count)), 1);
-%                    subaxis(10,20, 2*pSmall-1, 'S',0.005, 'M',0.005);
-%                    imshow(reshape(clust.data(1:s/2, idxTemp(count)), [sqrt(s/2) sqrt(s/2)]));
-%                    subaxis(10,20, 2*pSmall, 'S',0.005, 'M',0.005);
-%                    imshow(reshape(clust.data(s/2+1:end, idxTemp(count)), [sqrt(s/2) sqrt(s/2)]));
-%                 else
-%                    subaxis(10,20, 2*pSmall-1, 'S',0.005, 'M',0.005);
-%                    imshow([]);
-%                    subaxis(10,20, 2*pSmall, 'S',0.005, 'M',0.005);
-%                    imshow([]);
-%                 end
-%             end
-%             tocPlot = toc(ticPlot);
-%             tPlotRemain = tocPlot * ((k-kk)*numPlotPerClust + numPlotPerClust - countPlot - 1);
-%             [hours, mins, secs] = sec2hms(tPlotRemain);
-%             fprintf('About %02dh%02dm%05.2fs left for clusters overview.\n', hours, mins, secs)
-%             
-%             fprintf('\nSaving plot...\n')
-%             saveas(gcf, [dirName.clustMain dirName.clustSub sprintf('cluster_%d_sample_%04d-%04d_total-%04d.tif', ...
-%                 kk, 100*(pBig-1)+1, min([nIdxTemp, 100*pBig]), nIdxTemp)]);
-%             close
-%             
-%             rightInput = 0;
-%             while rightInput == 0
-%                 
-%                 countPlot = countPlot + 1;
-%                 if countPlot < numPlotPerClust
+    %% clustering
+    % check before clustering
+    dirName.clustMain = [dirName.home sprintf('clusterOverview/clusteringIn%d/', k)];
+    if exist(dirName.clustMain,'dir')
+        fprintf('\nFolder [%s] already exists. Re-clustering?\n', dirName.clustMain)
+        rightInput = 0;
+        while rightInput == 0
+            str = input('Y/y -- yes to go on\nN/n -- no and stop\nInput: ', 's');
+            if strcmp(str,'Y') || strcmp(str,'y')
+                rightInput = 1;
+                rmdir(dirName.clustMain,'s');
+                mkdir(dirName.clustMain)                
+            elseif strcmp(str,'N') || strcmp(str,'n')
+                rightInput = 1;
+                fprintf('\nFinish.\n')
+                return
+            else
+                fprintf('Invalid input! Please re-input.\n')
+            end
+        end
+    else
+        mkdir(dirName.clustMain) 
+    end
+    
+    % random sampling from sensor.image
+    downSampRatio = 4; % for width and height respectively of image
+    [clust.data, clust.absIdx] = genDataForClust(sensor.numVec, sensorClustRatio, ...
+                                                 sensor.image, downSampRatio);    
+    % clustering
+    fprintf('\nClustering...\n')
+    ticClust = tic;
+%     clust.data = clust.data';
+    clustDataInGPU = gpuArray(clust.data');
+    clust.clustIdx = gather(kmeans(clustDataInGPU, k,'MaxIter', 1000, 'Display', 'iter'));
+    clust.label = zeros(size(labelName, 2), size(clust.data, 2));  % label initialization
+    tocClust = toc(ticClust);
+    [hours, mins, secs] = sec2hms(tocClust);
+    fprintf('\nDone. Elapsed time for clustering: %02dh%02dm%05.2fs.\n', hours, mins, secs)
+    fprintf('\nCluster overview:\n')
+    
+    % plot clustering results
+    NP = 100; % sample number per plot
+    numPlotPerClust = 5; % number of big plots for each cluster
+    for kk = 1 : k
+        count = 0;
+        countPlot = 0;
+        idxTemp = find(clust.clustIdx == kk);
+        randTemp{kk} = randperm(length(idxTemp));
+%         idxTemp = idxTemp(randTemp{kk});
+        nIdxTemp = length(idxTemp);
+        
+        dirName.clustSub = sprintf('cluster-%02d/', kk);
+        if ~exist([dirName.clustMain dirName.clustSub], 'dir')
+            mkdir([dirName.clustMain dirName.clustSub]);
+        end
+        
+        for pBig = 1 : ceil(nIdxTemp/NP) % overview plot
+            ticPlot = tic;
+            figure('position', [40, 40, 2000, 960])
+            fprintf('\nPloting... Cluster %d, sample %d-%d (total %d)\n', ...
+                kk, 100*(pBig-1)+1, min([nIdxTemp, 100*pBig]), nIdxTemp)
+            for pSmall = 1 : NP
+                count = count + 1;
+                if pSmall == 1
+                   set(gcf,'Name', sprintf('cluster %d, sample %d-%d (total %d)', ...
+                       kk, 100*(pBig-1)+1, min([nIdxTemp, 100*pBig]), nIdxTemp));
+                end
+                % plot each sample in overview
+                if count <= nIdxTemp
+                   s = size(clust.data(:, idxTemp(count)), 1);
+                   subaxis(10,20, 2*pSmall-1, 'S',0.005, 'M',0.005);
+                   imshow(reshape(clust.data(1:s/2, idxTemp(count)), [sqrt(s/2) sqrt(s/2)]));
+                   subaxis(10,20, 2*pSmall, 'S',0.005, 'M',0.005);
+                   imshow(reshape(clust.data(s/2+1:end, idxTemp(count)), [sqrt(s/2) sqrt(s/2)]));
+                else
+                   subaxis(10,20, 2*pSmall-1, 'S',0.005, 'M',0.005);
+                   imshow([]);
+                   subaxis(10,20, 2*pSmall, 'S',0.005, 'M',0.005);
+                   imshow([]);
+                end
+            end
+            tocPlot = toc(ticPlot);
+            tPlotRemain = tocPlot * ((k-kk)*numPlotPerClust + numPlotPerClust - countPlot - 1);
+            [hours, mins, secs] = sec2hms(tPlotRemain);
+            fprintf('About %02dh%02dm%05.2fs left for clusters overview.\n', hours, mins, secs)
+            
+            fprintf('\nSaving plot...\n')
+            saveas(gcf, [dirName.clustMain dirName.clustSub sprintf('cluster_%d_sample_%04d-%04d_total-%04d.tif', ...
+                kk, 100*(pBig-1)+1, min([nIdxTemp, 100*pBig]), nIdxTemp)]);
+            close
+            
+            rightInput = 0;
+            while rightInput == 0
+                
+                countPlot = countPlot + 1;
+                if countPlot < numPlotPerClust
+                    rightInput = 1;
+                elseif countPlot == numPlotPerClust
+                    rightInput = 2;
+                else
+                    fprintf('Invalid input! Please re-input.\n')
+                end
+                
+%                 str = input('N/n: next big plot\nJ/j: jump to next cluster\nInput: ', 's');
+%                 if strcmp(str,'n') || strcmp(str,'N')
 %                     rightInput = 1;
-%                 elseif countPlot == numPlotPerClust
+%                 elseif strcmp(str,'j') || strcmp(str,'J')
 %                     rightInput = 2;
 %                 else
 %                     fprintf('Invalid input! Please re-input.\n')
 %                 end
-%                 
-% %                 str = input('N/n: next big plot\nJ/j: jump to next cluster\nInput: ', 's');
-% %                 if strcmp(str,'n') || strcmp(str,'N')
-% %                     rightInput = 1;
-% %                 elseif strcmp(str,'j') || strcmp(str,'J')
-% %                     rightInput = 2;
-% %                 else
-% %                     fprintf('Invalid input! Please re-input.\n')
-% %                 end
-%                 
-%             end
-% 
-%             if rightInput == 2
-%                 break % to next cluster
-%             end
-%             
-%         end
-%     end
-%     
-%     % labeling
-%     for m = 1 : k
-%         clust.sizeOfClust(m) = length(find(clust.clustIdx == m));
-%     end
-%     [clust.sortedSize clust.sortedIdx] = sort(clust.sizeOfClust);
-%     
-%     fprintf('\nSize of each cluster (ascending):\n')
-%     for m = 1 : k
-%        fprintf('Cluster %d    Size: %5d    Ratio: %3.2f\n', clust.sortedIdx(m), ...
-%            clust.sortedSize(m), clust.sortedSize(m)/sum(clust.sortedSize)) 
-%     end
-%     fprintf('Total: %5d\n', sum(clust.sortedSize))
-%     
-%     fprintf('\nInput the size of training set you want to make:\n')
-%     fprintf('(the selected samples are averagely from each cluster,\n')
-%     prompt = 'rather than random selection in the whole dataset)\n\nInput here:';
-%     trainSet.size = str2double(input(prompt, 's'));
-%     
-%     %% plot and label
-% %     n = 1; % modify here !!!
-%     % tidy data by cluster
-%     fprintf('\nGenerating training set...\n')
-%     for m = 1 : k
-%         fprintf('\nNow: %d Total: %d\n', m, k)
-% %         clustIdxTemp = clust.absIdx(find(clust.clustIdx == m), :);
-%         clustAbsIdxTemp = clust.absIdx(clust.clustIdx == m, :);
-% %         clustIdxTemp = clustIdxTemp(randTemp{m}, :);
-%         for n = 1 : size(clustAbsIdxTemp, 1)
-%             trainSet.data{m}(:, n) = sensor.image{clustAbsIdxTemp(n, 2)}(:, clustAbsIdxTemp(n, 1));
-% %             sensor.image{clustIdxTemp(n, 2)}(:, clustIdxTemp(n, 1)) = ...
-% %                 int8(sensor.image{clustIdxTemp(n, 2)}(:, clustIdxTemp(n, 1)));  % release memory
-%         end
-%         trainSet.label{m} = clust.label(:, clust.clustIdx == m);
-% %         trainSet.label{m} = trainSet.label{m}(:, randTemp{m});
-%         trainSet.absIdx{m} = clustAbsIdxTemp;
-%     end
-%     sensor = rmfield(sensor, 'image');
-%     
-%     sLeft = trainSet.size; % samples to label
-%     cAvai = [1:k]; % available clusters for labeling
-%     short = 0; % shortage for training set
-%     count = 0; % for labeled samples
-%     checkIn = [];
-%     trainSet.positionIn = zeros(k, 1);
-%     trainSet.positionOut = zeros(k, 1);
-%     trainSet.amountLeft = clust.sizeOfClust;
-%     ticLabel = tic;
-%     
-%     while sLeft > 0
-%         if ~isempty(cAvai)
-%             sAver = ceil(sLeft/length(cAvai)); % average size
-%             for m = cAvai
-%                 [shortTemp, bina] = calcuShort(sAver, trainSet.amountLeft(m));
-%                 % bina: binary switch
-%                 if bina == 1 % no short
-%                     % label sAver samples in the cluster
-%                     trainSet.positionIn(m) = trainSet.positionOut(m) + 1;
-%                     trainSet.positionOut(m) = trainSet.positionIn(m) + sAver - 1;
-%                 elseif bina == 2 % short
-%                     checkIn = [checkIn, m]; % record clusters that is short for labeling
-%                     % label all the rest samples in the cluster
-%                     trainSet.positionIn(m) = trainSet.positionOut(m) + 1;
-%                     trainSet.positionOut(m) = trainSet.positionIn(m) + trainSet.amountLeft(m) - 1;
-%                 end
-% 
-%                 short = short + shortTemp;
-%                 trainSet.amountLeft(m) = trainSet.amountLeft(m) - sAver + shortTemp;
-% 
-%                 [trainSet.label, count, shortHalfwayLeft] = dispAndLabel(trainSet.data, trainSet.label, ...
-%                         m, clust.sizeOfClust, trainSet.amountLeft, ...
-%                         trainSet.positionIn(m), trainSet.positionOut(m), count, trainSet.size, labelName, ticLabel);
-%                 
-%                 if shortHalfwayLeft > 0
-%                    short = short + shortHalfwayLeft;
-%                    checkIn = [checkIn, m]; % drop the unwanted cluster
-%                 end
-%             end
-%             sLeft = short; short = 0;
-%             cAvai = setdiff(cAvai, checkIn); checkIn = [];
-%         else
-%             fprintf('\nNo more available cluster!')
-%             fprintf('\nTarget training set size: %d', trainSet.size)
-%             fprintf('\nActual training set size: %d\n', trainSet.size - sLeft);
-%             break
-%         end
-%     end
-%     close
+                
+            end
+
+            if rightInput == 2
+                break % to next cluster
+            end
+            
+        end
+    end
+    
+    % labeling
+    for m = 1 : k
+        clust.sizeOfClust(m) = length(find(clust.clustIdx == m));
+    end
+    [clust.sortedSize clust.sortedIdx] = sort(clust.sizeOfClust);
+    
+    fprintf('\nSize of each cluster (ascending):\n')
+    for m = 1 : k
+       fprintf('Cluster %d    Size: %5d    Ratio: %3.2f\n', clust.sortedIdx(m), ...
+           clust.sortedSize(m), clust.sortedSize(m)/sum(clust.sortedSize)) 
+    end
+    fprintf('Total: %5d\n', sum(clust.sortedSize))
+    
+    fprintf('\nInput the size of training set you want to make:\n')
+    fprintf('(the selected samples are averagely from each cluster,\n')
+    prompt = 'rather than random selection in the whole dataset)\n\nInput here:';
+    trainSet.size = str2double(input(prompt, 's'));
+    
+    %% plot and label
+%     n = 1; % modify here !!!
+    % tidy data by cluster
+    fprintf('\nGenerating training set...\n')
+    for m = 1 : k
+        fprintf('\nNow: %d Total: %d\n', m, k)
+%         clustIdxTemp = clust.absIdx(find(clust.clustIdx == m), :);
+        clustAbsIdxTemp = clust.absIdx(clust.clustIdx == m, :);
+%         clustIdxTemp = clustIdxTemp(randTemp{m}, :);
+        for n = 1 : size(clustAbsIdxTemp, 1)
+            trainSet.data{m}(:, n) = sensor.image{clustAbsIdxTemp(n, 2)}(:, clustAbsIdxTemp(n, 1));
+%             sensor.image{clustIdxTemp(n, 2)}(:, clustIdxTemp(n, 1)) = ...
+%                 int8(sensor.image{clustIdxTemp(n, 2)}(:, clustIdxTemp(n, 1)));  % release memory
+        end
+        trainSet.label{m} = clust.label(:, clust.clustIdx == m);
+%         trainSet.label{m} = trainSet.label{m}(:, randTemp{m});
+        trainSet.absIdx{m} = clustAbsIdxTemp;
+    end
+    sensor = rmfield(sensor, 'image');
+    
+    sLeft = trainSet.size; % samples to label
+    cAvai = [1:k]; % available clusters for labeling
+    short = 0; % shortage for training set
+    count = 0; % for labeled samples
+    checkIn = [];
+    trainSet.positionIn = zeros(k, 1);
+    trainSet.positionOut = zeros(k, 1);
+    trainSet.amountLeft = clust.sizeOfClust;
+    ticLabel = tic;
+    
+    while sLeft > 0
+        if ~isempty(cAvai)
+            sAver = ceil(sLeft/length(cAvai)); % average size
+            for m = cAvai
+                [shortTemp, bina] = calcuShort(sAver, trainSet.amountLeft(m));
+                % bina: binary switch
+                if bina == 1 % no short
+                    % label sAver samples in the cluster
+                    trainSet.positionIn(m) = trainSet.positionOut(m) + 1;
+                    trainSet.positionOut(m) = trainSet.positionIn(m) + sAver - 1;
+                elseif bina == 2 % short
+                    checkIn = [checkIn, m]; % record clusters that is short for labeling
+                    % label all the rest samples in the cluster
+                    trainSet.positionIn(m) = trainSet.positionOut(m) + 1;
+                    trainSet.positionOut(m) = trainSet.positionIn(m) + trainSet.amountLeft(m) - 1;
+                end
+
+                short = short + shortTemp;
+                trainSet.amountLeft(m) = trainSet.amountLeft(m) - sAver + shortTemp;
+
+                [trainSet.label, count, shortHalfwayLeft] = dispAndLabel(trainSet.data, trainSet.label, ...
+                        m, clust.sizeOfClust, trainSet.amountLeft, ...
+                        trainSet.positionIn(m), trainSet.positionOut(m), count, trainSet.size, labelName, ticLabel);
+                
+                if shortHalfwayLeft > 0
+                   short = short + shortHalfwayLeft;
+                   checkIn = [checkIn, m]; % drop the unwanted cluster
+                end
+            end
+            sLeft = short; short = 0;
+            cAvai = setdiff(cAvai, checkIn); checkIn = [];
+        else
+            fprintf('\nNo more available cluster!')
+            fprintf('\nTarget training set size: %d', trainSet.size)
+            fprintf('\nActual training set size: %d\n', trainSet.size - sLeft);
+            break
+        end
+    end
+    close
     
     %% training set visualization    
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% temp
@@ -990,7 +993,7 @@ for s = sensor.numVec
         end
     end
     monthStatsPerSensorForPaper(sensor.statsPerSensor{s}, s, sensor.label.name, color);
-    dirName.statsPerSensor{s} = [sprintf('%s--%s_sensor_%02d', date.start, date.end, s) '_anomalyStats.emf'];
+    dirName.statsPerSensor{s} = [sprintf('%s--%s_sensor_%02d', date.start, date.end, s) '_anomalyStats.png'];
     saveas(gcf,[dirName.plotSPS dirName.statsPerSensor{s}]);
     fprintf('\nSenor-%02d anomaly stats bar-plot file location:\n%s\n', ...
         s, GetFullPath([dirName.plotSPS dirName.statsPerSensor{s}]))
@@ -998,7 +1001,7 @@ for s = sensor.numVec
     close
 end
 
-% reportStatsSensor; !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+% reportStatsSensor;!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 % plot anomaly space-time distribution per class
 dirName.plotSPT = [dirName.home 'plot/statsPerType/'];
@@ -1012,7 +1015,7 @@ for l = 1 : labelTotal
    end
    if sum(sum(sensor.statsPerLabel{l})) > 0
         monthStatsPerLabelForPaper(sensor.statsPerLabel{l}, l, sensor.label.name{l}, color);
-        dirName.statsPerLabel{l} = sprintf('%s--%s_sensor%s_anomalyStats_%s.emf', ...
+        dirName.statsPerLabel{l} = sprintf('%s--%s_sensor%s_anomalyStats_%s.png', ...
             date.start, date.end, sensorStr, sensor.label.name{l});
         saveas(gcf,[dirName.plotSPT dirName.statsPerLabel{l}]);
         fprintf('\n%s anomaly stats bar-plot file location:\n%s\n', ...
@@ -1064,7 +1067,7 @@ ax_width = outerpos(3) - ti(1) - ti(3) - 0.01;
 ax_height = outerpos(4) - ti(2) - ti(4);
 ax.Position = [left bottom ax_width ax_height];
 
-dirName.statsSum = sprintf('%s--%s_sensor%s_anomalyStats.emf', ...
+dirName.statsSum = sprintf('%s--%s_sensor%s_anomalyStats.png', ...
     date.start, date.end, sensorStr);
 
 saveas(gcf,[dirName.plotSum dirName.statsSum]);
@@ -1098,7 +1101,7 @@ elseif ismac
     imgLegend = imcrop(img, [882.5 57.5 204 280]);
 end
 figure, imshow(imgLegend)
-saveas(gcf, [dirName.plotPano 'legend.emf']); close
+saveas(gcf, [dirName.plotPano 'legend.png']); close
 
 elapsedTime(5) = toc(t(5)); [hours, mins, secs] = sec2hms(elapsedTime(5));
 fprintf('\n\n\nSTEP5:\nAnomaly statistics completes, using %02dh%02dm%05.2fs .\n', ...
@@ -1190,8 +1193,8 @@ while n <= util.hours
         xlim([0 size(sensor.data{s},1)]);
 
         % save fixed data plot
-        saveas(gcf,[dirName.outlierCleaned 'outlierCleaned_' num2str(n) '.emf']);
-        temp.image = imread([dirName.outlierCleaned 'outlierCleaned_' num2str(n) '.emf']);
+        saveas(gcf,[dirName.outlierCleaned 'outlierCleaned_' num2str(n) '.png']);
+        temp.image = imread([dirName.outlierCleaned 'outlierCleaned_' num2str(n) '.png']);
         temp.image = rgb2gray(temp.image);
         temp.image = im2double(temp.image(:));
         sensor.image{s}(:,n) = temp.image;  % update sensor.image
