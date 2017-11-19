@@ -551,7 +551,6 @@ for g = 1 : groupTotal
             feature{g}.label.manual(:,1 : feature{g}.trainSize), 'useGPU','yes');
         nntraintool close
         
-        
         yTrain = sensor.neuralNet{s}(feature{g}.image(:,1 : feature{g}.trainSize));
         yVali = sensor.neuralNet{s}(feature{g}.image(:,feature{g}.trainSize+1 : end));
         

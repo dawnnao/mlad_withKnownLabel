@@ -581,9 +581,6 @@ for g = 1 : groupTotal
             feature{g}.label.manual(:,1 : feature{g}.trainSize), 'useGPU','yes');
         nntraintool close
         
-%         fprintf('\nLoading original mat file...\n')
-%         load([dirName.home '2012-01-01--2012-12-31_sensor_1-38_fusion_autoenc1epoch_300_globalEpoch_500.mat']); %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        
         yTrain = sensor.neuralNet{s}(feature{g}.image(:,1 : feature{g}.trainSize));
         yVali = sensor.neuralNet{s}(feature{g}.image(:,feature{g}.trainSize+1 : end));
         

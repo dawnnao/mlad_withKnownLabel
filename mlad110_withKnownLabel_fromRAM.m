@@ -538,7 +538,7 @@ for g = 1 : groupTotal
             'SparsityRegularization',4, ...
             'SparsityProportion',0.15, ...
             'ScaleData', false, ...
-            'UseGPU', false);
+            'UseGPU', true);
         feat{1} = encode(autoenc{1},feature{g}.image(:,1 : feature{g}.trainSize));
         % hidden layer 2
         hiddenSize(2) = 75;
@@ -580,7 +580,6 @@ for g = 1 : groupTotal
             feature{g}.image(:,1 : feature{g}.trainSize), ...
             feature{g}.label.manual(:,1 : feature{g}.trainSize), 'useGPU','yes');
         nntraintool close
-        
         
         yTrain = sensor.neuralNet{s}(feature{g}.image(:,1 : feature{g}.trainSize));
         yVali = sensor.neuralNet{s}(feature{g}.image(:,feature{g}.trainSize+1 : end));
