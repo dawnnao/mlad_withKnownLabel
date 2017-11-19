@@ -108,6 +108,9 @@ for day = dayStart : dayEnd
                 hour, hour+1, labelName{labelIdx})
             fprintf('\nTotal: %d  Now: %d  ', hourTotal, count)
             fprintf('About %02dh%02dm%05.2fs left.\n', hours, mins, secs)
+            if s == sensorNum(end)
+               fprintf('\nHome folder: %s\n', pathSave)
+            end
         end
         count = count+1;
         sensorData = [];

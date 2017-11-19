@@ -330,6 +330,9 @@ while goNext == 0
                 
                 if exist(path.sourceFile, 'file')
                    fprintf('\nGenerating training set... %s Now: %d Total: %d\n', labelName{n}, m, label2012.trainNum(n))
+                   if mod(m, 100) == 0
+                      fprintf('\nHome folder: %s\n', dirName.home)
+                   end
                    img = imread(path.sourceFile);
                    img = im2double(img);
                    copyfile(path.sourceFile, path.goalFile, 'f');
@@ -412,7 +415,7 @@ tail = 'Continue to automatically train deep neural network(s)...';
 savePath = [dirName.home dirName.file];
 fprintf('\nSaving results...\nLocation: %s\n', savePath)
 if exist(savePath, 'file'), delete(savePath); end
-save(savePath, '-v7.3')
+save(savePath, '-v7.3', '-regexp', '^(?!(img2012)$).')
 if isempty(step)
     rightInput = 0;
     while rightInput == 0
@@ -474,6 +477,7 @@ date.serial.end   = datenum(date.end, dirName.formatIn);
 dirName.net = [dirName.home sprintf('/net_globalEpoch_%d_batchSize_%d_sizeFilter_%d_numFilter_%d/', maxEpoch(1), batchSize, sizeFilter, numFilter)];
 if ~exist(dirName.net,'dir'), mkdir(dirName.net); end
 
+fprintf('\nHome folder: %s\n', dirName.home)
 fprintf('\nData combining...\n')
 for g = 1 : groupTotal
     feature{g}.image = [];

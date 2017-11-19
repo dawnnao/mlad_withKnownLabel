@@ -338,6 +338,9 @@ while goNext == 0
                 
                 if exist(path.sourceFile1, 'file')
                    fprintf('\nGenerating training set... %s Now: %d Total: %d\n', labelName{n}, m, label2012.trainNum(n))
+                   if mod(m, 100) == 0
+                      fprintf('\nHome folder: %s\n', dirName.home)
+                   end
                    img1 = imread(path.sourceFile1);
                    img1 = im2double(img1);
                    copyfile(path.sourceFile1, path.goalFile1, 'f');                   
@@ -506,6 +509,7 @@ date.serial.end   = datenum(date.end, dirName.formatIn);
 dirName.net = [dirName.home sprintf('/net_globalEpoch_%d_batchSize_%d_sizeFilter_%d_numFilter_%d/', maxEpoch(1), batchSize, sizeFilter, numFilter)];
 if ~exist(dirName.net,'dir'), mkdir(dirName.net); end
 
+fprintf('\nHome folder: %s\n', dirName.home)
 fprintf('\nData combining...\n')
 for g = 1 : groupTotal
     feature{g}.image = [];

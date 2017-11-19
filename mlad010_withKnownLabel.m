@@ -333,6 +333,9 @@ while goNext == 0
                 
                 if exist(path.sourceFile1, 'file')
                    fprintf('\nGenerating training set... %s Now: %d Total: %d\n', labelName{n}, m, label2012.trainNum(n))
+                   if mod(m, 100) == 0
+                      fprintf('\nHome folder: %s\n', dirName.home)
+                   end
                    img1 = imread(path.sourceFile1);
                    img1 = im2double(img1);
                    copyfile(path.sourceFile1, path.goalFile1, 'f');                   
@@ -498,6 +501,7 @@ date.serial.start = datenum(date.start, dirName.formatIn);  % day numbers from y
 date.serial.end   = datenum(date.end, dirName.formatIn);
 % hourTotal = (date.serial.end-date.serial.start+1)*24;
 
+fprintf('\nHome folder: %s\n', dirName.home)
 fprintf('\nData combining...\n')
 for g = 1 : groupTotal
     feature{g}.image = [];
