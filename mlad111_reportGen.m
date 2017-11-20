@@ -1,4 +1,4 @@
-function sensor = mlad111_forReportGen(readRoot, saveRoot, sensorNum, ...
+function sensor = mlad111_reportGen(readRoot, saveRoot, sensorNum, ...
     dateStart, dateEnd, k, sensorClustRatio, sensorPSize, fs, step, labelName, ...
     seed, maxEpoch, batchSize, sizeFilter, numFilter)
 % DESCRIPTION:
@@ -143,7 +143,7 @@ elseif groupTotal > 1 && groupTotal < sensorTotal
     netLayout = '_customGroups';
 end
 
-dirName.home = sprintf('%s/%s--%s_sensor%s%s_trainRatio_%dpct_seed_%d/', saveRoot, date.start, date.end, sensorStr, netLayout, sensorTrainRatio*100, seed);
+dirName.home = sprintf('%s/%s--%s_sensor%s%s_trainRatio_%dpct_seed_%d/', saveRoot, date.start, date.end, sensorStr, netLayout, sensorClustRatio*100, seed);
 dirName.home = GetFullPath(dirName.home);
 dirName.file = sprintf('%s--%s_sensor%s%s_globalEpoch_%d_batchSize_%d_sizeFilter_%d_numFilter_%d.mat', date.start, date.end, sensorStr, netLayout, maxEpoch(1), batchSize, sizeFilter, numFilter);
 dirName.status = sprintf('%s--%s_sensor%s%s_status.mat', date.start, date.end, sensorStr, netLayout);
@@ -989,8 +989,6 @@ date.serial.start = datenum(date.start, dirName.formatIn);  % day numbers from y
 date.serial.end   = datenum(date.end, dirName.formatIn);
 hourTotal = (date.serial.end-date.serial.start+1)*24;
 
-% reportCover; % make report cover!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
 dirName.plot = [dirName.home sprintf('/plot_globalEpoch_%d_batchSize_%d_sizeFilter_%d_numFilter_%d/', maxEpoch(1), batchSize, sizeFilter, numFilter)];
 if ~exist(dirName.plot, 'dir'), mkdir(dirName.plot); end
 
@@ -1030,8 +1028,6 @@ dirName.panopano = [sprintf('%s--%s_sensor_all%s', date.start, date.end, sensorS
                     '_anomalyDetectionPanorama.tif'];
 imwrite(panopano, [dirName.plotPano dirName.panopano]);
 
-% reportPano; % make report chapter - Panorama!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
 clear height width p n
 
 % plot monthly stats per sensor
@@ -1053,8 +1049,6 @@ for s = sensor.numVec
     close
 end
 
-% reportStatsSensor;!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
 % plot anomaly space-time distribution per class
 dirName.plotSPT = [dirName.plot 'statsPerType/'];
 if ~exist(dirName.plotSPT, 'dir'), mkdir(dirName.plotSPT); end
@@ -1075,8 +1069,6 @@ for l = 1 : labelTotal
         close
     end
 end
-
-% reportStatsLabel;!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 % plot sensor-type bar stats
 dirName.plotSum = [dirName.plot 'statsSumUp/'];
@@ -1130,7 +1122,12 @@ fprintf('\nSum-up anomaly stats image file location:\n%s\n', ...
     GetFullPath([dirName.plotSum dirName.statsSum]))
 close
 
-% reportStatsTotal;!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+% report generation
+reportCover;
+reportPano;
+reportStatsSensor;
+reportStatsLabel;
+reportStatsTotal;
 
 % sum results to check ratios of each anomaly
 sensor.ratioOfCategory = zeros(3,labelTotal+1);

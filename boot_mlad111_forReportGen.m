@@ -7,16 +7,16 @@ clear;clc;close all;
 
 % mac
 readRoot = '/Volumes/BOOTCAMP/data/Sutong/';
-saveRoot = '/Users/zhiyitang/Programming/results/';
+saveRoot = '/Users/zhiyitang/Programming/results/mlad111_forReport/';
 
 sensorNum = [1:38];
 dateStart = '2012-01-01';
-dateEnd = '2012-12-31';
+dateEnd = '2012-1-10';
 k = 100; % number of clusters
-sensorClustRatio = 5/100;
+sensorClustRatio = 50/100;
 sensorPSize = 10;
 fs = 20;
-step = [2];
+step = [1 2 3 4 5];
 % labelName = {'1-normal','2-missing','3-minor','4-outlier','5-square','6-trend','7-drift'};
 seed = 1; % for random number generation
 maxEpoch = [150];
@@ -25,6 +25,6 @@ sizeFilter = [40];
 numFilter = [20];
 
 %%
-sensor = mlad111_forReportGen(readRoot, saveRoot, sensorNum, dateStart, dateEnd, ...
-    sensorClustRatio, sensorPSize, fs, step, [], seed, maxEpoch, batchSize, sizeFilter, numFilter);
+sensor = mlad111_reportGen(readRoot, saveRoot, sensorNum, dateStart, dateEnd, ...
+    k, sensorClustRatio, sensorPSize, fs, step, [], seed, maxEpoch, batchSize, sizeFilter, numFilter);
 
