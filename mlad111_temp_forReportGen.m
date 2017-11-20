@@ -1,4 +1,5 @@
-function sensor = mlad111_temp_forReportGen(readRoot, saveRoot, sensorNum, dateStart, dateEnd, k, sensorClustRatio, sensorPSize, fs, step, labelName)
+function sensor = mlad111_temp_forReportGen(readRoot, saveRoot, sensorNum, ...
+	dateStart, dateEnd, k, sensorClustRatio, sensorPSize, fs, step, labelName)
 % DESCRIPTION:
 %   This is a machine learning based anomaly detection (MLAD) pre-processing
 %   function for structural health monitoring data. The work flow is:
@@ -157,46 +158,6 @@ end
 %% 1 glance at data
 if ismember(1, step) || isempty(step)
 for g = 1 : groupTotal
-%     for s = sensor.num{g}
-%         t(1) = tic;
-% 
-%         dirName.formatIn = 'yyyy-mm-dd';
-%         date.serial.start = datenum(date.start, dirName.formatIn);  % day numbers from year 0000
-%         date.serial.end   = datenum(date.end, dirName.formatIn);
-% 
-%         % plot from mat file
-%         dirName.all{s} = [dirName.sensor{s} '0-all/'];
-%         if ~exist(dirName.all{s},'dir'), mkdir(dirName.all{s});
-%         else
-%             if ~isempty(ls(dirName.all{s}))
-%                 fprintf('\n%s\n\nFolder is already there and not empty, continue?\n', dirName.all{s})
-%                 rightInput = 0;
-%                 while rightInput == 0
-%                     prompt = 'y(yes)/n(no): ';
-%                     go = input(prompt,'s');
-%                     if strcmp(go,'y') || strcmp(go,'yes')
-%                         rightInput = 1;
-%                         fprintf('\nContinue...\n')
-%                     elseif strcmp(go,'n') || strcmp(go,'no')
-%                         rightInput = 1;
-%                         fprintf('\nFinish.\n')
-%                         return
-%                     else
-%                         fprintf('Invalid input! Please re-input.\n')
-%                     end
-%                 end
-%             end
-%         end
-% 
-%         [~, sensor.date.vec{s}, sensor.date.serial{s}] = ...
-%             glanceInTimeFreq(readRoot, s, date.serial.start, date.serial.end, dirName.all{s}, '0-all_', fs);
-%     %     util.hours = size(sensor.date.vec{s}, 1);
-% 
-%         elapsedTime(1) = toc(t(1)); [hours, mins, secs] = sec2hms(elapsedTime(1));
-%         fprintf('\nSTEP1:\nSensor-%02d data plot completes, using %02d:%02d:%05.2f .\n', ...
-%             s, hours, mins, secs)
-%     end
-
     for s = sensor.num{g}
         t(1) = tic;
 
@@ -750,12 +711,11 @@ for g = 1 : groupTotal
     
 end
 
-% add channel-3 into image
+% add channel 3 into image
 for n = 1 : numTemp
     feature{g}.image(:, :, 3, n) = ones(100, 100); % need modification here !!!
 end
 
-seed = 9;
 rng(seed,'twister');
 fprintf('\nTraining...\n')
 for g = 1 : groupTotal

@@ -1,5 +1,5 @@
 function sensor = mlad111_forReportGen(readRoot, saveRoot, sensorNum, ...
-    dateStart, dateEnd, sensorTrainRatio, sensorPSize, fs, step, labelName, ...
+    dateStart, dateEnd, k, sensorClustRatio, sensorPSize, fs, step, labelName, ...
     seed, maxEpoch, batchSize, sizeFilter, numFilter, publicImagesetPath, labelPath)
 % DESCRIPTION:
 %   This is a machine learning based anomaly detection (MLAD) pre-processing
@@ -36,7 +36,7 @@ function sensor = mlad111_forReportGen(readRoot, saveRoot, sensorNum, ...
 %                 share a network, sensorNum = {[1], [2,3]}
 %   dateStart (char) - start date of data, input format: 'yyyy-mm-dd'
 %   dateEnd (char) - end date of data, input format: 'yyyy-mm-dd'
-%   sensorTrainRatio (double) - (training set size)/(the whole data set size)
+%   sensorClustRatio (double) - (training set size)/(the whole data set size)
 %   sensorPSize (double) - data points in a packet in wireless transmission
 %                          (if a packet loses in transmission, all points
 %                           within become outliers)
@@ -44,7 +44,7 @@ function sensor = mlad111_forReportGen(readRoot, saveRoot, sensorNum, ...
 %                                            '4-Detect' '5-Inspect
 % 
 % DEFAULT VALUES:
-%   sensorTrainRatio = 5/100
+%   sensorClustRatio = 10/100
 %   sensorPSize = 10
 %   step = 1 (then program will ask go on or stop)
 % 
@@ -74,7 +74,7 @@ function sensor = mlad111_forReportGen(readRoot, saveRoot, sensorNum, ...
 %   otherwise data would cannot be read in.
 % 
 % CAUTION:
-%   mvad.m uses multiple subfunctions, insure they are there in the working directory.
+%   mlad.m uses multiple subfunctions, insure they are there in the working directory.
 
 % VERSION:
 %   0.4
@@ -92,7 +92,7 @@ function sensor = mlad111_forReportGen(readRoot, saveRoot, sensorNum, ...
 %   12/09/2016
 
 % set input defaults:
-if ~exist('sensorTrainRatio', 'var') || isempty(sensorTrainRatio), sensorTrainRatio = 5/100; end
+if ~exist('sensorClustRatio', 'var') || isempty(sensorClustRatio), sensorClustRatio = 10/100; end
 if ~exist('sensorPSize', 'var') || isempty(sensorPSize), sensorPSize = 10; end
 if ~exist('step', 'var'), step = []; end
 if ~exist('labelName', 'var') || isempty(labelName)
@@ -128,7 +128,7 @@ sensor.num = sensorNum;
 date.start = dateStart;
 date.end = dateEnd;
 for s = 1 : sensorTotal
-    sensor.trainRatio(sensor.numVec(s)) = sensorTrainRatio;
+    sensor.trainRatio(sensor.numVec(s)) = sensorClustRatio;
 end
 sensor.pSize = sensorPSize;
 sensor.label.name = labelName;
@@ -191,12 +191,12 @@ for g = 1 : groupTotal
         end
     end
             [~, sensor.date.vec{s}, sensor.date.serial{s}] = ...
-            glanceInTimeFreqMulti(readRoot, sensor.num{g}, date.serial.start, date.serial.end, dirName.all, '0-all_');
+            glanceInTimeFreqMulti(readRoot, sensor.num{g}, date.serial.start, date.serial.end, dirName.all, '0-all_', fs);
     %     util.hours = size(sensor.date.vec{s}, 1);
 
         elapsedTime(1) = toc(t(1)); [hours, mins, secs] = sec2hms(elapsedTime(1));
-        fprintf('\nSTEP1:\nSensor-%02d data plot completes, using %02d:%02d:%05.2f .\n', ...
-            s, hours, mins, secs)
+        fprintf('\nSTEP1:\nData plot completes, using %02d:%02d:%05.2f .\n', ...
+            hours, mins, secs)
 end
 
 % update work flow status
@@ -234,12 +234,12 @@ end
 
 %% 2 make training set
 if ismember(2, step) || isempty(step)
-dirName.trainSetByType = [GetFullPath(dirName.home) sprintf('trainingSetByType/')];
-if exist(dirName.trainSetByType,'dir')
-    check = ls(dirName.trainSetByType);
+dirName.mat = [dirName.home 'trainingSetMat/'];
+if exist(dirName.mat,'dir')
+    check = ls(dirName.mat);
     if ispc, check(1:4) = []; end
     if ~isempty(check)
-        fprintf('\nCAUTION:\n%s\nTraining set folder is already there and not empty, continue?\n', dirName.trainSetByType)
+        fprintf('\nCAUTION:\n%s\nTraining set folder is already there and not empty, continue?\n', dirName.mat)
         rightInput = 0;
         while rightInput == 0
             prompt = 'y(yes)/n(no): ';
@@ -256,7 +256,7 @@ if exist(dirName.trainSetByType,'dir')
             end
         end
     end
-elseif ~exist(dirName.trainSetByType,'dir'), mkdir(dirName.trainSetByType);
+elseif ~exist(dirName.mat,'dir'), mkdir(dirName.mat);
 end
 
 dirName.formatIn = 'yyyy-mm-dd';
@@ -264,142 +264,372 @@ date.serial.start = datenum(date.start, dirName.formatIn);  % day numbers from y
 date.serial.end   = datenum(date.end, dirName.formatIn);
 hourTotal = (date.serial.end-date.serial.start+1)*24;
 
-t(2) = tic;
+seed = 3;  % intialization
 goNext = 0;
 while goNext == 0
-    for g = 1 : groupTotal % ingore group in mvad2.m
-        labelTemp = load(labelPath); % label2012
-        label2012.bySensor = labelTemp.label2012.sensor.label.manual;
-        clear labelTemp;
-        
-        for n = 1 : labelTotal
-            label2012.byType{n} = [];
-            label2012.absIdx{n} = [];
-            label2012.image{n} = [];
+    
+    t(2) = tic;
+    % convert all data to image and save in mat file
+    dirName.imageSet = [dirName.home 'data2imageSet/'];
+    if ~exist(dirName.imageSet, 'dir'), mkdir(dirName.imageSet); end
+    
+    dirName.imageSetFile = [dirName.imageSet sprintf('data2imageSet.mat')];
+    
+    if exist(dirName.imageSetFile, 'file')
+        fprintf('\nLoading image set...\n')
+        ticLoad = tic;
+%         load(dirName.imageSetFile);  %                                   !!! temp
+        tocLoad = toc(ticLoad); [hours, mins, secs] = sec2hms(tocLoad);
+        fprintf('\nDone. Elapsed time for clustering: %02dh%02dm%05.2fs.\n', hours, mins, secs)
+    else
+        [sensor.image, dateVec, dateSerial] = data2img(readRoot, dirName.imageSet, ...
+            sensor.numVec, date.serial.start, date.serial.end, fs);
+        for s = sensor.numVec
+           sensor.date.vec{s} = dateVec;
+           sensor.date.serial{s} = dateSerial;
+		   
+						 
+		
+								   
+																						
+							  
+																							 
         end
-        
-        % count labels by type
-        for s = sensor.num{g}
-            for n = 1 : labelTotal
-                labelByType = find(label2012.bySensor{s} == n)';
-                labelByType = [s*ones(size(labelByType)) labelByType];
-                label2012.byType{n} = cat(1, label2012.byType{n}, labelByType);
-                labelByType = [];
-                label2012.actualNum(1, n) = size(label2012.byType{n}, 1);
-            end
-        end
-        clear labelByType
-        
-        label2012.ratioByType = [];
-        label2012.amount = size(label2012.bySensor{n}, 2) * size(label2012.bySensor, 2);
-        for n = 1 : labelTotal
-            label2012.ratioByType(n) = size(label2012.byType{n}, 1) / label2012.amount * 100;
-        end
-        
-        [actualNumSorted, idx] = sort(label2012.actualNum);
-        
-        leftNumToTrain = ceil(label2012.amount * sensorTrainRatio);
-        averageNumToTrain =  ceil(leftNumToTrain / labelTotal);
-        count = 0;
-        for n = idx
-            if averageNumToTrain <= label2012.actualNum(n)
-                label2012.trainNum(n) = averageNumToTrain;
-                leftNumToTrain = leftNumToTrain - averageNumToTrain;
-                count = count + 1;
+        fprintf('\nSaving image set (mat file)...\nLocation: %s\n', dirName.imageSet)
+        save(dirName.imageSetFile, 'sensor', '-v7.3')
+    end
+    
+    %% clustering
+    % check before clustering
+    dirName.clustMain = [dirName.home sprintf('clusterOverview/clusteringIn%d/', k)];
+    if exist(dirName.clustMain,'dir')
+        fprintf('\nFolder [%s] already exists. Re-clustering?\n', dirName.clustMain)
+        rightInput = 0;
+        while rightInput == 0
+            str = input('Y/y -- yes to go on\nN/n -- no and stop\nInput: ', 's');
+            if strcmp(str,'Y') || strcmp(str,'y')
+                rightInput = 1;
+                rmdir(dirName.clustMain,'s');
+                mkdir(dirName.clustMain)                
+            elseif strcmp(str,'N') || strcmp(str,'n')
+                rightInput = 1;
+                fprintf('\nFinish.\n')
+                return
             else
-                label2012.trainNum(n) = label2012.actualNum(n);
-                leftNumToTrain = leftNumToTrain - label2012.actualNum(n);
+                fprintf('Invalid input! Please re-input.\n')
+																		 
+								  
+																			  
+			
+            end
+        end
+    else
+        mkdir(dirName.clustMain) 
+    end
+    
+    % random sampling from sensor.image
+    downSampRatio = 4; % for width and height respectively of image
+    [clust.data, clust.absIdx] = genDataForClust(sensor.numVec, sensorClustRatio, ...
+                                                 sensor.image, downSampRatio);    
+    % clustering
+    fprintf('\nClustering...\n')
+    ticClust = tic;
+%     clust.data = clust.data';
+    clustDataInGPU = gpuArray(clust.data');
+    clust.clustIdx = gather(kmeans(clustDataInGPU, k,'MaxIter', 1000, 'Display', 'iter'));
+    clust.label = zeros(size(labelName, 2), size(clust.data, 2));  % label initialization
+    tocClust = toc(ticClust);
+    [hours, mins, secs] = sec2hms(tocClust);
+    fprintf('\nDone. Elapsed time for clustering: %02dh%02dm%05.2fs.\n', hours, mins, secs)
+    fprintf('\nCluster overview:\n')
+    
+    % plot clustering results
+    NP = 100; % sample number per plot
+    numPlotPerClust = 5; % number of big plots for each cluster
+    for kk = 1 : k
+        count = 0;
+        countPlot = 0;
+        idxTemp = find(clust.clustIdx == kk);
+        randTemp{kk} = randperm(length(idxTemp));
+%         idxTemp = idxTemp(randTemp{kk});
+        nIdxTemp = length(idxTemp);
+        
+        dirName.clustSub = sprintf('cluster-%02d/', kk);
+        if ~exist([dirName.clustMain dirName.clustSub], 'dir')
+            mkdir([dirName.clustMain dirName.clustSub]);
+																									
+																				 
+        end
+        
+        for pBig = 1 : ceil(nIdxTemp/NP) % overview plot
+            ticPlot = tic;
+            figure('position', [40, 40, 2000, 960])
+            fprintf('\nPloting... Cluster %d, sample %d-%d (total %d)\n', ...
+                kk, 100*(pBig-1)+1, min([nIdxTemp, 100*pBig]), nIdxTemp)
+            for pSmall = 1 : NP
                 count = count + 1;
-                averageNumToTrain = ceil(leftNumToTrain/(labelTotal - count));
+                if pSmall == 1
+                   set(gcf,'Name', sprintf('cluster %d, sample %d-%d (total %d)', ...
+                       kk, 100*(pBig-1)+1, min([nIdxTemp, 100*pBig]), nIdxTemp));
+                end
+                % plot each sample in overview
+                if count <= nIdxTemp
+                   s = size(clust.data(:, idxTemp(count)), 1);
+                   subaxis(10,20, 2*pSmall-1, 'S',0.005, 'M',0.005);
+                   imshow(reshape(clust.data(1:s/2, idxTemp(count)), [sqrt(s/2) sqrt(s/2)]));
+                   subaxis(10,20, 2*pSmall, 'S',0.005, 'M',0.005);
+                   imshow(reshape(clust.data(s/2+1:end, idxTemp(count)), [sqrt(s/2) sqrt(s/2)]));
+                else
+                   subaxis(10,20, 2*pSmall-1, 'S',0.005, 'M',0.005);
+                   imshow([]);
+                   subaxis(10,20, 2*pSmall, 'S',0.005, 'M',0.005);
+                   imshow([]);
+                end
+            end
+            tocPlot = toc(ticPlot);
+            tPlotRemain = tocPlot * ((k-kk)*numPlotPerClust + numPlotPerClust - countPlot - 1);
+            [hours, mins, secs] = sec2hms(tPlotRemain);
+            fprintf('About %02dh%02dm%05.2fs left for clusters overview.\n', hours, mins, secs)
             
-            end
-        end
-        
-        % get abs index
-        for n = 1 : labelTotal
-            rng(seed + n)
-            label2012.idxInType{n} = randperm(size(label2012.byType{n}, 1), label2012.trainNum(n))';
-            label2012.absIdx{n} = label2012.byType{n}(label2012.idxInType{n}, :);
-        end
-        
-        % get image from public imageset       
-        for n = 1 : labelTotal
-            if ~exist([dirName.trainSetByType labelName{n}], 'dir')
-                mkdir([dirName.trainSetByType labelName{n}]);
-            end
-            for m = 1 : label2012.trainNum(n)
-                path.sourceFolder = sprintf('%ssensor%02d/0-all/',publicImagesetPath , label2012.absIdx{n}(m, 1));
+            fprintf('\nSaving plot...\n')
+            saveas(gcf, [dirName.clustMain dirName.clustSub sprintf('cluster_%d_sample_%04d-%04d_total-%04d.tif', ...
+                kk, 100*(pBig-1)+1, min([nIdxTemp, 100*pBig]), nIdxTemp)]);
+            close
+            
+            rightInput = 0;
+            while rightInput == 0
                 
-                path.sourceFile1 = sprintf('%s0-all_absIdx_%d_%d_time.png', path.sourceFolder, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
-                path.goalFile1 = sprintf('%s%s/%s_absIdx_%02d_%d_time.png', dirName.trainSetByType, labelName{n}, labelName{n}, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
-                
-                path.sourceFile2 = sprintf('%s0-all_absIdx_%d_%d_freq.png', path.sourceFolder, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
-                path.goalFile2 = sprintf('%s%s/%s_absIdx_%02d_%d_freq.png', dirName.trainSetByType, labelName{n}, labelName{n}, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
-                
-                if exist(path.sourceFile1, 'file')
-                   fprintf('\nGenerating training set... %s Now: %d Total: %d\n', labelName{n}, m, label2012.trainNum(n))
-                   if mod(m, 100) == 0
-                      fprintf('\nHome folder: %s\n', dirName.home)
-                   end
-                   img1 = imread(path.sourceFile1);
-                   img1 = im2double(img1);
-                   copyfile(path.sourceFile1, path.goalFile1, 'f');                   
+                countPlot = countPlot + 1;
+                if countPlot < numPlotPerClust
+                    rightInput = 1;
+                elseif countPlot == numPlotPerClust
+                    rightInput = 2;
                 else
-                   fprintf('\nCAUTION:\n%s\nNo such file! Filled with a zero.\n', path.full)
-                   sensorData(1, 1) = zeros;
-                   plot(sensorData(:, 1),'color','k');
-                   position = get(gcf,'Position');
-                   set(gcf,'Units','pixels','Position',[position(1), position(2), 100, 100]);  % control figure's position
-                   set(gca,'Units','normalized', 'Position',[0 0 1 1]);  % control axis's position in figure
-                   set(gca,'visible','off');
-                   xlim([0 size(sensorData,1)]);
-                   set(gcf,'color','white');
-                   img1 = getframe(gcf);
-                   img1 = imresize(img1.cdata, [100 100]);  % expected dimension
-                   img1 = rgb2gray(img1);
-                   img1 = im2double(img1);
-                   imwrite(img1, path.goalFile);
+                    fprintf('Invalid input! Please re-input.\n')
                 end
-                   imshow(img1)
-                   label2012.image{n}(1:10000, m) = single(img1(:));
-                   
-                if exist(path.sourceFile2, 'file')
-                   fprintf('\nGenerating training set... %s Now: %d Total: %d\n', labelName{n}, m, label2012.trainNum(n))
-                   img2 = imread(path.sourceFile2);
-                   img2 = im2double(img2);
-                   copyfile(path.sourceFile2, path.goalFile2, 'f');                   
-                else
-                   fprintf('\nCAUTION:\n%s\nNo such file! Filled with a zero.\n', path.full)
-                   sensorData(1, 1) = zeros;
-                   plot(sensorData(:, 1),'color','k');
-                   position = get(gcf,'Position');
-                   set(gcf,'Units','pixels','Position',[position(1), position(2), 100, 100]);  % control figure's position
-                   set(gca,'Units','normalized', 'Position',[0 0 1 1]);  % control axis's position in figure
-                   set(gca,'visible','off');
-                   xlim([0 size(sensorData,1)]);
-                   set(gcf,'color','white');
-                   img2 = getframe(gcf);
-                   img2 = imresize(img2.cdata, [100 100]);  % expected dimension
-                   img2 = rgb2gray(img2);
-                   img2 = im2double(img2);
-                   imwrite(img2, path.goalFile2);
-                end
-                   imshow(img2)
-                   label2012.image{n}(10001:20000, m) = single(img2(:));
+                
+%                 str = input('N/n: next big plot\nJ/j: jump to next cluster\nInput: ', 's');
+%                 if strcmp(str,'n') || strcmp(str,'N')
+%                     rightInput = 1;
+%                 elseif strcmp(str,'j') || strcmp(str,'J')
+%                     rightInput = 2;
+%                 else
+%                     fprintf('Invalid input! Please re-input.\n')
+%                 end
+                
             end
-            clear img
-            label2012.imgLabel{n} = zeros(labelTotal, label2012.trainNum(n));
-            label2012.imgLabel{n}(n, :) = 1;
+
+            if rightInput == 2
+                break % to next cluster
+            end
+            
         end
+    end
+    
+    % labeling
+    for m = 1 : k
+        clust.sizeOfClust(m) = length(find(clust.clustIdx == m));
+    end
+    [clust.sortedSize clust.sortedIdx] = sort(clust.sizeOfClust);
+    
+    fprintf('\nSize of each cluster (ascending):\n')
+    for m = 1 : k
+       fprintf('Cluster %d    Size: %5d    Ratio: %3.2f\n', clust.sortedIdx(m), ...
+           clust.sortedSize(m), clust.sortedSize(m)/sum(clust.sortedSize)) 
+    end
+    fprintf('Total: %5d\n', sum(clust.sortedSize))
+    
+    fprintf('\nInput the size of training set you want to make:\n')
+    fprintf('(the selected samples are averagely from each cluster,\n')
+    prompt = 'rather than random selection in the whole dataset)\n\nInput here:';
+    trainSet.size = str2double(input(prompt, 's'));
+    
+    %% plot and label
+%     n = 1; % modify here !!!
+    % tidy data by cluster
+    fprintf('\nGenerating training set...\n')
+    for m = 1 : k
+        fprintf('\nNow: %d Total: %d\n', m, k)
+%         clustIdxTemp = clust.absIdx(find(clust.clustIdx == m), :);
+        clustAbsIdxTemp = clust.absIdx(clust.clustIdx == m, :);
+%         clustIdxTemp = clustIdxTemp(randTemp{m}, :);
+        for n = 1 : size(clustAbsIdxTemp, 1)
+            trainSet.data{m}(:, n) = sensor.image{clustAbsIdxTemp(n, 2)}(:, clustAbsIdxTemp(n, 1));
+%             sensor.image{clustIdxTemp(n, 2)}(:, clustIdxTemp(n, 1)) = ...
+%                 int8(sensor.image{clustIdxTemp(n, 2)}(:, clustIdxTemp(n, 1)));  % release memory
+        end
+        trainSet.label{m} = clust.label(:, clust.clustIdx == m);
+%         trainSet.label{m} = trainSet.label{m}(:, randTemp{m});
+        trainSet.absIdx{m} = clustAbsIdxTemp;
+    end
+    sensor = rmfield(sensor, 'image');
+    
+    sLeft = trainSet.size; % samples to label
+    cAvai = [1:k]; % available clusters for labeling
+    short = 0; % shortage for training set
+    count = 0; % for labeled samples
+    checkIn = [];
+    trainSet.positionIn = zeros(k, 1);
+    trainSet.positionOut = zeros(k, 1);
+    trainSet.amountLeft = clust.sizeOfClust;
+    ticLabel = tic;
+    
+    while sLeft > 0
+        if ~isempty(cAvai)
+            sAver = ceil(sLeft/length(cAvai)); % average size
+            for m = cAvai
+                [shortTemp, bina] = calcuShort(sAver, trainSet.amountLeft(m));
+                % bina: binary switch
+                if bina == 1 % no short
+                    % label sAver samples in the cluster
+                    trainSet.positionIn(m) = trainSet.positionOut(m) + 1;
+                    trainSet.positionOut(m) = trainSet.positionIn(m) + sAver - 1;
+                elseif bina == 2 % short
+                    checkIn = [checkIn, m]; % record clusters that is short for labeling
+                    % label all the rest samples in the cluster
+                    trainSet.positionIn(m) = trainSet.positionOut(m) + 1;
+                    trainSet.positionOut(m) = trainSet.positionIn(m) + trainSet.amountLeft(m) - 1;
+                end
+
+                short = short + shortTemp;
+                trainSet.amountLeft(m) = trainSet.amountLeft(m) - sAver + shortTemp;
+
+                [trainSet.label, count, shortHalfwayLeft] = dispAndLabel(trainSet.data, trainSet.label, ...
+                        m, clust.sizeOfClust, trainSet.amountLeft, ...
+                        trainSet.positionIn(m), trainSet.positionOut(m), count, trainSet.size, labelName, ticLabel);
+                
+                if shortHalfwayLeft > 0
+                   short = short + shortHalfwayLeft;
+                   checkIn = [checkIn, m]; % drop the unwanted cluster
+												 
+                end
+            end
+            sLeft = short; short = 0;
+            cAvai = setdiff(cAvai, checkIn); checkIn = [];
+        else
+            fprintf('\nNo more available cluster!')
+            fprintf('\nTarget training set size: %d', trainSet.size)
+            fprintf('\nActual training set size: %d\n', trainSet.size - sLeft);
+            break
+        end
+    end
+    close
+    
+    %% training set visualization    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% temp
+    % pause here
+    % manually load trainingSet_justLabel
+    % manually load sensorDate
+    sensor.date = sensorDate;
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% temp
+    
+%     trainSet.labelAll = [];
+%     trainSet.absIdxAll = [];
+%     
+%     % loop to combine clusters
+%     for m = 1 : size(trainSet.label, 2)
+%         trainSet.labelAll = [trainSet.labelAll trainSet.label{m}];
+%         trainSet.absIdxAll = [trainSet.absIdxAll; trainSet.absIdx{m}];  % row or column?
+%     end
+%     trainSet.labelAll = [trainSet.labelAll; zeros(1, size(trainSet.labelAll,2))];
+%     trainSet.labelAll(end, sum(trainSet.labelAll) == 0) = 1;  % adjust indexes of non-label samples
+%     trainSet.labelAll = vec2ind(trainSet.labelAll);
+%     
+%     % loop to separate each channel into cells
+%     for s = sensor.numVec
+%         idxTemp = [trainSet.absIdxAll(:, 2) == s];
+%         sensor.label.manual{s} = trainSet.labelAll(idxTemp);
+%         sensor.absIdx{s} = trainSet.absIdxAll(idxTemp, :);
+%     end
+% 
+%     % sort in time order
+%     for s = sensor.numVec
+%         [sensor.absIdx{s}, idxTemp] = sortrows(sensor.absIdx{s}, [1 2]);
+%         sensor.label.manual{s} = sensor.label.manual{s}(idxTemp);
+%     end
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%     % modify labels
+%      for mTemp = 29 : 38
+%          sensor.label.manual{mTemp}(sensor.label.manual{mTemp} == 3) = 1;
+%          
+%          
+%          
+%      end
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    % training set panorama
+    dirName.plotPanoTrainSet = [dirName.mat 'panorama/'];
+    if ~exist(dirName.plotPanoTrainSet, 'dir'), mkdir(dirName.plotPanoTrainSet); end
+    for s = sensor.numVec
+        if mod(s,2) == 1
+            yStrTemp = '';
+        else
+            yStrTemp = sprintf('      %02d', s);
+        end
+        panorama(sensor.date.serial{s}, sensor.label.manual{s}, yStrTemp, color(1:labelTotal+1));
+        dirName.panoramaTrainSet{s} = [sprintf('%s--%s_sensor_%02d', date.start, date.end, s) '_trainingSetLabelPanorama.png'];
+        saveas(gcf,[dirName.plotPanoTrainSet dirName.panoramaTrainSet{s}]);
+        fprintf('\nSenor-%02d training set panorama file location:\n%s\n', ...
+            s, GetFullPath([dirName.plotPanoTrainSet dirName.panoramaTrainSet{s}]))
         close
         
-        save([dirName.trainSetByType 'trainSetByType.mat'], 'label2012', '-v7.3')
+																				 
     end
-    goNext = 1;
+
+    n = 0;
+    panopano = [];
+    for s = sensor.numVec
+        n = n + 1;
+        p{s} = imread(GetFullPath([dirName.plotPanoTrainSet dirName.panoramaTrainSet{s}]));
+        if n > 1
+            height = size(p{s},1);
+            width = size(p{s},2);
+            p{s} = p{s}(1:ceil(height*0.22), :, :);
+        end
+        panopano = cat(1, p{s}, panopano);
+    end
+    dirName.panopanoTrainSet = [sprintf('%s--%s_sensor_all%s', date.start, date.end, sensorStr) ...
+                        '_trainingSetLabelPanorama.tif'];
+    imwrite(panopano, [dirName.plotPanoTrainSet dirName.panopanoTrainSet]);
     
+    %% clean non-labeled samples
+    for m = 1 : k
+        noLabel = find(sum(trainSet.label{m}) == 0);
+        trainSet.data{m}(:, noLabel) = [];
+        trainSet.label{m}(:, noLabel) = [];
+    end
+    
+    %% save training set
+    dirName.matFile = [dirName.mat sprintf('trainingSet.mat')];
+    if exist(dirName.matFile, 'file'), delete(dirName.matFile); end
+    fprintf('\nSaving training set...\nLocation: %s\n', dirName.matFile)
+    save(dirName.matFile, 'trainSet', '-v7.3')
+
+    elapsedTime(2) = toc(t(2));
+    [hours, mins, secs] = sec2hms(elapsedTime(2));
+    fprintf('\nTime consumption of training set making: %02dh%02dm%05.2fs\n\n', hours, mins, secs)
+        
+    fprintf('\nGo on, or re-clustering and re-labeling for any missing types?\n')
+    rightInput = 0;
+    while rightInput == 0
+        prompt = 'g(go)/r(redo): ';
+        go = input(prompt,'s');
+        if strcmp(go,'r') || strcmp(go,'redo')
+            rightInput = 1;
+            seed = seed + 1;
+        elseif strcmp(go,'g') || strcmp(go,'go')
+            rightInput = 1;
+            goNext = 1;
+        else
+            fprintf('Invalid input! Please re-input.\n')
+        end
+    end    
 end
 
 % update work flow status
+sensor.status{s} = {'1-Glance' '2-Label' '3-Train' '4-Detect' '5-Inspect' ...
+                     ; 0 0 0 0 0};
 status(2,2) = {1};
 savePath = [dirName.home dirName.status];
 if exist(savePath, 'file'), delete(savePath); end
@@ -410,7 +640,7 @@ fprintf('\n\n\nSTEP2:\nSensor(s) training set making completes, using %02d:%02d:
     hours, mins, secs)
 
 % ask go on or stop
-head = 'Continue to step3, automatically train deep neural network(s) now?';
+head = 'Continue to step3, automatically train neural network now?';
 tail = 'Continue to automatically train deep neural network(s)...';
 savePath = [dirName.home dirName.file];
 fprintf('\nSaving results...\nLocation: %s\n', savePath)
@@ -437,7 +667,7 @@ clear head tail savePath
 
 end
 
-%% 3 train network(s)
+%% 3 train network
 if ismember(3, step) || isempty(step)
 % update new parameters and load training sets
 if ~isempty(step) && step(1) == 3
@@ -446,18 +676,23 @@ if ~isempty(step) && step(1) == 3
     end
     newP{2,1} = sensor.pSize;
     newP{3,1} = step;
-    dirName.trainSetByType = [GetFullPath(dirName.home) sprintf('/trainingSetByType/')];
+    dirName.mat = [dirName.home 'trainingSetMat/'];
     
-    for g = 1 : groupTotal
-        load([dirName.trainSetByType 'trainSetByType.mat']);
-    end
-    % update
-    sensor.numVec = [];
-    for g = 1 : groupTotal, sensor.numVec = [sensor.numVec sensor.num{g}(:)']; end
-    if isempty(sensor.numVec)
-        fprintf('\nCAUTION:\nNo training set found in\n%s\n', dirName.mat)
+    dirName.matFile = [dirName.mat sprintf('trainingSet.mat')];
+    if ~exist(dirName.matFile, 'file')
+        fprintf('\nCAUTION:\nNo traning set found!\n')
         fprintf('Need to make trainning set (step2) first.\nFinish.\n')
         return
+    else
+        load(dirName.matFile);
+        
+%         sensor.label.manual{s} = labelTemp;
+%         for l = 1 : labelTotal
+%             manual.label{l}.image{s} = manualTemp{l};
+%             count.label{l,s} = countTemp{l};
+%         end
+%         clear labelTemp manualTemp countTemp
+        
     end
     
     for s = sensor.numVec
@@ -482,22 +717,25 @@ fprintf('\nData combining...\n')
 for g = 1 : groupTotal
     feature{g}.image = [];
     feature{g}.label.manual = [];
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    for l = 1 : 7 %labelTotal
-        feature{g}.image = [feature{g}.image label2012.image{l}];
-        feature{g}.label.manual = [feature{g}.label.manual label2012.imgLabel{l}];
+    for m = 1 : size(trainSet.data, 2)
+							 
+        feature{g}.image = [feature{g}.image trainSet.data{m}];
+        feature{g}.label.manual = [feature{g}.label.manual trainSet.label{m}];
     end
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+																		   
     % convert feature into 4D matrices for CNN training
     numTemp = size(feature{g}.image, 2);
     feature{g}.image = reshape(feature{g}.image, [100, 100, 2, numTemp]);
     % for define output layer size
     feature{g}.label.activeLabelNum = length(unique(vec2ind(feature{g}.label.manual)));
+    
+%     vec2idx(feature{g}.label.manual)
+    
 end
 
-% add channel-3 into image
+% add channel 3 into image
 for n = 1 : numTemp
-    feature{g}.image(:, :, 3, n) = ones(100, 100);
+    feature{g}.image(:, :, 3, n) = ones(100, 100); % need modification here !!!
 end
 
 rng(seed,'twister');
@@ -664,7 +902,6 @@ if ~isempty(step) && step(1) == 4
     newP{4,1} = sensor.label.name;
     newP{5,1} = readRoot;
     newP{6,1} = dirName.home;
-    newP{7,1} = labelPath;
     
     readPath = [dirName.home dirName.file];
     load(readPath)
@@ -674,7 +911,6 @@ if ~isempty(step) && step(1) == 4
     sensor.label.name = newP{4,1};
     readRoot = newP{5,1};
     dirName.home = newP{6,1};
-    labelPath = newP{7,1};
     clear newP
 end
 
@@ -747,7 +983,6 @@ if ~isempty(step) && step(1) == 5
     newP{4,1} = sensor.label.name;
     newP{5,1} = readRoot;
     newP{6,1} = dirName.home;
-    newP{7,1} = labelPath;
     
     readPath = [dirName.home dirName.file];
     fprintf('Loading...\n')
@@ -758,7 +993,6 @@ if ~isempty(step) && step(1) == 5
     sensor.label.name = newP{4,1};
     readRoot = newP{5,1};
     dirName.home = newP{6,1};
-    labelPath = newP{7,1};
     clear newP
 end
 t(5) = tic;
@@ -955,43 +1189,6 @@ for n = 1 : labelTotal
        labelNet(n, :) = 0;
     end
 end
-
-fprintf('\nLoading actual labels of 2012...\n')
-sensorTemp = load(labelPath);
-
-labelMan = [];
-for mTemp = 1 : 38
-    labelMan = cat(1, labelMan, sensorTemp.label2012.sensor.label.manual{mTemp}');
-end
-labelMan = ind2vec(labelMan');
-
-fprintf('\nPlotting confusion matrix...\n')
-[confTestC, confTestCM, confTestInd, confTestPer] = confusion(labelMan, labelNet); %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-confTestAccuracy = 1 - confTestC;
-confTestPrecision = confTestPer(:, 3);        
-for m = 1 : 7
-   confTestRecall(m, 1) = confTestCM(m, m) / sum(confTestCM(m, :)); 
-end
-
-figure
-plotconfusion(labelNet, labelMan)
-xlabel('Predicted');
-ylabel('Actual');
-title([]);
-set(gca,'fontname', 'Times New Roman', 'fontweight', 'bold', 'fontsize', 12);
-% minimize white space
-ax = gca;
-outerpos = ax.OuterPosition;
-ti = ax.TightInset; 
-left = outerpos(1) + ti(1);
-bottom = outerpos(2) + ti(2) + 0.03;
-ax_width = outerpos(3) - ti(1) - ti(3);
-ax_height = outerpos(4) - ti(2) - ti(4) - 0.03;
-ax.Position = [left bottom ax_width ax_height];
-dirName.plotConfusionMatrix2012 = [dirName.plot '/confusionMatrix2012/'];
-if ~exist(dirName.plotConfusionMatrix2012, 'dir'), mkdir(dirName.plotConfusionMatrix2012); end
-saveas(gcf, [dirName.plotConfusionMatrix2012 sprintf('comfusionMatrix_2012_') datestr(now,'yyyy-mm-dd_HH-MM-SS') sprintf('.png')]);
-close
 
 %%
 elapsedTime(5) = toc(t(5)); [hours, mins, secs] = sec2hms(elapsedTime(5));
