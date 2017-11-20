@@ -1,6 +1,6 @@
 function sensor = mlad111_forReportGen(readRoot, saveRoot, sensorNum, ...
     dateStart, dateEnd, k, sensorClustRatio, sensorPSize, fs, step, labelName, ...
-    seed, maxEpoch, batchSize, sizeFilter, numFilter, publicImagesetPath, labelPath)
+    seed, maxEpoch, batchSize, sizeFilter, numFilter)
 % DESCRIPTION:
 %   This is a machine learning based anomaly detection (MLAD) pre-processing
 %   function for structural health monitoring data. The work flow is:
@@ -264,7 +264,6 @@ date.serial.start = datenum(date.start, dirName.formatIn);  % day numbers from y
 date.serial.end   = datenum(date.end, dirName.formatIn);
 hourTotal = (date.serial.end-date.serial.start+1)*24;
 
-seed = 3;  % intialization
 goNext = 0;
 while goNext == 0
     
@@ -278,7 +277,7 @@ while goNext == 0
     if exist(dirName.imageSetFile, 'file')
         fprintf('\nLoading image set...\n')
         ticLoad = tic;
-%         load(dirName.imageSetFile);  %                                   !!! temp
+        load(dirName.imageSetFile);  %                                   !!! modify here
         tocLoad = toc(ticLoad); [hours, mins, secs] = sec2hms(tocLoad);
         fprintf('\nDone. Elapsed time for clustering: %02dh%02dm%05.2fs.\n', hours, mins, secs)
     else
@@ -286,14 +285,7 @@ while goNext == 0
             sensor.numVec, date.serial.start, date.serial.end, fs);
         for s = sensor.numVec
            sensor.date.vec{s} = dateVec;
-           sensor.date.serial{s} = dateSerial;
-		   
-						 
-		
-								   
-																						
-							  
-																							 
+           sensor.date.serial{s} = dateSerial;																				 
         end
         fprintf('\nSaving image set (mat file)...\nLocation: %s\n', dirName.imageSet)
         save(dirName.imageSetFile, 'sensor', '-v7.3')
@@ -317,10 +309,6 @@ while goNext == 0
                 return
             else
                 fprintf('Invalid input! Please re-input.\n')
-																		 
-								  
-																			  
-			
             end
         end
     else
@@ -1226,107 +1214,6 @@ elseif ismember(6, step), fprintf('\n%s\n\n\n', tail)
 end
 clear head tail savePath
 
-end
-
-%% 6 clean outliers
-if ismember(6, step) || isempty(step)
-% update new parameters
-if step == 6
-    for s = sensor.num
-        newP{1,s} = sensor.trainRatio(s);
-    end
-    newP{2,1} = sensor.pSize;
-    newP{3,1} = step;
-    load([dirName.home dirName.file]);
-    for s = sensor.num
-        sensor.trainRatio(s) = newP{1,s};
-    end
-    sensor.pSize =  newP{2,1};
-    step = newP{3,1};
-    clear newP
-end
-t(6) = tic;
-dirName.outlierCleaned = [dirName.home 'outlierCleaned/'];
-if ~exist(dirName.outlierCleaned,'dir'), mkdir(dirName.outlierCleaned); end
-
-figure
-n = 1;
-out.dotCount = 0;
-out.pieceCount = 0;
-while n <= util.hours       
-    if sensor.label.neuralNet{s}(n) == 3  % 3-outlier
-        ticRemain = tic;
-        % hour location
-        out.dotCount = out.dotCount + 1;
-        [out.date, out.hour] = colLocation(n, date.start);
-        fprintf('\n\n\nSensor-%02d:\nCount maximum as outlier.\n\n', s)
-        fprintf('Data:\nDate:  %s  %02d:00-%02d:00  hour%d (from %s 00:00)\n\n', ...
-            out.date, out.hour, out.hour+1, n, date.start)
-
-        % outlier location
-        [out.value, out.index] = max(abs(sensor.data{s}(:,n)));
-        fprintf('Outlier:\nPosition: %d-%d\nValue: %d\nCount: %d (packet size: %d)\n\n', ...
-            out.index, out.index+sensor.pSize-1, out.value, out.dotCount*sensor.pSize, sensor.pSize)
-
-        % remove outlier
-        sensor.data{s}(out.index:out.index+sensor.pSize-1, n) = 0;  % update sensor.data
-        fprintf('Outliers are replaced by 0.\n')
-        fprintf('Continue deleting outliers...\n\n')
-
-        plot(sensor.data{s}(:,n),'color','k');
-        position = get(gcf,'Position');
-        set(gcf,'Units','pixels','Position',[position(1) position(2) 100 100]);  % control figure's position
-        set(gca,'Units','normalized', 'Position',[0 0 1 1]);  % control axis's position in figure
-        set(gca,'visible','off');
-        xlim([0 size(sensor.data{s},1)]);
-
-        % save fixed data plot
-        saveas(gcf,[dirName.outlierCleaned 'outlierCleaned_' num2str(n) '.png']);
-        temp.image = imread([dirName.outlierCleaned 'outlierCleaned_' num2str(n) '.png']);
-        temp.image = rgb2gray(temp.image);
-        temp.image = im2double(temp.image(:));
-        sensor.image{s}(:,n) = temp.image;  % update sensor.image
-        temp.classify = vec2ind(sensor.neuralNet{s}(sensor.image{s}(:,n)));
-        sensor.label.neuralNet{s}(n) = temp.classify;  % update sensor.label.neuralNet
-%         nPrevious = n;
-        if temp.classify == 1
-            out.pieceCount = out.pieceCount + 1;
-            sensor.label.neuralNet{s}(n) = temp.classify;
-            fprintf('\n\nOutliers cleaned!\n%d outliers are in the data piece.\n%d data pieces remain to clean.\n', ...
-                out.dotCount*sensor.pSize, length(sensor.count{3,s})-out.pieceCount)
-            tocRemain = toc(ticRemain);
-            tRemain = tocRemain * out.dotCount * (length(sensor.count{3,s})-out.pieceCount);
-            [hours, mins, secs] = sec2hms(tRemain);
-            fprintf('%02dh%02dm%05.2fs estimated time left.\n', hours, mins, secs)
-            pause(2.5)
-            out.dotCount = 0;
-            n = n + 1;
-%         elseif temp.classify == 2
-%             fprintf('Continue deleting outlier...\n\n')
-        end
-    else
-        n = n + 1;
-    end
-
-    if n == util.hours+1
-        elapsedTime(6) = toc(t(6));
-        [hours, mins, secs] = sec2hms(elapsedTime(6));
-        fprintf('\n\n\n\n\n\nSTEP6:\nSensor-%02d outlier cleaning done, using %02d:%02d:%05.2f .\n', ...
-            s, hours, mins, secs)
-        fprintf('%d data pieces cleaned.\n', length(sensor.count{3,s}))
-    end
-end
-close
-
-% update sensor.status
-sensor.status{s}(2,6) = {1};
-fprintf('\nSaving results...\nLocation: %s\n', dirName.home)
-if exist([dirName.home dirName.file], 'file'), delete([dirName.home dirName.file]); end
-save([dirName.home dirName.file])
-elapsedTime(6) = toc(t(6)); [hours, mins, secs] = sec2hms(elapsedTime(1));
-fprintf('\nTime consumption: %02dh%02dm%05.2fs .\n', hours, mins, secs)
-fprintf('\nFinish!\n')
-close
 end
 
 end
