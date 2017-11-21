@@ -25,6 +25,6 @@ sizeFilter = [40];
 numFilter = [20];
 
 %%
-sensor = mlad111_reportGen(readRoot, saveRoot, sensorNum, dateStart, dateEnd, ...
+sensor = mlad111_reportGen_gpu(readRoot, saveRoot, sensorNum, dateStart, dateEnd, ...
     k, sensorClustRatio, sensorPSize, fs, step, [], seed, maxEpoch, batchSize, sizeFilter, numFilter);
 

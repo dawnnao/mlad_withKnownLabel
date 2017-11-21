@@ -20,7 +20,8 @@ while m <= out
     xlabel('frequency')
     ylabel('amplitude')
     title('frequency domain')
-    set(gcf,'Units','pixels','Position',[100, 100, 610, 300]);
+    position = get(gcf,'Position');
+    set(gcf,'Units','pixels','Position',[position(1), position(2), 610, 300]);
     pbaspect([1 1 1]);
     
     %% real-time count number of each label
