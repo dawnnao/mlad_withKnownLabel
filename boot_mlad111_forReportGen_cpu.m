@@ -1,19 +1,19 @@
 clear;clc;close all;
 
 % win
-% readRoot = 'C:/dataArchiveTemp/Sutong/';
-% saveRoot = 'D:/results/results_mlad_withKnownLabel/mlad111/';
+readRoot = 'C:/dataArchiveTemp/Sutong/';
+saveRoot = 'D:/results/mlad111_forReport/';
 % saveRoot = 'D:/results/results_mlad_withKnownLabel/round2/mlad111/';
 
 % mac
-readRoot = '/Volumes/BOOTCAMP/data/Sutong/';
-saveRoot = '/Users/zhiyitang/Programming/results/mlad111_forReport/';
+% readRoot = '/Volumes/BOOTCAMP/data/Sutong/';
+% saveRoot = '/Users/zhiyitang/Programming/results/mlad111_forReport/';
 
 sensorNum = [1:38];
 dateStart = '2012-01-01';
 dateEnd = '2012-1-10';
 k = 10; % number of clusters
-sensorClustRatio = 50/100;
+sensorClustRatio = 30/100;
 sensorPSize = 10;
 fs = 20;
 step = [2 3 4 5];
@@ -23,8 +23,8 @@ maxEpoch = [150];
 batchSize = 100;
 sizeFilter = [40];
 numFilter = [20];
-cpuOrGpu = 'cpu';
+cpuOrGpu = 'gpu';
 
 %%
-sensor = mlad111_reportGen_cpu(readRoot, saveRoot, sensorNum, dateStart, dateEnd, ...
+sensor = mlad111_reportGen(readRoot, saveRoot, sensorNum, dateStart, dateEnd, ...
     k, sensorClustRatio, sensorPSize, fs, step, [], seed, maxEpoch, batchSize, sizeFilter, numFilter, cpuOrGpu);

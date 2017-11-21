@@ -1,4 +1,4 @@
-function sensor = mlad111_reportGen_cpu(readRoot, saveRoot, sensorNum, ...
+function sensor = mlad111_reportGen(readRoot, saveRoot, sensorNum, ...
     dateStart, dateEnd, k, sensorClustRatio, sensorPSize, fs, step, labelName, ...
     seed, maxEpoch, batchSize, sizeFilter, numFilter, cpuOrGpu)
 % DESCRIPTION:
@@ -355,70 +355,70 @@ while goNext == 0
 																				 
         end
         
-%         for pBig = 1 : ceil(nIdxTemp/NP) % overview plot
-%             ticPlot = tic;
-%             figure('position', [40, 40, 2000, 960])
-%             fprintf('\nPloting... Cluster %d, sample %d-%d (total %d)\n', ...
-%                 kk, 100*(pBig-1)+1, min([nIdxTemp, 100*pBig]), nIdxTemp)
-%             for pSmall = 1 : NP
-%                 count = count + 1;
-%                 if pSmall == 1
-%                    set(gcf,'Name', sprintf('cluster %d, sample %d-%d (total %d)', ...
-%                        kk, 100*(pBig-1)+1, min([nIdxTemp, 100*pBig]), nIdxTemp));
-%                 end
-%                 % plot each sample in overview
-%                 if count <= nIdxTemp
-%                    s = size(clust.data(:, idxTemp(count)), 1);
-%                    subaxis(10,20, 2*pSmall-1, 'S',0.005, 'M',0.005);
-%                    imshow(reshape(clust.data(1:s/2, idxTemp(count)), [sqrt(s/2) sqrt(s/2)]));
-%                    subaxis(10,20, 2*pSmall, 'S',0.005, 'M',0.005);
-%                    imshow(reshape(clust.data(s/2+1:end, idxTemp(count)), [sqrt(s/2) sqrt(s/2)]));
-%                 else
-%                    subaxis(10,20, 2*pSmall-1, 'S',0.005, 'M',0.005);
-%                    imshow([]);
-%                    subaxis(10,20, 2*pSmall, 'S',0.005, 'M',0.005);
-%                    imshow([]);
-%                 end
-%             end
-%             tocPlot = toc(ticPlot);
-%             tPlotRemain = tocPlot * ((k-kk)*numPlotPerClust + numPlotPerClust - countPlot - 1);
-%             [hours, mins, secs] = sec2hms(tPlotRemain);
-%             fprintf('About %02dh%02dm%05.2fs left for clusters overview.\n', hours, mins, secs)
-%             
-%             fprintf('\nSaving plot...\n')
-%             saveas(gcf, [dirName.clustMain dirName.clustSub sprintf('cluster_%d_sample_%04d-%04d_total-%04d.tif', ...
-%                 kk, 100*(pBig-1)+1, min([nIdxTemp, 100*pBig]), nIdxTemp)]);
-%             close
-%             
-%             rightInput = 0;
-%             while rightInput == 0
-%                 
-%                 countPlot = countPlot + 1;
-%                 if countPlot < numPlotPerClust
-%                     rightInput = 1;
-%                 elseif countPlot == numPlotPerClust
-%                     rightInput = 2;
-%                 else
-%                     fprintf('Invalid input! Please re-input.\n')
-%                 end
-%                 
-%                 % human control
-%                 str = input('N/n: next big plot\nJ/j: jump to next cluster\nInput: ', 's');
-%                 if strcmp(str,'n') || strcmp(str,'N')
-%                     rightInput = 1;
-%                 elseif strcmp(str,'j') || strcmp(str,'J')
-%                     rightInput = 2;
-%                 else
-%                     fprintf('Invalid input! Please re-input.\n')
-%                 end
-%                 
-%             end
-% 
-%             if rightInput == 2
-%                 break % to next cluster
-%             end
-%             
-%         end
+        for pBig = 1 : ceil(nIdxTemp/NP) % overview plot
+            ticPlot = tic;
+            figure('position', [40, 40, 2000, 960])
+            fprintf('\nPloting... Cluster %d, sample %d-%d (total %d)\n', ...
+                kk, 100*(pBig-1)+1, min([nIdxTemp, 100*pBig]), nIdxTemp)
+            for pSmall = 1 : NP
+                count = count + 1;
+                if pSmall == 1
+                   set(gcf,'Name', sprintf('cluster %d, sample %d-%d (total %d)', ...
+                       kk, 100*(pBig-1)+1, min([nIdxTemp, 100*pBig]), nIdxTemp));
+                end
+                % plot each sample in overview
+                if count <= nIdxTemp
+                   s = size(clust.data(:, idxTemp(count)), 1);
+                   subaxis(10,20, 2*pSmall-1, 'S',0.005, 'M',0.005);
+                   imshow(reshape(clust.data(1:s/2, idxTemp(count)), [sqrt(s/2) sqrt(s/2)]));
+                   subaxis(10,20, 2*pSmall, 'S',0.005, 'M',0.005);
+                   imshow(reshape(clust.data(s/2+1:end, idxTemp(count)), [sqrt(s/2) sqrt(s/2)]));
+                else
+                   subaxis(10,20, 2*pSmall-1, 'S',0.005, 'M',0.005);
+                   imshow([]);
+                   subaxis(10,20, 2*pSmall, 'S',0.005, 'M',0.005);
+                   imshow([]);
+                end
+            end
+            tocPlot = toc(ticPlot);
+            tPlotRemain = tocPlot * ((k-kk)*numPlotPerClust + numPlotPerClust - countPlot - 1);
+            [hours, mins, secs] = sec2hms(tPlotRemain);
+            fprintf('About %02dh%02dm%05.2fs left for clusters overview.\n', hours, mins, secs)
+            
+            fprintf('\nSaving plot...\n')
+            saveas(gcf, [dirName.clustMain dirName.clustSub sprintf('cluster_%d_sample_%04d-%04d_total-%04d.tif', ...
+                kk, 100*(pBig-1)+1, min([nIdxTemp, 100*pBig]), nIdxTemp)]);
+            close
+            
+            rightInput = 0;
+            while rightInput == 0
+                
+                countPlot = countPlot + 1;
+                if countPlot < numPlotPerClust
+                    rightInput = 1;
+                elseif countPlot == numPlotPerClust
+                    rightInput = 2;
+                else
+                    fprintf('Invalid input! Please re-input.\n')
+                end
+                
+                % human control
+                str = input('N/n: next big plot\nJ/j: jump to next cluster\nInput: ', 's');
+                if strcmp(str,'n') || strcmp(str,'N')
+                    rightInput = 1;
+                elseif strcmp(str,'j') || strcmp(str,'J')
+                    rightInput = 2;
+                else
+                    fprintf('Invalid input! Please re-input.\n')
+                end
+                
+            end
+
+            if rightInput == 2
+                break % to next cluster
+            end
+            
+        end
     end
     
     % labeling
