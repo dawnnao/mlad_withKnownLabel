@@ -32,6 +32,7 @@ while m <= out
     
     %% label
     if count == all % incase of the exceeding due to round after division
+        shortHalfwayLeft = 0;
         return
     end
     fprintf('\n-----------------------------------------------------------------------------------------\n')    
@@ -67,6 +68,9 @@ while m <= out
             availInClust = availInClust + 1;
         else fprintf('\nThis is already the first!\n')
         end
+    elseif classify == 808
+        fprintf('\nGoing to next sample in current cluster.\n')
+        
     elseif classify == 909
         fprintf('\nGoing to next available cluster.\n')
         return

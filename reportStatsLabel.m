@@ -1,6 +1,6 @@
-headObj{3} = Heading1('Statistics by label');
+import mlreportgen.dom.*;
+headObj{3} = append(doc, Heading1('Statistics by label'));
 headObj{3}.FontSize = '18';
-append(doc, headObj{3});
 
 cBlank = cBlankNew; frag = 1;
 cBlankNew = cBlank + frag;

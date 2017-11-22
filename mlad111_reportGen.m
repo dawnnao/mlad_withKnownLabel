@@ -355,70 +355,70 @@ while goNext == 0
 																				 
         end
         
-        for pBig = 1 : ceil(nIdxTemp/NP) % overview plot
-            ticPlot = tic;
-            figure('position', [40, 40, 2000, 960])
-            fprintf('\nPloting... Cluster %d, sample %d-%d (total %d)\n', ...
-                kk, 100*(pBig-1)+1, min([nIdxTemp, 100*pBig]), nIdxTemp)
-            for pSmall = 1 : NP
-                count = count + 1;
-                if pSmall == 1
-                   set(gcf,'Name', sprintf('cluster %d, sample %d-%d (total %d)', ...
-                       kk, 100*(pBig-1)+1, min([nIdxTemp, 100*pBig]), nIdxTemp));
-                end
-                % plot each sample in overview
-                if count <= nIdxTemp
-                   s = size(clust.data(:, idxTemp(count)), 1);
-                   subaxis(10,20, 2*pSmall-1, 'S',0.005, 'M',0.005);
-                   imshow(reshape(clust.data(1:s/2, idxTemp(count)), [sqrt(s/2) sqrt(s/2)]));
-                   subaxis(10,20, 2*pSmall, 'S',0.005, 'M',0.005);
-                   imshow(reshape(clust.data(s/2+1:end, idxTemp(count)), [sqrt(s/2) sqrt(s/2)]));
-                else
-                   subaxis(10,20, 2*pSmall-1, 'S',0.005, 'M',0.005);
-                   imshow([]);
-                   subaxis(10,20, 2*pSmall, 'S',0.005, 'M',0.005);
-                   imshow([]);
-                end
-            end
-            tocPlot = toc(ticPlot);
-            tPlotRemain = tocPlot * ((k-kk)*numPlotPerClust + numPlotPerClust - countPlot - 1);
-            [hours, mins, secs] = sec2hms(tPlotRemain);
-            fprintf('About %02dh%02dm%05.2fs left for clusters overview.\n', hours, mins, secs)
-            
-            fprintf('\nSaving plot...\n')
-            saveas(gcf, [dirName.clustMain dirName.clustSub sprintf('cluster_%d_sample_%04d-%04d_total-%04d.tif', ...
-                kk, 100*(pBig-1)+1, min([nIdxTemp, 100*pBig]), nIdxTemp)]);
-            close
-            
-            rightInput = 0;
-            while rightInput == 0
-                
-                countPlot = countPlot + 1;
-                if countPlot < numPlotPerClust
-                    rightInput = 1;
-                elseif countPlot == numPlotPerClust
-                    rightInput = 2;
-                else
-                    fprintf('Invalid input! Please re-input.\n')
-                end
-                
-                % human control
-                str = input('N/n: next big plot\nJ/j: jump to next cluster\nInput: ', 's');
-                if strcmp(str,'n') || strcmp(str,'N')
-                    rightInput = 1;
-                elseif strcmp(str,'j') || strcmp(str,'J')
-                    rightInput = 2;
-                else
-                    fprintf('Invalid input! Please re-input.\n')
-                end
-                
-            end
-
-            if rightInput == 2
-                break % to next cluster
-            end
-            
-        end
+%         for pBig = 1 : ceil(nIdxTemp/NP) % overview plot
+%             ticPlot = tic;
+%             figure('position', [40, 40, 2000, 960])
+%             fprintf('\nPloting... Cluster %d, sample %d-%d (total %d)\n', ...
+%                 kk, 100*(pBig-1)+1, min([nIdxTemp, 100*pBig]), nIdxTemp)
+%             for pSmall = 1 : NP
+%                 count = count + 1;
+%                 if pSmall == 1
+%                    set(gcf,'Name', sprintf('cluster %d, sample %d-%d (total %d)', ...
+%                        kk, 100*(pBig-1)+1, min([nIdxTemp, 100*pBig]), nIdxTemp));
+%                 end
+%                 % plot each sample in overview
+%                 if count <= nIdxTemp
+%                    s = size(clust.data(:, idxTemp(count)), 1);
+%                    subaxis(10,20, 2*pSmall-1, 'S',0.005, 'M',0.005);
+%                    imshow(reshape(clust.data(1:s/2, idxTemp(count)), [sqrt(s/2) sqrt(s/2)]));
+%                    subaxis(10,20, 2*pSmall, 'S',0.005, 'M',0.005);
+%                    imshow(reshape(clust.data(s/2+1:end, idxTemp(count)), [sqrt(s/2) sqrt(s/2)]));
+%                 else
+%                    subaxis(10,20, 2*pSmall-1, 'S',0.005, 'M',0.005);
+%                    imshow([]);
+%                    subaxis(10,20, 2*pSmall, 'S',0.005, 'M',0.005);
+%                    imshow([]);
+%                 end
+%             end
+%             tocPlot = toc(ticPlot);
+%             tPlotRemain = tocPlot * ((k-kk)*numPlotPerClust + numPlotPerClust - countPlot - 1);
+%             [hours, mins, secs] = sec2hms(tPlotRemain);
+%             fprintf('About %02dh%02dm%05.2fs left for clusters overview.\n', hours, mins, secs)
+%             
+%             fprintf('\nSaving plot...\n')
+%             saveas(gcf, [dirName.clustMain dirName.clustSub sprintf('cluster_%d_sample_%04d-%04d_total-%04d.tif', ...
+%                 kk, 100*(pBig-1)+1, min([nIdxTemp, 100*pBig]), nIdxTemp)]);
+%             close
+%             
+%             rightInput = 0;
+%             while rightInput == 0
+%                 
+%                 countPlot = countPlot + 1;
+%                 if countPlot < numPlotPerClust
+%                     rightInput = 1;
+%                 elseif countPlot == numPlotPerClust
+%                     rightInput = 2;
+%                 else
+%                     fprintf('Invalid input! Please re-input.\n')
+%                 end
+%                 
+%                 % human control
+%                 str = input('N/n: next big plot\nJ/j: jump to next cluster\nInput: ', 's');
+%                 if strcmp(str,'n') || strcmp(str,'N')
+%                     rightInput = 1;
+%                 elseif strcmp(str,'j') || strcmp(str,'J')
+%                     rightInput = 2;
+%                 else
+%                     fprintf('Invalid input! Please re-input.\n')
+%                 end
+%                 
+%             end
+% 
+%             if rightInput == 2
+%                 break % to next cluster
+%             end
+%             
+%         end
     end
     
     % labeling
@@ -561,9 +561,7 @@ while goNext == 0
         saveas(gcf,[dirName.plotPanoTrainSet dirName.panoramaTrainSet{s}]);
         fprintf('\nSenor-%02d training set panorama file location:\n%s\n', ...
             s, GetFullPath([dirName.plotPanoTrainSet dirName.panoramaTrainSet{s}]))
-        close
-        
-																				 
+        close																 
     end
 
     n = 0;
@@ -708,7 +706,8 @@ for g = 1 : groupTotal
     numTemp = size(feature{g}.image, 2);
     feature{g}.image = reshape(feature{g}.image, [100, 100, 2, numTemp]);
     % for define output layer size
-    feature{g}.label.activeLabelNum = length(unique(vec2ind(feature{g}.label.manual)));
+    feature{g}.label.activeLabel = unique(vec2ind(feature{g}.label.manual));
+    feature{g}.label.activeLabelNum = length(feature{g}.label.activeLabel);
     
 %     vec2idx(feature{g}.label.manual)
     
@@ -729,6 +728,7 @@ for g = 1 : groupTotal
     for s = sensor.num{g}(1)
         feature{g}.trainRatio = 50/100;
         feature{g}.trainSize = floor(size(feature{g}.image,4) * feature{g}.trainRatio);
+        feature{g}.valiSize = size(feature{g}.image,4) - feature{g}.trainSize;
         % design architecture of CNN
         layers = [imageInputLayer([100 100 3])
                   
@@ -763,10 +763,43 @@ for g = 1 : groupTotal
         close
     end
     
-    yTrain = predict(sensor.neuralNet{s}, feature{g}.image(:, :, :, 1:feature{g}.trainSize))';
+    yTrain = predict(sensor.neuralNet{s}, feature{g}.image(:, :, :, 1:feature{g}.trainSize))';  % output vector
+%     yTrain = classify(sensor.neuralNet{s}, feature{g}.image(:, :, :, 1:feature{g}.trainSize))'; % output categorical
     
+    % mapping output to original dimension
+    yTrainGlobal = [];
+    
+    % convert from format categorical to double
+    yTrainGlobal = vec2ind(yTrain);
+%     for n = 1 : length(yTrain)
+%         yTrainGlobal(n) = str2double(str2mat(yTrain(n)));
+%     end
+    
+    % mapping
+    for m = 1 : feature{g}.label.activeLabelNum
+        yTrainGlobal(yTrainGlobal == m) = feature{g}.label.activeLabel(m);
+    end
+    
+%     % convert from format double to categorical back
+%     yTrainGlobal = double(ind2vec(yTrainGlobal));
+%     yTrainGlobal = categorical(yTrainGlobal);
+    
+    % convert from format double to vec
+    yTrainGlobal = ind2vec(yTrainGlobal);
+    
+    % check for row lacking
+    zeroToAdd = size(feature{g}.label.manual, 1) - size(yTrainGlobal, 1);
+    if zeroToAdd > 0
+        yTrainGlobal = [yTrainGlobal; zeros(zeroToAdd, feature{g}.trainSize)];
+    end
+    
+    featureLabelTrain = feature{g}.label.manual(:, 1:feature{g}.trainSize);
+%     featureLabelManual = vec2ind(feature{g}.label.manual(:, 1:feature{g}.trainSize));
+%     featureLabelManual = categorical(featureLabelManual);
+    
+    % comparison
     [confTrainC, confTrainCM, confTrainInd, confTrainPer] = ...
-        confusion(feature{g}.label.manual(:, 1:feature{g}.trainSize), yTrain); %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        confusion(featureLabelTrain, yTrainGlobal);
     confTrainAccuracy = 1 - confTrainC;
     confTrainPrecision = confTrainPer(:, 3);
     for m = 1 : 7
@@ -774,7 +807,7 @@ for g = 1 : groupTotal
     end
     
     figure
-    plotconfusion(yTrain, feature{g}.label.manual(:, 1:feature{g}.trainSize));
+    plotconfusion(yTrainGlobal, featureLabelTrain);
     xlabel('Predicted');
     ylabel('Actual');
     title([]);
@@ -793,8 +826,25 @@ for g = 1 : groupTotal
     
     yVali = predict(sensor.neuralNet{s}, feature{g}.image(:, :, :, feature{g}.trainSize+1:end))';
     
+    % mapping output to original dimension
+    yValiGlobal = [];
+    % convert from format categorical to double
+    yValiGlobal = vec2ind(yVali);
+    % mapping
+    for m = 1 : feature{g}.label.activeLabelNum
+        yValiGlobal(yValiGlobal == m) = feature{g}.label.activeLabel(m);
+    end
+    % convert from format double to vec
+    yValiGlobal = ind2vec(yValiGlobal);
+    % check for row lacking
+    zeroToAdd = size(feature{g}.label.manual, 1) - size(yValiGlobal, 1);
+    if zeroToAdd > 0
+        yValiGlobal = [yValiGlobal; zeros(zeroToAdd, feature{g}.valiSize)];
+    end
+    
+    featureLabelVali = feature{g}.label.manual(:,feature{g}.trainSize+1 : end);
     [confValiC, confValiCM, confValiInd, confValiPer] = ...
-        confusion(feature{g}.label.manual(:,feature{g}.trainSize+1 : end), yVali); %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        confusion(featureLabelVali, yValiGlobal);
     confValiAccuracy = 1 - confValiC;
     confValiPrecision = confValiPer(:, 3);        
     for m = 1 : 7
@@ -802,7 +852,7 @@ for g = 1 : groupTotal
     end
     
     figure
-    plotconfusion(yVali, feature{g}.label.manual(:, feature{g}.trainSize+1:end));
+    plotconfusion(yValiGlobal, featureLabelVali);
 %     plotconfusion(feature{g}.label.manual, yTrain);
     xlabel('Predicted');
     ylabel('Actual');
@@ -985,43 +1035,43 @@ hourTotal = (date.serial.end-date.serial.start+1)*24;
 dirName.plot = [dirName.home sprintf('/plot_globalEpoch_%d_batchSize_%d_sizeFilter_%d_numFilter_%d/', maxEpoch(1), batchSize, sizeFilter, numFilter)];
 if ~exist(dirName.plot, 'dir'), mkdir(dirName.plot); end
 
-% plot panorama
-dirName.plotPano = [dirName.plot 'panorama/'];
-if ~exist(dirName.plotPano, 'dir'), mkdir(dirName.plotPano); end
-for s = sensor.numVec
-    if mod(s,2) == 1
-        yStrTemp = '';
-    else
-        yStrTemp = sprintf('      %02d', s);
-    end
-    panorama(sensor.date.serial{s}, sensor.label.neuralNet{s}, yStrTemp, color(1:labelTotal));
-    dirName.panorama{s} = [sprintf('%s--%s_sensor_%02d', date.start, date.end, s) '_anomalyDetectionPanorama.png'];
-    saveas(gcf,[dirName.plotPano dirName.panorama{s}]);
-    fprintf('\nSenor-%02d anomaly detection panorama file location:\n%s\n', ...
-        s, GetFullPath([dirName.plotPano dirName.panorama{s}]))
-    close
-    
-    % update sensor.status
-    sensor.status{s}(2,5) = {1};
-end
-
-n = 0;
-panopano = [];
-for s = sensor.numVec
-    n = n + 1;
-    p{s} = imread(GetFullPath([dirName.plotPano dirName.panorama{s}]));
-    if n > 1
-        height = size(p{s},1);
-        width = size(p{s},2);
-        p{s} = p{s}(1:ceil(height*0.22), :, :);
-    end
-    panopano = cat(1, p{s}, panopano);
-end
-dirName.panopano = [sprintf('%s--%s_sensor_all%s', date.start, date.end, sensorStr) ...
-                    '_anomalyDetectionPanorama.tif'];
-imwrite(panopano, [dirName.plotPano dirName.panopano]);
-
-clear height width p n
+% % plot panorama
+% dirName.plotPano = [dirName.plot 'panorama/'];
+% if ~exist(dirName.plotPano, 'dir'), mkdir(dirName.plotPano); end
+% for s = sensor.numVec
+%     if mod(s,2) == 1
+%         yStrTemp = '';
+%     else
+%         yStrTemp = sprintf('      %02d', s);
+%     end
+%     panorama(sensor.date.serial{s}, sensor.label.neuralNet{s}, yStrTemp, color(1:labelTotal));
+%     dirName.panorama{s} = [sprintf('%s--%s_sensor_%02d', date.start, date.end, s) '_anomalyDetectionPanorama.png'];
+%     saveas(gcf,[dirName.plotPano dirName.panorama{s}]);
+%     fprintf('\nSenor-%02d anomaly detection panorama file location:\n%s\n', ...
+%         s, GetFullPath([dirName.plotPano dirName.panorama{s}]))
+%     close
+%     
+%     % update sensor.status
+%     sensor.status{s}(2,5) = {1};
+% end
+% 
+% n = 0;
+% panopano = [];
+% for s = sensor.numVec
+%     n = n + 1;
+%     p{s} = imread(GetFullPath([dirName.plotPano dirName.panorama{s}]));
+%     if n > 1
+%         height = size(p{s},1);
+%         width = size(p{s},2);
+%         p{s} = p{s}(1:ceil(height*0.22), :, :);
+%     end
+%     panopano = cat(1, p{s}, panopano);
+% end
+% dirName.panopano = [sprintf('%s--%s_sensor_all%s', date.start, date.end, sensorStr) ...
+%                     '_anomalyDetectionPanorama.tif'];
+% imwrite(panopano, [dirName.plotPano dirName.panopano]);
+% 
+% clear height width p n
 
 % plot monthly stats per sensor
 dirName.plotSPS = [dirName.plot 'statsPerSensor/'];
@@ -1038,84 +1088,84 @@ for s = sensor.numVec
     saveas(gcf,[dirName.plotSPS dirName.statsPerSensor{s}]);
     fprintf('\nSenor-%02d anomaly stats bar-plot file location:\n%s\n', ...
         s, GetFullPath([dirName.plotSPS dirName.statsPerSensor{s}]))
-
     close
 end
 
-% plot anomaly space-time distribution per class
-dirName.plotSPT = [dirName.plot 'statsPerType/'];
-if ~exist(dirName.plotSPT, 'dir'), mkdir(dirName.plotSPT); end
-for l = 1 : labelTotal
-   for s = sensor.numVec
-       for n = 1 : 12
-           aim = find(sensor.date.vec{s}(:,2) == n);
-           sensor.statsPerLabel{l}(n, s) = length(find(sensor.label.neuralNet{s}(aim) == categorical(l)));
-       end
-   end
-   if sum(sum(sensor.statsPerLabel{l})) > 0
-        monthStatsPerLabelForPaper(sensor.statsPerLabel{l}, l, sensor.label.name{l}, color);
-        dirName.statsPerLabel{l} = sprintf('%s--%s_sensor%s_anomalyStats_%s.png', ...
-            date.start, date.end, sensorStr, sensor.label.name{l});
-        saveas(gcf,[dirName.plotSPT dirName.statsPerLabel{l}]);
-        fprintf('\n%s anomaly stats bar-plot file location:\n%s\n', ...
-            sensor.label.name{l}, GetFullPath([dirName.plotSPT dirName.statsPerLabel{l}]))
-        close
-    end
-end
-
-% plot sensor-type bar stats
-dirName.plotSum = [dirName.plot 'statsSumUp/'];
-if ~exist(dirName.plotSum, 'dir'), mkdir(dirName.plotSum); end
-for s = sensor.numVec
-   for l = 1 : labelTotal
-       statsSum(s, l) = length(find(sensor.label.neuralNet{s} == categorical(l)));
-   end
-end
-
-if ~isempty(statsSum(1,1)) && size(statsSum, 1) == 1
-    statsSum(2,1:labelTotal) = 0;
-end
-
-figure
-h = bar(statsSum, 'stacked');
-xlabel('Sensor');
-ylabel('Count (hours)');
-legend(sensor.label.name);
-lh=findall(gcf,'tag','legend');
-set(lh,'location','northeastoutside');
-title(sprintf('%s -- %s', date.start, date.end));
-grid on
-for n = 1 : labelTotal
-    set(h(n),'FaceColor', color{n});
-end
-set(gca, 'fontsize', 13, 'fontname', 'Times New Roman', 'fontweight', 'bold');
-set(gcf,'Units','pixels','Position',[100, 100, 1000, 500]);  % control figure's position
-xlim([0 39]);
-ylim([0 9000]);
-set(gca,'xtick',[1,5:5:35, 38]);
-
-% minimize white space
-ax = gca;
-outerpos = ax.OuterPosition;
-ti = ax.TightInset; 
-left = outerpos(1) + ti(1);
-bottom = outerpos(2) + ti(2);
-ax_width = outerpos(3) - ti(1) - ti(3) - 0.01;
-ax_height = outerpos(4) - ti(2) - ti(4);
-ax.Position = [left bottom ax_width ax_height];
-
-dirName.statsSum = sprintf('%s--%s_sensor%s_anomalyStats.png', ...
-    date.start, date.end, sensorStr);
-
-saveas(gcf,[dirName.plotSum dirName.statsSum]);
-dirName.statsSum = sprintf('%s--%s_sensor%s_anomalyStats.png', ...
-    date.start, date.end, sensorStr);
-saveas(gcf,[dirName.plotSum dirName.statsSum]);
-fprintf('\nSum-up anomaly stats image file location:\n%s\n', ...
-    GetFullPath([dirName.plotSum dirName.statsSum]))
-close
+% % plot anomaly space-time distribution per class
+% dirName.plotSPT = [dirName.plot 'statsPerType/'];
+% if ~exist(dirName.plotSPT, 'dir'), mkdir(dirName.plotSPT); end
+% for l = 1 : labelTotal
+%    for s = sensor.numVec
+%        for n = 1 : 12
+%            aim = find(sensor.date.vec{s}(:,2) == n);
+%            sensor.statsPerLabel{l}(n, s) = length(find(sensor.label.neuralNet{s}(aim) == categorical(l)));
+%        end
+%    end
+%    if sum(sum(sensor.statsPerLabel{l})) > 0
+%         monthStatsPerLabelForPaper(sensor.statsPerLabel{l}, l, sensor.label.name{l}, color);
+%         dirName.statsPerLabel{l} = sprintf('%s--%s_sensor%s_anomalyStats_%s.png', ...
+%             date.start, date.end, sensorStr, sensor.label.name{l});
+%         saveas(gcf,[dirName.plotSPT dirName.statsPerLabel{l}]);
+%         fprintf('\n%s anomaly stats bar-plot file location:\n%s\n', ...
+%             sensor.label.name{l}, GetFullPath([dirName.plotSPT dirName.statsPerLabel{l}]))
+%         close
+%     end
+% end
+% 
+% % plot sensor-type bar stats
+% dirName.plotSum = [dirName.plot 'statsSumUp/'];
+% if ~exist(dirName.plotSum, 'dir'), mkdir(dirName.plotSum); end
+% for s = sensor.numVec
+%    for l = 1 : labelTotal
+%        statsSum(s, l) = length(find(sensor.label.neuralNet{s} == categorical(l)));
+%    end
+% end
+% 
+% if ~isempty(statsSum(1,1)) && size(statsSum, 1) == 1
+%     statsSum(2,1:labelTotal) = 0;
+% end
+% 
+% figure
+% h = bar(statsSum, 'stacked');
+% xlabel('Sensor');
+% ylabel('Count (hours)');
+% legend(sensor.label.name);
+% lh=findall(gcf,'tag','legend');
+% set(lh,'location','northeastoutside');
+% title(sprintf('%s -- %s', date.start, date.end));
+% grid on
+% for n = 1 : labelTotal
+%     set(h(n),'FaceColor', color{n});
+% end
+% set(gca, 'fontsize', 13, 'fontname', 'Times New Roman', 'fontweight', 'bold');
+% set(gcf,'Units','pixels','Position',[100, 100, 1000, 500]);  % control figure's position
+% xlim([0 39]);
+% ylim([0 9000]);
+% set(gca,'xtick',[1,5:5:35, 38]);
+% 
+% % minimize white space
+% ax = gca;
+% outerpos = ax.OuterPosition;
+% ti = ax.TightInset; 
+% left = outerpos(1) + ti(1);
+% bottom = outerpos(2) + ti(2);
+% ax_width = outerpos(3) - ti(1) - ti(3) - 0.01;
+% ax_height = outerpos(4) - ti(2) - ti(4);
+% ax.Position = [left bottom ax_width ax_height];
+% 
+% dirName.statsSum = sprintf('%s--%s_sensor%s_anomalyStats.png', ...
+%     date.start, date.end, sensorStr);
+% 
+% saveas(gcf,[dirName.plotSum dirName.statsSum]);
+% dirName.statsSum = sprintf('%s--%s_sensor%s_anomalyStats.png', ...
+%     date.start, date.end, sensorStr);
+% saveas(gcf,[dirName.plotSum dirName.statsSum]);
+% fprintf('\nSum-up anomaly stats image file location:\n%s\n', ...
+%     GetFullPath([dirName.plotSum dirName.statsSum]))
+% close
 
 % report generation
+fprintf('\nGenerating report...\n')
 reportCover;
 reportPano;
 reportStatsSensor;
@@ -1153,7 +1203,6 @@ for mTemp = 1 : 38
 end
 % savePath = [GetFullPath(dirName.home) '/' 'sensorLabelNetSerial.mat'];
 % save(savePath, 'sensorLabelNetSerial', '-v7.3')
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% temp
 
 %% comparison between detection results and actual labels of 2012
 labelNet = [];
@@ -1163,10 +1212,11 @@ end
 labelNet = ind2vec(labelNet);
 
 for n = 1 : labelTotal
-    if ~ismember(categorical(n), sensorLabelNetSerial)
+    if ~ismember(categorical(n), sensorLabelNetSerial)       
        labelNet(n, :) = 0;
     end
 end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% temp
 
 %%
 elapsedTime(5) = toc(t(5)); [hours, mins, secs] = sec2hms(elapsedTime(5));

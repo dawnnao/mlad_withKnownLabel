@@ -1,5 +1,5 @@
 import mlreportgen.dom.*;
-dirName.docFile = sprintf('%s--%s_sensor%s%s', date.start, date.end, sensorStr, netlayout);
+dirName.docFile = sprintf('%s%s--%s_sensor%s%s', dirName.home, date.start, date.end, sensorStr, netLayout);
 reportType = 'docx';
 doc = Document(dirName.docFile, reportType);
 
@@ -10,13 +10,13 @@ for n = cBlank+1 : cBlankNew
     append(doc, blankObj{n});
 end
 
-titleObj{1} = Paragraph('SHM Data Anomaly Detection Auto-Report');
+titleObj{1} = Paragraph('Machine Learning-based SHM Data Anomaly Detection Auto-Report');
 titleObj{1}.Bold = false;
 titleObj{1}.FontSize = '26';
 titleObj{1}.HAlign = 'center';
 append(doc, titleObj{1});
 
-titleObj{2} = Paragraph('��Version: 0.1��');
+titleObj{2} = Paragraph('Version: 0.1');
 titleObj{2}.Bold = false;
 titleObj{2}.FontSize = '18';
 titleObj{2}.HAlign = 'center';
@@ -57,6 +57,6 @@ append(doc ,br{cPageBreak}); cPageBreak = cPageBreak + 1;
 sect{1} = DOCXPageLayout;
 sect{1}.PageSize.Orientation = 'landscape';
 sect{1}.SectionBreak = 'Next Page';
-sect{1}.PageSize.Height = '8.5in';
-sect{1}.PageSize.Width = '11in';
+sect{1}.PageSize.Height = '8.27in';
+sect{1}.PageSize.Width = '11.69in';
 append(doc, sect{1});

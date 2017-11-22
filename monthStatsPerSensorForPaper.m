@@ -1,4 +1,4 @@
-function f = monthStatsPerSensor(stats, sensor, labelName, color)
+function f = monthStatsPerSensorForPaper(stats, sensor, labelName, color)
 % DESCRIPTION:
 %   This is a subfunction of mvad.m, to auto-draw bar plot
 
