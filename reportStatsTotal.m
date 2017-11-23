@@ -18,7 +18,14 @@ statsPara = Paragraph(statsObj);
 statsPara.HAlign = 'center';
 append(doc, statsPara);
 
-br{cPageBreak} = PageBreak();
-append(doc ,br{cPageBreak}); cPageBreak = cPageBreak + 1;
+% br{cPageBreak} = PageBreak();
+% append(doc ,br{cPageBreak}); cPageBreak = cPageBreak + 1;
+
+% sect{5} = DOCXPageLayout;
+% sect{5}.PageSize.Orientation = 'landscape';
+% sect{5}.SectionBreak = 'Next Page';
+% sect{5}.PageSize.Height = '8.27in';
+% sect{5}.PageSize.Width = '11.69in';
+% append(doc, sect{5});
 
 close(doc);

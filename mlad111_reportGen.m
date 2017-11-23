@@ -958,28 +958,6 @@ fprintf('\nDetecting...\n')
     classifierMultiInTimeFreqWithBreakpoint(readRoot, sensor.numVec, date.serial.start, date.serial.end, ...
     dirName.home, sensor.label.name, feature{g}.label.activeLabel, sensor.neuralNet, fs);
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% temp
-% sensorLabelNetSerial = [];
-% for mTemp = 1 : 38
-%     sensorLabelNetSerial = cat(1, sensorLabelNetSerial, sensor.label.neuralNet{mTemp});
-% end
-% % savePath = [GetFullPath(dirName.home) '/' 'sensorLabelNetSerial.mat'];
-% % save(savePath, 'sensorLabelNetSerial', '-v7.3')
-
-%% comparison between detection results and actual labels of 2012
-labelNet = [];
-for n = 1 : length(sensorLabelNetSerial)
-    labelNet(n) = str2double(str2mat(sensorLabelNetSerial(n)));
-end
-% labelNet = ind2vec(labelNet);
-
-% for n = 1 : labelTotal
-%     if ~ismember(categorical(n), sensorLabelNetSerial)
-%        labelNet(n, :) = 0;
-%     end
-% end
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% temp
-
 for s = sensor.numVec
 %     labelTempNeuralGlobal{s} = [];
 %     % convert from categorical to double
@@ -1070,134 +1048,133 @@ hourTotal = (date.serial.end-date.serial.start+1)*24;
 dirName.plot = [dirName.home sprintf('/plot_globalEpoch_%d_batchSize_%d_sizeFilter_%d_numFilter_%d/', maxEpoch(1), batchSize, sizeFilter, numFilter)];
 if ~exist(dirName.plot, 'dir'), mkdir(dirName.plot); end
 
-% plot panorama
-dirName.plotPano = [dirName.plot 'panorama/'];
-if ~exist(dirName.plotPano, 'dir'), mkdir(dirName.plotPano); end
-for s = sensor.numVec
-    if mod(s,2) == 1
-        yStrTemp = '';
-    else
-        yStrTemp = sprintf('      %02d', s);
-    end
-    panorama(sensor.date.serial{s}, sensor.label.neuralNet{s}, yStrTemp, color(1:labelTotal));
-    dirName.panorama{s} = [sprintf('%s--%s_sensor_%02d', date.start, date.end, s) '_anomalyDetectionPanorama.png'];
-    saveas(gcf,[dirName.plotPano dirName.panorama{s}]);
-    fprintf('\nSenor-%02d anomaly detection panorama file location:\n%s\n', ...
-        s, GetFullPath([dirName.plotPano dirName.panorama{s}]))
-    close
-    
-    % update sensor.status
-    sensor.status{s}(2,5) = {1};
-end
-
-n = 0;
-panopano = [];
-for s = sensor.numVec
-    n = n + 1;
-    p{s} = imread(GetFullPath([dirName.plotPano dirName.panorama{s}]));
-    if n > 1
-        height = size(p{s},1);
-        width = size(p{s},2);
-        p{s} = p{s}(1:ceil(height*0.22), :, :);
-    end
-    panopano = cat(1, p{s}, panopano);
-end
-dirName.panopano = [sprintf('%s--%s_sensor_all%s', date.start, date.end, sensorStr) ...
-                    '_anomalyDetectionPanorama.tif'];
-imwrite(panopano, [dirName.plotPano dirName.panopano]);
-
-clear height width p n
-
-% plot monthly stats per sensor
-dirName.plotSPS = [dirName.plot 'statsPerSensor/'];
-if ~exist(dirName.plotSPS, 'dir'), mkdir(dirName.plotSPS); end
-for s = sensor.numVec
-    for n = 1 : 12
-        for l = 1 : labelTotal
-            aim = find(sensor.date.vec{s}(:,2) == n);
-            sensor.statsPerSensor{s}(n, l) = length(find(sensor.label.neuralNet{s}(aim) == categorical(l)));
-        end
-    end
-    monthStatsPerSensorForPaper(sensor.statsPerSensor{s}, s, sensor.label.name, color);
-    dirName.statsPerSensor{s} = [sprintf('%s--%s_sensor_%02d', date.start, date.end, s) '_anomalyStats.png'];
-    saveas(gcf,[dirName.plotSPS dirName.statsPerSensor{s}]);
-    fprintf('\nSenor-%02d anomaly stats bar-plot file location:\n%s\n', ...
-        s, GetFullPath([dirName.plotSPS dirName.statsPerSensor{s}]))
-    close
-end
-
-% plot anomaly space-time distribution per class
-dirName.plotSPT = [dirName.plot 'statsPerType/'];
-if ~exist(dirName.plotSPT, 'dir'), mkdir(dirName.plotSPT); end
-for l = 1 : labelTotal
-   for s = sensor.numVec
-       for n = 1 : 12
-           aim = find(sensor.date.vec{s}(:,2) == n);
-           sensor.statsPerLabel{l}(n, s) = length(find(sensor.label.neuralNet{s}(aim) == categorical(l)));
-       end
-   end
-   if sum(sum(sensor.statsPerLabel{l})) > 0
-        monthStatsPerLabelForPaper(sensor.statsPerLabel{l}, l, sensor.label.name{l}, color);
-        dirName.statsPerLabel{l} = sprintf('%s--%s_sensor%s_anomalyStats_%s.png', ...
-            date.start, date.end, sensorStr, sensor.label.name{l});
-        saveas(gcf,[dirName.plotSPT dirName.statsPerLabel{l}]);
-        fprintf('\n%s anomaly stats bar-plot file location:\n%s\n', ...
-            sensor.label.name{l}, GetFullPath([dirName.plotSPT dirName.statsPerLabel{l}]))
-        close
-    end
-end
-
-% plot sensor-type bar stats
-dirName.plotSum = [dirName.plot 'statsSumUp/'];
-if ~exist(dirName.plotSum, 'dir'), mkdir(dirName.plotSum); end
-for s = sensor.numVec
-   for l = 1 : labelTotal
-       statsSum(s, l) = length(find(sensor.label.neuralNet{s} == categorical(l)));
-   end
-end
-
-if ~isempty(statsSum(1,1)) && size(statsSum, 1) == 1
-    statsSum(2,1:labelTotal) = 0;
-end
-
-figure
-h = bar(statsSum, 'stacked');
-xlabel('Sensor');
-ylabel('Count (hours)');
-legend(sensor.label.name);
-lh=findall(gcf,'tag','legend');
-set(lh,'location','northeastoutside');
-title(sprintf('%s -- %s', date.start, date.end));
-grid on
-for n = 1 : labelTotal
-    set(h(n),'FaceColor', color{n});
-end
-set(gca, 'fontsize', 13, 'fontname', 'Times New Roman', 'fontweight', 'bold');
-set(gcf,'Units','pixels','Position',[100, 100, 1000, 500]);  % control figure's position
-xlim([0 39]);
-ylim([0 9000]);
-set(gca,'xtick',[1,5:5:35, 38]);
-
-% minimize white space
-ax = gca;
-outerpos = ax.OuterPosition;
-ti = ax.TightInset; 
-left = outerpos(1) + ti(1);
-bottom = outerpos(2) + ti(2);
-ax_width = outerpos(3) - ti(1) - ti(3) - 0.01;
-ax_height = outerpos(4) - ti(2) - ti(4);
-ax.Position = [left bottom ax_width ax_height];
-
-dirName.statsSum = sprintf('%s--%s_sensor%s_anomalyStats.png', ...
-    date.start, date.end, sensorStr);
-
-saveas(gcf,[dirName.plotSum dirName.statsSum]);
-dirName.statsSum = sprintf('%s--%s_sensor%s_anomalyStats.png', ...
-    date.start, date.end, sensorStr);
-saveas(gcf,[dirName.plotSum dirName.statsSum]);
-fprintf('\nSum-up anomaly stats image file location:\n%s\n', ...
-    GetFullPath([dirName.plotSum dirName.statsSum]))
-close
+% % plot sub-panorama
+% dirName.plotPano = [dirName.plot 'panorama/'];
+% if ~exist(dirName.plotPano, 'dir'), mkdir(dirName.plotPano); end
+% for s = sensor.numVec
+%     if mod(s,2) == 1
+%         yStrTemp = '';
+%     else
+%         yStrTemp = sprintf('      %02d', s);
+%     end
+%     panorama(sensor.date.serial{s}, sensor.label.neuralNet{s}, yStrTemp, color(1:labelTotal));
+%     dirName.panorama{s} = [sprintf('%s--%s_sensor_%02d', date.start, date.end, s) '_anomalyDetectionPanorama.png'];
+%     saveas(gcf,[dirName.plotPano dirName.panorama{s}]);
+%     fprintf('\nSenor-%02d anomaly detection panorama file location:\n%s\n', ...
+%         s, GetFullPath([dirName.plotPano dirName.panorama{s}]))
+%     close
+%     
+%     % update sensor.status
+%     sensor.status{s}(2,5) = {1};
+% end
+% % combine panorama
+% n = 0;
+% panopano = [];
+% for s = sensor.numVec
+%     n = n + 1;
+%     p{s} = imread(GetFullPath([dirName.plotPano dirName.panorama{s}]));
+%     if n > 1
+%         height = size(p{s},1);
+%         width = size(p{s},2);
+%         p{s} = p{s}(1:ceil(height*0.22), :, :);
+%     end
+%     panopano = cat(1, p{s}, panopano);
+% end
+% dirName.panopano = [sprintf('%s--%s_sensor_all%s', date.start, date.end, sensorStr) ...
+%                     '_anomalyDetectionPanorama.tif'];
+% imwrite(panopano, [dirName.plotPano dirName.panopano]);
+% clear height width p n
+% 
+% % plot monthly stats per sensor
+% dirName.plotSPS = [dirName.plot 'statsPerSensor/'];
+% if ~exist(dirName.plotSPS, 'dir'), mkdir(dirName.plotSPS); end
+% for s = sensor.numVec
+%     for n = 1 : 12
+%         for l = 1 : labelTotal
+%             aim = find(sensor.date.vec{s}(:,2) == n);
+%             sensor.statsPerSensor{s}(n, l) = length(find(sensor.label.neuralNet{s}(aim) == categorical(l)));
+%         end
+%     end
+%     monthStatsPerSensorForPaper(sensor.statsPerSensor{s}, s, sensor.label.name, color);
+%     dirName.statsPerSensor{s} = [sprintf('%s--%s_sensor_%02d', date.start, date.end, s) '_anomalyStats.png'];
+%     saveas(gcf,[dirName.plotSPS dirName.statsPerSensor{s}]);
+%     fprintf('\nSenor-%02d anomaly stats bar-plot file location:\n%s\n', ...
+%         s, GetFullPath([dirName.plotSPS dirName.statsPerSensor{s}]))
+%     close
+% end
+% 
+% % plot anomaly space-time distribution per type
+% dirName.plotSPT = [dirName.plot 'statsPerType/'];
+% if ~exist(dirName.plotSPT, 'dir'), mkdir(dirName.plotSPT); end
+% for l = 1 : labelTotal
+%    for s = sensor.numVec
+%        for n = 1 : 12
+%            aim = find(sensor.date.vec{s}(:,2) == n);
+%            sensor.statsPerLabel{l}(n, s) = length(find(sensor.label.neuralNet{s}(aim) == categorical(l)));
+%        end
+%    end
+%    if sum(sum(sensor.statsPerLabel{l})) >= 0
+%         monthStatsPerLabelForPaper(sensor.statsPerLabel{l}, l, sensor.label.name{l}, color);
+%         dirName.statsPerLabel{l} = sprintf('%s--%s_sensor%s_anomalyStats_%s.png', ...
+%             date.start, date.end, sensorStr, sensor.label.name{l});
+%         saveas(gcf,[dirName.plotSPT dirName.statsPerLabel{l}]);
+%         fprintf('\n%s anomaly stats bar-plot file location:\n%s\n', ...
+%             sensor.label.name{l}, GetFullPath([dirName.plotSPT dirName.statsPerLabel{l}]))
+%         close
+%     end
+% end
+% 
+% % plot sensor-type bar stats
+% dirName.plotSum = [dirName.plot 'statsSumUp/'];
+% if ~exist(dirName.plotSum, 'dir'), mkdir(dirName.plotSum); end
+% for s = sensor.numVec
+%    for l = 1 : labelTotal
+%        statsSum(s, l) = length(find(sensor.label.neuralNet{s} == categorical(l)));
+%    end
+% end
+% 
+% if ~isempty(statsSum(1,1)) && size(statsSum, 1) == 1
+%     statsSum(2,1:labelTotal) = 0;
+% end
+% 
+% figure
+% h = bar(statsSum, 'stacked');
+% xlabel('Sensor');
+% ylabel('Count (hours)');
+% legend(sensor.label.name);
+% lh=findall(gcf,'tag','legend');
+% set(lh,'location','northeastoutside');
+% title(sprintf('%s -- %s', date.start, date.end));
+% grid on
+% for n = 1 : labelTotal
+%     set(h(n),'FaceColor', color{n});
+% end
+% set(gca, 'fontsize', 13, 'fontname', 'Times New Roman', 'fontweight', 'bold');
+% set(gcf,'Units','pixels','Position',[100, 100, 1000, 500]);  % control figure's position
+% xlim([0 39]);
+% ylim([0 9000]);
+% set(gca,'xtick',[1,5:5:35, 38]);
+% 
+% % minimize white space
+% ax = gca;
+% outerpos = ax.OuterPosition;
+% ti = ax.TightInset; 
+% left = outerpos(1) + ti(1);
+% bottom = outerpos(2) + ti(2);
+% ax_width = outerpos(3) - ti(1) - ti(3) - 0.01;
+% ax_height = outerpos(4) - ti(2) - ti(4);
+% ax.Position = [left bottom ax_width ax_height];
+% 
+% dirName.statsSum = sprintf('%s--%s_sensor%s_anomalyStats.png', ...
+%     date.start, date.end, sensorStr);
+% 
+% saveas(gcf,[dirName.plotSum dirName.statsSum]);
+% dirName.statsSum = sprintf('%s--%s_sensor%s_anomalyStats.png', ...
+%     date.start, date.end, sensorStr);
+% saveas(gcf,[dirName.plotSum dirName.statsSum]);
+% fprintf('\nSum-up anomaly stats image file location:\n%s\n', ...
+%     GetFullPath([dirName.plotSum dirName.statsSum]))
+% close
 
 % report generation
 fprintf('\nGenerating report...\n')

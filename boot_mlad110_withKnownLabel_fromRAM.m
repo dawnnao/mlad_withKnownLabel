@@ -29,7 +29,7 @@ end
 
 %%
 for sensorTrainRatio = 0.02 % : 0.01 : 0.02
-    for seed = 3 % : 5
+    for seed = 4 : 5
         sensor = mlad110_withKnownLabel_fromRAM(readRoot, saveRoot, sensorNum, dateStart, dateEnd, ...
             sensorTrainRatio, sensorPSize, fs, step, [], seed, maxEpoch, publicImagesetPath, labelPath, img2012);
     end

@@ -128,7 +128,7 @@ for day = dayStart : dayEnd
         count = count + 1;
         sensorData = [];
         
-        if mod(count-1, 24) == 0
+        if mod(count-1, 24) == 0 && (count-1) ~= hourTotal
             dayStartTemp = dayStart + (count-1)/24;
             pathSaveTemp = [pathSave 'temp/'];
             if ~exist(pathSaveTemp, 'dir'), mkdir(pathSaveTemp); end
@@ -148,9 +148,9 @@ for s = sensorNum
         elseif strcmp(class(neuralNet{s}), 'network') % ANN
             labelCount{l,s} = find(label{s} == l);
         end
-        check = ls(pathSaveNet{s,l});
-        if ispc, check(1:4) = []; end
-        if isempty(check), rmdir(pathSaveType{s,l}, 's'); end % delete useless folder(s)
+%         check = ls(pathSaveNet{s,l});
+%         if ispc, check(1:4) = []; end
+%         if isempty(check), rmdir(pathSaveType{s,l}, 's'); end % delete useless folder(s)
     end
 end
 

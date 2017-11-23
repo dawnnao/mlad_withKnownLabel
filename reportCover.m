@@ -1,4 +1,12 @@
 import mlreportgen.dom.*;
+
+s = doc.CurrentPageLayout;
+s.PageSize.Orientation  ='portrait';
+s.PageSize.Height = '8.27in';
+s.PageSize.Width = '11.69in';
+% append(doc,'This document has portrait pages');
+append(doc, s);
+
 dirName.docFile = sprintf('%s%s--%s_sensor%s%s', dirName.home, date.start, date.end, sensorStr, netLayout);
 reportType = 'docx';
 doc = Document(dirName.docFile, reportType);
@@ -51,8 +59,9 @@ dateObj.HAlign = 'center';
 % append(dateObj, ['' datetime('now','Format','yyyy-MM-dd') '']);
 append(doc, dateObj);
 
-cPageBreak = 1; br{cPageBreak} = PageBreak();
-append(doc ,br{cPageBreak}); cPageBreak = cPageBreak + 1;
+% cPageBreak = 1;
+% br{cPageBreak} = PageBreak();
+% append(doc ,br{cPageBreak}); cPageBreak = cPageBreak + 1;
 
 sect{1} = DOCXPageLayout;
 sect{1}.PageSize.Orientation = 'landscape';

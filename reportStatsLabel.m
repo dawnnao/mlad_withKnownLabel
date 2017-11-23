@@ -1,4 +1,5 @@
 import mlreportgen.dom.*;
+
 headObj{3} = append(doc, Heading1('Statistics by label'));
 headObj{3}.FontSize = '18';
 
@@ -30,5 +31,12 @@ end
 tableObj{2}.HAlign = 'center';
 append(doc, tableObj{2});
 
-br{cPageBreak} = PageBreak();
-append(doc ,br{cPageBreak}); cPageBreak = cPageBreak + 1;
+% br{cPageBreak} = PageBreak();
+% append(doc ,br{cPageBreak}); cPageBreak = cPageBreak + 1;
+
+sect{4} = DOCXPageLayout;
+sect{4}.PageSize.Orientation = 'portrait';
+sect{4}.SectionBreak = 'Next Page';
+sect{4}.PageSize.Height = '8.27in';
+sect{4}.PageSize.Width = '11.69in';
+append(doc, sect{4});
