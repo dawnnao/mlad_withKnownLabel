@@ -1,4 +1,5 @@
-function [label, labelCount, dateVec, dateSerial] = classifierMultiInTimeFreq(pathRead, sensorNum, dayStart, dayEnd, pathSave, labelName, neuralNet, fs)
+function [label, labelCount, dateVec, dateSerial] = classifierMultiInTimeFreqWithBreakpoint(pathRead, ...
+    sensorNum, dayStart, dayEnd, pathSave, labelName, activeLabel, neuralNet, fs)
 % DESCRIPTION:
 %   This is a subfunction of mvad.m, to do step 4 - anomaly detection.
 
@@ -10,22 +11,31 @@ function [label, labelCount, dateVec, dateSerial] = classifierMultiInTimeFreq(pa
 % DATE CREATED:
 %   12/19/2016
 
-path.root = pathRead;
-hourTotal = (dayEnd-dayStart+1)*24;
-for s = sensorNum
-    for l = 1 : length(labelName)
-        pathSaveType{s,l} = [pathSave sprintf('sensor%02d/', s) labelName{l} '/'];
-        pathSaveNet{s,l} = [pathSaveType{s,l} 'neuralNet/'];
-        if ~exist(pathSaveNet{s,l},'dir'), mkdir(pathSaveNet{s,l}); end
-        if strcmp(class(neuralNet{s}), 'SeriesNetwork') % CNN
-            label{s} = categorical(zeros(hourTotal,1));
-        elseif strcmp(class(neuralNet{s}), 'network') % ANN 
-            label{s} = zeros(hourTotal,1);
+pathSaveTemp = [pathSave 'temp/'];
+checkFile = natsortfiles(cellstr(ls(pathSaveTemp)));
+if  size(checkFile, 1) > 2
+    fprintf('\nLoading temp file of detection...\n')
+    load([pathSaveTemp checkFile{end,:}])
+    dayStart = dayStartTemp;
+else
+    path.root = pathRead;
+    hourTotal = (dayEnd-dayStart+1)*24;
+    for s = sensorNum
+        for l = 1 : length(labelName)
+            pathSaveType{s,l} = [pathSave sprintf('sensor%02d/', s) labelName{l} '/'];
+            pathSaveNet{s,l} = [pathSaveType{s,l} 'neuralNet/'];
+            if ~exist(pathSaveNet{s,l},'dir'), mkdir(pathSaveNet{s,l}); end
+            if strcmp(class(neuralNet{s}), 'SeriesNetwork') % CNN
+                label{s} = categorical(zeros(hourTotal,1));
+%                 label{s} = zeros(hourTotal,1);
+            elseif strcmp(class(neuralNet{s}), 'network') % ANN 
+                label{s} = zeros(hourTotal,1);
+            end
         end
     end
+    count = 1;
 end
 
-count = 1;
 figure
 set(gcf,'Units','pixels','Position',[1180, 70, 100, 100]);
 for day = dayStart : dayEnd
@@ -85,8 +95,9 @@ for day = dayStart : dayEnd
                 img(:, :, 3) = ones(100, 100);
                 imshow(img)
 %                 set(gcf, 'visible', 'on');
-                label{s}(count) = classify(neuralNet{s}, img);
-%                 label{s}(count) = predict(neuralNet{s}, img);
+                labelTemp = classify(neuralNet{s}, img);
+                % convert, mapping, then convert back
+                label{s}(count) = categorical(activeLabel(str2double(str2mat(labelTemp))));
                 labelIdx = str2double(str2mat(label{s}(count)));
             elseif strcmp(class(neuralNet{s}), 'network') % ANN
                 img = [imgTime(:); imgFreq(:)];
@@ -113,14 +124,25 @@ for day = dayStart : dayEnd
                fprintf('\nHome folder: %s\n', pathSave)
             end
         end
-        count = count+1;
+        
+        count = count + 1;
         sensorData = [];
+        
+        if mod(count-1, 24) == 0
+            dayStartTemp = dayStart + (count-1)/24;
+            pathSaveTemp = [pathSave 'temp/'];
+            if ~exist(pathSaveTemp, 'dir'), mkdir(pathSaveTemp); end
+            pathSaveFile = sprintf('%sdetectionTemp_%d.mat', pathSaveTemp, count-1);
+            fprintf('\nSaving temp file...\nLocation: %s\n', pathSaveFile)
+            if exist(pathSaveFile, 'file'), delete(pathSaveFile); end
+            save(pathSaveFile, '-v7.3') % test to check how many variables are saved
+        end
     end
 end
-count = count-1;
+count = count-1; % alignment
 
 for s = sensorNum
-    for l = 1 : length(labelName)
+    for l = activeLabel
         if strcmp(class(neuralNet{s}), 'SeriesNetwork') % CNN
             labelCount{l,s} = find(label{s} == categorical(l)); % pass to sensor.count{l,s}
         elseif strcmp(class(neuralNet{s}), 'network') % ANN

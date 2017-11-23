@@ -116,8 +116,8 @@ color= {[129 199 132]/255;    % 1-normal            green
         [33 150 243]/255;     % 6-trend             blue
         [171 71 188]/255;     % 7-drift             purple
 
-        [255 112 67]/255;     % for custom          orange        
         [168 168 168]/255;    % for custom          gray
+        [255 112 67]/255;     % for custom          orange    
         [0 121 107]/255;      % for custom          dark green
         [24 255 255]/255;     % for custom          high-light blue
         [118 255 3]/255;      % for custom          high-light green
@@ -175,12 +175,12 @@ for g = 1 : groupTotal
                 fprintf('\n%s\n\nFolder is already there and not empty, continue?\n', dirName.all{s})
                 rightInput = 0;
                 while rightInput == 0
-                    prompt = 'y(yes)/n(no): ';
+                    prompt = '\ny(yes)/n(no): ';
                     go = input(prompt,'s');
-                    if strcmp(go,'y') || strcmp(go,'yes')
+                    if strcmp(go,'y') || strcmp(go,'yes') || strcmp(str,'Y')
                         rightInput = 1;
                         fprintf('\nContinue...\n')
-                    elseif strcmp(go,'n') || strcmp(go,'no')
+                    elseif strcmp(go,'n') || strcmp(go,'no') || strcmp(str,'N')
                         rightInput = 1;
                         fprintf('\nFinish.\n')
                         return
@@ -216,11 +216,11 @@ if isempty(step)
     rightInput = 0;
     while rightInput == 0
         fprintf('\n%s\n', head)
-        prompt = 'y(yes)/n(no): ';
+        prompt = '\ny(yes)/n(no): ';
         go = input(prompt,'s');
-        if strcmp(go,'y') || strcmp(go,'yes')
+        if strcmp(go,'y') || strcmp(go,'yes') || strcmp(str,'Y')
             rightInput = 1; fprintf('\n%s\n\n\n', tail)
-        elseif strcmp(go,'n') || strcmp(go,'no')
+        elseif strcmp(go,'n') || strcmp(go,'no') || strcmp(str,'N')
             rightInput = 1; fprintf('\nFinish.\n'), return
         else fprintf('Invalid input! Please re-input.\n')
         end
@@ -240,15 +240,15 @@ if exist(dirName.mat,'dir')
     check = ls(dirName.mat);
     if ispc, check(1:4) = []; end
     if ~isempty(check)
-        fprintf('\nCAUTION:\n%s\nTraining set folder is already there and not empty, continue?\n', dirName.mat)
+        fprintf('\n\nCAUTION:\n[%s]\nTraining set folder is not empty, continue?\n', dirName.mat)
         rightInput = 0;
         while rightInput == 0
-            prompt = 'y(yes)/n(no): ';
+            prompt = '\ny(yes)/n(no): ';
             go = input(prompt,'s');
-            if strcmp(go,'y') || strcmp(go,'yes')
+            if strcmp(go,'y') || strcmp(go,'yes') || strcmp(str,'Y')
                 rightInput = 1;
                 fprintf('\nContinue...\n')
-            elseif strcmp(go,'n') || strcmp(go,'no')
+            elseif strcmp(go,'n') || strcmp(go,'no') || strcmp(str,'N')
                 rightInput = 1;
                 fprintf('\nFinish.\n')
                 return
@@ -296,15 +296,15 @@ while goNext == 0
     % check before clustering
     dirName.clustMain = [dirName.home sprintf('clusterOverview/clusteringIn%d/', k)];
     if exist(dirName.clustMain,'dir')
-        fprintf('\nFolder [%s] already exists. Re-clustering?\n', dirName.clustMain)
+        fprintf('\n\nCAUTION:\n[%s]\nClusters'' folder is not empty, reclustering?\n', dirName.clustMain)
         rightInput = 0;
         while rightInput == 0
-            str = input('Y/y -- yes to go on\nN/n -- no and stop\nInput: ', 's');
-            if strcmp(str,'Y') || strcmp(str,'y')
+            str = input('\ny(yes)/n(no): ', 's');
+            if strcmp(str,'y') || strcmp(str,'yes') || strcmp(str,'Y')
                 rightInput = 1;
                 rmdir(dirName.clustMain,'s');
                 mkdir(dirName.clustMain)                
-            elseif strcmp(str,'N') || strcmp(str,'n')
+            elseif strcmp(str,'n') || strcmp(str,'no') || strcmp(str,'N')
                 rightInput = 1;
                 fprintf('\nFinish.\n')
                 return
@@ -445,9 +445,8 @@ while goNext == 0
     fprintf('\nGenerating training set...\n')
     for m = 1 : k
         fprintf('\nNow: %d Total: %d\n', m, k)
-%         clustIdxTemp = clust.absIdx(find(clust.clustIdx == m), :);
         clustAbsIdxTemp = clust.absIdx(clust.clustIdx == m, :);
-%         clustIdxTemp = clustIdxTemp(randTemp{m}, :);
+        clustAbsIdxTemp = clustAbsIdxTemp(randTemp{m}, :);
         for n = 1 : size(clustAbsIdxTemp, 1)
             trainSet.data{m}(:, n) = sensor.image{clustAbsIdxTemp(n, 2)}(:, clustAbsIdxTemp(n, 1));
 %             sensor.image{clustIdxTemp(n, 2)}(:, clustIdxTemp(n, 1)) = ...
@@ -623,7 +622,7 @@ if exist(savePath, 'file'), delete(savePath); end
 save(savePath, 'status', '-v7.3')
 
 elapsedTime(2) = toc(t(2)); [hours, mins, secs] = sec2hms(elapsedTime(2));
-fprintf('\n\n\nSTEP2:\nSensor(s) training set making completes, using %02d:%02d:%05.2f .\n', ...
+fprintf('\n\nSTEP2:\nSensor(s) training set making completes, using %02d:%02d:%05.2f .\n', ...
     hours, mins, secs)
 
 % ask go on or stop
@@ -637,11 +636,11 @@ if isempty(step)
     rightInput = 0;
     while rightInput == 0
         fprintf('\n%s\n', head)
-        prompt = 'y(yes)/n(no): ';
+        prompt = '\ny(yes)/n(no): ';
         go = input(prompt,'s');
-        if strcmp(go,'y') || strcmp(go,'yes')
+        if strcmp(go,'y') || strcmp(go,'yes') || strcmp(str,'Y')
             rightInput = 1; fprintf('\n%s\n\n\n', tail)
-        elseif strcmp(go,'n') || strcmp(go,'no')
+        elseif strcmp(go,'n') || strcmp(go,'no') || strcmp(str,'N')
             rightInput = 1; fprintf('\nFinish.\n'), return
         else fprintf('Invalid input! Please re-input.\n')
         end
@@ -667,10 +666,11 @@ if ~isempty(step) && step(1) == 3
     
     dirName.matFile = [dirName.mat sprintf('trainingSet.mat')];
     if ~exist(dirName.matFile, 'file')
-        fprintf('\nCAUTION:\nNo traning set found!\n')
+        fprintf('\n\nCAUTION:\nNo traning set found!\n')
         fprintf('Need to make trainning set (step2) first.\nFinish.\n')
         return
     else
+        fprintf('\nLoading...\n')
         load(dirName.matFile);        
     end
     
@@ -784,7 +784,7 @@ for g = 1 : groupTotal
 %     yTrainGlobal = double(ind2vec(yTrainGlobal));
 %     yTrainGlobal = categorical(yTrainGlobal);
     
-    % convert from format double to vec
+    % convert from format index to vec
     yTrainGlobal = ind2vec(yTrainGlobal);
     
     % check for row lacking
@@ -907,11 +907,11 @@ if isempty(step)
     rightInput = 0;
     while rightInput == 0
         fprintf('\n%s\n', head)
-        prompt = 'y(yes)/n(no): ';
+        prompt = '\ny(yes)/n(no): ';
         go = input(prompt,'s');
-        if strcmp(go,'y') || strcmp(go,'yes')
+        if strcmp(go,'y') || strcmp(go,'yes') || strcmp(str,'Y')
             rightInput = 1; fprintf('\n%s\n\n\n', tail)
-        elseif strcmp(go,'n') || strcmp(go,'no')
+        elseif strcmp(go,'n') || strcmp(go,'no') || strcmp(str,'N')
             rightInput = 1; fprintf('\nFinish.\n'), return
         else fprintf('Invalid input! Please re-input.\n')
         end
@@ -935,6 +935,7 @@ if ~isempty(step) && step(1) == 4
     newP{6,1} = dirName.home;
     
     readPath = [dirName.home dirName.file];
+    fprintf('\nLoading...\n')
     load(readPath)
     
     sensor.pSize =  newP{2,1};
@@ -954,13 +955,47 @@ date.serial.end   = datenum(date.end, dirName.formatIn);
 % anomaly detection
 fprintf('\nDetecting...\n')
 [labelTempNeural, countTempNeural, dateVec, dateSerial] = ...
-    classifierMultiInTimeFreq(readRoot, sensor.numVec, date.serial.start, date.serial.end, ...
-    dirName.home, sensor.label.name, sensor.neuralNet, fs);
+    classifierMultiInTimeFreqWithBreakpoint(readRoot, sensor.numVec, date.serial.start, date.serial.end, ...
+    dirName.home, sensor.label.name, feature{g}.label.activeLabel, sensor.neuralNet, fs);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% temp
+% sensorLabelNetSerial = [];
+% for mTemp = 1 : 38
+%     sensorLabelNetSerial = cat(1, sensorLabelNetSerial, sensor.label.neuralNet{mTemp});
+% end
+% % savePath = [GetFullPath(dirName.home) '/' 'sensorLabelNetSerial.mat'];
+% % save(savePath, 'sensorLabelNetSerial', '-v7.3')
+
+%% comparison between detection results and actual labels of 2012
+labelNet = [];
+for n = 1 : length(sensorLabelNetSerial)
+    labelNet(n) = str2double(str2mat(sensorLabelNetSerial(n)));
+end
+% labelNet = ind2vec(labelNet);
+
+% for n = 1 : labelTotal
+%     if ~ismember(categorical(n), sensorLabelNetSerial)
+%        labelNet(n, :) = 0;
+%     end
+% end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% temp
 
 for s = sensor.numVec
+%     labelTempNeuralGlobal{s} = [];
+%     % convert from categorical to double
+%     for n = 1 : length(labelTempNeural{s})
+%         labelTempNeuralGlobal{s}(n) = str2double(str2mat(labelTempNeural{s}(n)));
+%     end
+%     % mapping
+%     for m = 1 : feature{g}.label.activeLabelNum
+%         labelTempNeuralGlobal{s}(labelTempNeuralGlobal{s} == m) = feature{g}.label.activeLabel(m);
+%     end
+%     % convert from format double to categorical back
+%     labelTempNeuralGlobal{s} = categorical(labelTempNeuralGlobal{s});  % check here!
+    
     sensor.label.neuralNet{s} = labelTempNeural{s};
-    for l = 1 : labelTotal
-        sensor.count{l,s} = countTempNeural{l,s};
+    for l = feature{g}.label.activeLabel
+        sensor.count{feature{g}.label.activeLabel(l), s} = countTempNeural{l,s};
     end
     sensor.date.vec{s} = dateVec;
     sensor.date.serial{s} = dateSerial;
@@ -988,11 +1023,11 @@ if isempty(step)
     rightInput = 0;
     while rightInput == 0
         fprintf('\n%s\n', head)
-        prompt = 'y(yes)/n(no): ';
+        prompt = '\ny(yes)/n(no): ';
         go = input(prompt,'s');
-        if strcmp(go,'y') || strcmp(go,'yes')
+        if strcmp(go,'y') || strcmp(go,'yes') || strcmp(str,'Y')
             rightInput = 1; fprintf('\n%s\n\n\n', tail)
-        elseif strcmp(go,'n') || strcmp(go,'no')
+        elseif strcmp(go,'n') || strcmp(go,'no') || strcmp(str,'N')
             rightInput = 1; fprintf('\nFinish.\n'), return
         else fprintf('Invalid input! Please re-input.\n')
         end
@@ -1035,43 +1070,43 @@ hourTotal = (date.serial.end-date.serial.start+1)*24;
 dirName.plot = [dirName.home sprintf('/plot_globalEpoch_%d_batchSize_%d_sizeFilter_%d_numFilter_%d/', maxEpoch(1), batchSize, sizeFilter, numFilter)];
 if ~exist(dirName.plot, 'dir'), mkdir(dirName.plot); end
 
-% % plot panorama
-% dirName.plotPano = [dirName.plot 'panorama/'];
-% if ~exist(dirName.plotPano, 'dir'), mkdir(dirName.plotPano); end
-% for s = sensor.numVec
-%     if mod(s,2) == 1
-%         yStrTemp = '';
-%     else
-%         yStrTemp = sprintf('      %02d', s);
-%     end
-%     panorama(sensor.date.serial{s}, sensor.label.neuralNet{s}, yStrTemp, color(1:labelTotal));
-%     dirName.panorama{s} = [sprintf('%s--%s_sensor_%02d', date.start, date.end, s) '_anomalyDetectionPanorama.png'];
-%     saveas(gcf,[dirName.plotPano dirName.panorama{s}]);
-%     fprintf('\nSenor-%02d anomaly detection panorama file location:\n%s\n', ...
-%         s, GetFullPath([dirName.plotPano dirName.panorama{s}]))
-%     close
-%     
-%     % update sensor.status
-%     sensor.status{s}(2,5) = {1};
-% end
-% 
-% n = 0;
-% panopano = [];
-% for s = sensor.numVec
-%     n = n + 1;
-%     p{s} = imread(GetFullPath([dirName.plotPano dirName.panorama{s}]));
-%     if n > 1
-%         height = size(p{s},1);
-%         width = size(p{s},2);
-%         p{s} = p{s}(1:ceil(height*0.22), :, :);
-%     end
-%     panopano = cat(1, p{s}, panopano);
-% end
-% dirName.panopano = [sprintf('%s--%s_sensor_all%s', date.start, date.end, sensorStr) ...
-%                     '_anomalyDetectionPanorama.tif'];
-% imwrite(panopano, [dirName.plotPano dirName.panopano]);
-% 
-% clear height width p n
+% plot panorama
+dirName.plotPano = [dirName.plot 'panorama/'];
+if ~exist(dirName.plotPano, 'dir'), mkdir(dirName.plotPano); end
+for s = sensor.numVec
+    if mod(s,2) == 1
+        yStrTemp = '';
+    else
+        yStrTemp = sprintf('      %02d', s);
+    end
+    panorama(sensor.date.serial{s}, sensor.label.neuralNet{s}, yStrTemp, color(1:labelTotal));
+    dirName.panorama{s} = [sprintf('%s--%s_sensor_%02d', date.start, date.end, s) '_anomalyDetectionPanorama.png'];
+    saveas(gcf,[dirName.plotPano dirName.panorama{s}]);
+    fprintf('\nSenor-%02d anomaly detection panorama file location:\n%s\n', ...
+        s, GetFullPath([dirName.plotPano dirName.panorama{s}]))
+    close
+    
+    % update sensor.status
+    sensor.status{s}(2,5) = {1};
+end
+
+n = 0;
+panopano = [];
+for s = sensor.numVec
+    n = n + 1;
+    p{s} = imread(GetFullPath([dirName.plotPano dirName.panorama{s}]));
+    if n > 1
+        height = size(p{s},1);
+        width = size(p{s},2);
+        p{s} = p{s}(1:ceil(height*0.22), :, :);
+    end
+    panopano = cat(1, p{s}, panopano);
+end
+dirName.panopano = [sprintf('%s--%s_sensor_all%s', date.start, date.end, sensorStr) ...
+                    '_anomalyDetectionPanorama.tif'];
+imwrite(panopano, [dirName.plotPano dirName.panopano]);
+
+clear height width p n
 
 % plot monthly stats per sensor
 dirName.plotSPS = [dirName.plot 'statsPerSensor/'];
@@ -1091,78 +1126,78 @@ for s = sensor.numVec
     close
 end
 
-% % plot anomaly space-time distribution per class
-% dirName.plotSPT = [dirName.plot 'statsPerType/'];
-% if ~exist(dirName.plotSPT, 'dir'), mkdir(dirName.plotSPT); end
-% for l = 1 : labelTotal
-%    for s = sensor.numVec
-%        for n = 1 : 12
-%            aim = find(sensor.date.vec{s}(:,2) == n);
-%            sensor.statsPerLabel{l}(n, s) = length(find(sensor.label.neuralNet{s}(aim) == categorical(l)));
-%        end
-%    end
-%    if sum(sum(sensor.statsPerLabel{l})) > 0
-%         monthStatsPerLabelForPaper(sensor.statsPerLabel{l}, l, sensor.label.name{l}, color);
-%         dirName.statsPerLabel{l} = sprintf('%s--%s_sensor%s_anomalyStats_%s.png', ...
-%             date.start, date.end, sensorStr, sensor.label.name{l});
-%         saveas(gcf,[dirName.plotSPT dirName.statsPerLabel{l}]);
-%         fprintf('\n%s anomaly stats bar-plot file location:\n%s\n', ...
-%             sensor.label.name{l}, GetFullPath([dirName.plotSPT dirName.statsPerLabel{l}]))
-%         close
-%     end
-% end
-% 
-% % plot sensor-type bar stats
-% dirName.plotSum = [dirName.plot 'statsSumUp/'];
-% if ~exist(dirName.plotSum, 'dir'), mkdir(dirName.plotSum); end
-% for s = sensor.numVec
-%    for l = 1 : labelTotal
-%        statsSum(s, l) = length(find(sensor.label.neuralNet{s} == categorical(l)));
-%    end
-% end
-% 
-% if ~isempty(statsSum(1,1)) && size(statsSum, 1) == 1
-%     statsSum(2,1:labelTotal) = 0;
-% end
-% 
-% figure
-% h = bar(statsSum, 'stacked');
-% xlabel('Sensor');
-% ylabel('Count (hours)');
-% legend(sensor.label.name);
-% lh=findall(gcf,'tag','legend');
-% set(lh,'location','northeastoutside');
-% title(sprintf('%s -- %s', date.start, date.end));
-% grid on
-% for n = 1 : labelTotal
-%     set(h(n),'FaceColor', color{n});
-% end
-% set(gca, 'fontsize', 13, 'fontname', 'Times New Roman', 'fontweight', 'bold');
-% set(gcf,'Units','pixels','Position',[100, 100, 1000, 500]);  % control figure's position
-% xlim([0 39]);
-% ylim([0 9000]);
-% set(gca,'xtick',[1,5:5:35, 38]);
-% 
-% % minimize white space
-% ax = gca;
-% outerpos = ax.OuterPosition;
-% ti = ax.TightInset; 
-% left = outerpos(1) + ti(1);
-% bottom = outerpos(2) + ti(2);
-% ax_width = outerpos(3) - ti(1) - ti(3) - 0.01;
-% ax_height = outerpos(4) - ti(2) - ti(4);
-% ax.Position = [left bottom ax_width ax_height];
-% 
-% dirName.statsSum = sprintf('%s--%s_sensor%s_anomalyStats.png', ...
-%     date.start, date.end, sensorStr);
-% 
-% saveas(gcf,[dirName.plotSum dirName.statsSum]);
-% dirName.statsSum = sprintf('%s--%s_sensor%s_anomalyStats.png', ...
-%     date.start, date.end, sensorStr);
-% saveas(gcf,[dirName.plotSum dirName.statsSum]);
-% fprintf('\nSum-up anomaly stats image file location:\n%s\n', ...
-%     GetFullPath([dirName.plotSum dirName.statsSum]))
-% close
+% plot anomaly space-time distribution per class
+dirName.plotSPT = [dirName.plot 'statsPerType/'];
+if ~exist(dirName.plotSPT, 'dir'), mkdir(dirName.plotSPT); end
+for l = 1 : labelTotal
+   for s = sensor.numVec
+       for n = 1 : 12
+           aim = find(sensor.date.vec{s}(:,2) == n);
+           sensor.statsPerLabel{l}(n, s) = length(find(sensor.label.neuralNet{s}(aim) == categorical(l)));
+       end
+   end
+   if sum(sum(sensor.statsPerLabel{l})) > 0
+        monthStatsPerLabelForPaper(sensor.statsPerLabel{l}, l, sensor.label.name{l}, color);
+        dirName.statsPerLabel{l} = sprintf('%s--%s_sensor%s_anomalyStats_%s.png', ...
+            date.start, date.end, sensorStr, sensor.label.name{l});
+        saveas(gcf,[dirName.plotSPT dirName.statsPerLabel{l}]);
+        fprintf('\n%s anomaly stats bar-plot file location:\n%s\n', ...
+            sensor.label.name{l}, GetFullPath([dirName.plotSPT dirName.statsPerLabel{l}]))
+        close
+    end
+end
+
+% plot sensor-type bar stats
+dirName.plotSum = [dirName.plot 'statsSumUp/'];
+if ~exist(dirName.plotSum, 'dir'), mkdir(dirName.plotSum); end
+for s = sensor.numVec
+   for l = 1 : labelTotal
+       statsSum(s, l) = length(find(sensor.label.neuralNet{s} == categorical(l)));
+   end
+end
+
+if ~isempty(statsSum(1,1)) && size(statsSum, 1) == 1
+    statsSum(2,1:labelTotal) = 0;
+end
+
+figure
+h = bar(statsSum, 'stacked');
+xlabel('Sensor');
+ylabel('Count (hours)');
+legend(sensor.label.name);
+lh=findall(gcf,'tag','legend');
+set(lh,'location','northeastoutside');
+title(sprintf('%s -- %s', date.start, date.end));
+grid on
+for n = 1 : labelTotal
+    set(h(n),'FaceColor', color{n});
+end
+set(gca, 'fontsize', 13, 'fontname', 'Times New Roman', 'fontweight', 'bold');
+set(gcf,'Units','pixels','Position',[100, 100, 1000, 500]);  % control figure's position
+xlim([0 39]);
+ylim([0 9000]);
+set(gca,'xtick',[1,5:5:35, 38]);
+
+% minimize white space
+ax = gca;
+outerpos = ax.OuterPosition;
+ti = ax.TightInset; 
+left = outerpos(1) + ti(1);
+bottom = outerpos(2) + ti(2);
+ax_width = outerpos(3) - ti(1) - ti(3) - 0.01;
+ax_height = outerpos(4) - ti(2) - ti(4);
+ax.Position = [left bottom ax_width ax_height];
+
+dirName.statsSum = sprintf('%s--%s_sensor%s_anomalyStats.png', ...
+    date.start, date.end, sensorStr);
+
+saveas(gcf,[dirName.plotSum dirName.statsSum]);
+dirName.statsSum = sprintf('%s--%s_sensor%s_anomalyStats.png', ...
+    date.start, date.end, sensorStr);
+saveas(gcf,[dirName.plotSum dirName.statsSum]);
+fprintf('\nSum-up anomaly stats image file location:\n%s\n', ...
+    GetFullPath([dirName.plotSum dirName.statsSum]))
+close
 
 % report generation
 fprintf('\nGenerating report...\n')
@@ -1195,28 +1230,27 @@ sensor.ratioOfCategory(3,:) = (sensor.ratioOfCategory(1,:)./sensor.ratioOfCatego
 % figure, imshow(imgLegend)
 % saveas(gcf, [dirName.plotPano 'legend.png']); close
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% temp
-sensorLabelNetSerial = [];
-for mTemp = 1 : 38
-    sensorLabelNetSerial = cat(1, sensorLabelNetSerial, sensor.label.neuralNet{mTemp});
-end
-% savePath = [GetFullPath(dirName.home) '/' 'sensorLabelNetSerial.mat'];
-% save(savePath, 'sensorLabelNetSerial', '-v7.3')
-
-%% comparison between detection results and actual labels of 2012
-labelNet = [];
-for n = 1 : length(sensorLabelNetSerial)
-    labelNet(n) = str2double(str2mat(sensorLabelNetSerial(n)));
-end
-labelNet = ind2vec(labelNet);
-
-for n = 1 : labelTotal
-    if ~ismember(categorical(n), sensorLabelNetSerial)       
-       labelNet(n, :) = 0;
-    end
-end
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% temp
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% temp
+% sensorLabelNetSerial = [];
+% for mTemp = 1 : 38
+%     sensorLabelNetSerial = cat(1, sensorLabelNetSerial, sensor.label.neuralNet{mTemp});
+% end
+% % savePath = [GetFullPath(dirName.home) '/' 'sensorLabelNetSerial.mat'];
+% % save(savePath, 'sensorLabelNetSerial', '-v7.3')
+% 
+% %% comparison between detection results and actual labels of 2012
+% labelNet = [];
+% for n = 1 : length(sensorLabelNetSerial)
+%     labelNet(n) = str2double(str2mat(sensorLabelNetSerial(n)));
+% end
+% labelNet = ind2vec(labelNet);
+% 
+% for n = 1 : labelTotal
+%     if ~ismember(categorical(n), sensorLabelNetSerial)
+%        labelNet(n, :) = 0;
+%     end
+% end
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% temp
 
 %%
 elapsedTime(5) = toc(t(5)); [hours, mins, secs] = sec2hms(elapsedTime(5));
@@ -1240,11 +1274,11 @@ if isempty(step)
     rightInput = 0;
     while rightInput == 0
         fprintf('\n%s\n', head)
-        prompt = 'y(yes)/n(no): ';
+        prompt = '\ny(yes)/n(no): ';
         go = input(prompt,'s');
-        if strcmp(go,'y') || strcmp(go,'yes')
+        if strcmp(go,'y') || strcmp(go,'yes') || strcmp(str,'Y')
             rightInput = 1; fprintf('\n%s\n\n\n', tail)
-        elseif strcmp(go,'n') || strcmp(go,'no')
+        elseif strcmp(go,'n') || strcmp(go,'no') || strcmp(str,'N')
             rightInput = 1; fprintf('\nFinish.\n'), return
         else fprintf('Invalid input! Please re-input.\n')
         end

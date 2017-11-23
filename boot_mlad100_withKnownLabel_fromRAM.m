@@ -33,4 +33,11 @@ for sensorTrainRatio = 0.02 %: 0.01 : 0.03
     end
 end
 
+for sensorTrainRatio = 0.03 %: 0.01 : 0.03
+    for seed = 2 : 5
+        sensor = mlad100_withKnownLabel_fromRAM(readRoot, saveRoot, sensorNum, dateStart, dateEnd, ...
+            sensorTrainRatio, sensorPSize, fs, step, [], seed, maxEpoch, publicImagesetPath, labelPath, img2012);
+    end
+end
+
 % Do not use GPU to train autoencoder 1 when sensorTrainRatio = 0.03 and 0.02!

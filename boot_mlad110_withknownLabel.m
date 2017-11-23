@@ -20,8 +20,8 @@ publicImagesetPath = 'D:/results/results_mlad_withKnownLabel/publicImageset/2012
 labelPath = 'C:/Users/Owner/Documents/GitHub/mlad_withKnownLabel/labelMan/label2012_modifiedAfterRound1Test.mat';
 
 %%
-for sensorTrainRatio = 0.02 : 0.01 : 0.03
-    for seed = 2 : 5
+for sensorTrainRatio = 0.02 % : 0.01 : 0.03
+    for seed = 3 % : 5
         sensor = mlad110_withKnownLabel(readRoot, saveRoot, sensorNum, dateStart, dateEnd, ...
             sensorTrainRatio, sensorPSize, fs, step, [], seed, maxEpoch, publicImagesetPath, labelPath);
     end
