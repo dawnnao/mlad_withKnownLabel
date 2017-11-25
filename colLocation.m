@@ -1,6 +1,6 @@
 function [date, h] = colLocation(x,dateStart)
 % DESCRIPTION:
-%   This is a subfunction for mvad.m, to calculate xth hour's date. Hour
+%   This is a subfunction for mlad.m, to calculate xth hour's date. Hour
 %   counting starts at a user-specified date.
 
 % OUTPUTS:

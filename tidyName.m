@@ -1,6 +1,6 @@
 function name = tidyName(edge)
 % DESCRIPTION:
-%   This is a subfunction of mvad.m, to make abbreviation in char format.
+%   This is a subfunction of mlad.m, to make abbreviation in char format.
 %   Use with abbr.m
 % 
 % OUTPUT:

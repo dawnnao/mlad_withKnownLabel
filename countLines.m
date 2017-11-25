@@ -1,1 +1,1 @@
-locsum = slocDir('/Users/tangzhiyi/Documents/MATLAB/MVAD');
+locsum = slocDir('C:\Users\Owner\Documents\GitHub\mlad_withKnownLabel');

@@ -1,6 +1,6 @@
-function f = monthStatsPerLabel(stats, labelNum, labelName, color)
+function f = monthStatsPerLabelForPaper(stats, labelNum, labelName, color)
 % DESCRIPTION:
-%   This is a subfunction of mvad.m, to auto-draw bar plot
+%   This is a subfunction of mlad.m, to auto-draw bar plot.
 
 % AUTHOR:
 %   Zhiyi Tang

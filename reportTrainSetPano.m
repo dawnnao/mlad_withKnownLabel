@@ -1,5 +1,5 @@
 import mlreportgen.dom.*;
-headObj{1} = append(doc, Heading1('Detection result panorama'));
+headObj{1} = append(doc, Heading1('Training set distribution'));
 headObj{1}.FontSize = '18';
 
 %% insert blank
@@ -11,16 +11,19 @@ for n = cBlank+1 : cBlankNew
 end
 
 %% insert tabled images
-panoRotate = imread([dirName.plotPano dirName.panopano]);
+dirName.plotPanoTrainSet = [dirName.mat 'panorama/']; % temp
+dirName.panopanoTrainSet = [sprintf('%s--%s_sensor_all%s', date.start, date.end, sensorStr) ...
+                        '_trainingSetLabelPanorama.tif']; % temp
+panoRotate = imread([dirName.plotPanoTrainSet dirName.panopanoTrainSet]);
 % panoRotate = imrotate(panoRotate, -90);
-dirName.panoRotate = [sprintf('%s--%s_sensor_all%s', date.start, date.end, sensorStr) ...
-                    '_anomalyDetectionPanoramaRotate.png'];
-imwrite(panoRotate, [dirName.plotPano dirName.panoRotate]);
-imgsize = size(imread([dirName.plotPano dirName.panoRotate]));
+dirName.trainSetPanoRotate = [sprintf('%s--%s_sensor_all%s', date.start, date.end, sensorStr) ...
+                    '_trainingSetLabelPanoramaRotated.png'];
+imwrite(panoRotate, [dirName.plotPanoTrainSet dirName.trainSetPanoRotate]);
+imgsize = size(imread([dirName.plotPanoTrainSet dirName.trainSetPanoRotate]));
 width = [num2str(2.9 * imgsize(2)/imgsize(1)) 'in'];
-imagePano = Image([dirName.plotPano dirName.panoRotate]);
-imagePano.Height = '2.9in';
-imagePano.Width = width;
+imagePanoTrainSet = Image([dirName.plotPanoTrainSet dirName.trainSetPanoRotate]);
+imagePanoTrainSet.Height = '2.9in';
+imagePanoTrainSet.Width = width;
 
 % image
 if exist('countTable', 'var'), countTable = countTable + 1;
@@ -28,7 +31,7 @@ else countTable = 1;
 end
 tableObj{countTable} = Table();
 row{1} = TableRow();
-append(row{1}, TableEntry(imagePano));
+append(row{1}, TableEntry(imagePanoTrainSet));
 append(tableObj{countTable}, row{1});
 
 % caption of image
@@ -36,7 +39,7 @@ if exist('countFig', 'var'), countFig = countFig + 1;
 else countFig = 1; 
 end
 
-imageName = Paragraph(sprintf('Fig %d. Panorama', countFig));
+imageName = Paragraph(sprintf('Fig %d. Training set distribution (color gray means non-labeled data)', countFig));
 imageName.Bold = false;
 % imageName.FontSize = '18';
 imageName.HAlign = 'center';
@@ -46,6 +49,13 @@ append(tableObj{countTable}, row{1});
 row{1} = TableRow();
 tableObj{countTable}.HAlign = 'center';
 append(doc, tableObj{countTable});
+
+% %% insert paragraph
+% paragraphObj = Paragraph('Version: 0.1');
+% paragraphObj.Bold = false;
+% paragraphObj.FontSize = '18';
+% paragraphObj.HAlign = 'center';
+% append(doc, paragraphObj);
 
 %% insert next section
 countSect = countSect + 1;

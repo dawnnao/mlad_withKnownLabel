@@ -1,4 +1,15 @@
 function [trainSetLabel, count, shortHalfwayLeft] = dispAndLabel(trainSetData, trainSetLabel, clust, clustSize, clustAvail, in, out, count, all, labelName, ticLabel)
+% DESCRIPTION:
+%   This is a subfunction of mlad.m, to assit user labeling samples during
+%   step 2.
+
+% AUTHOR:
+%   Zhiyi Tang
+%   tangzhi1@hit.edu.cn
+%   Center of Structural Monitoring and Control
+% 
+% DATE CREATED:
+%   06/20/2017
 
 shortHalfwayLeft = out - in + 1;
 availInClust = clustAvail(clust) + shortHalfwayLeft;

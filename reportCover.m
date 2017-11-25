@@ -1,16 +1,10 @@
 import mlreportgen.dom.*;
 
-s = doc.CurrentPageLayout;
-s.PageSize.Orientation  ='portrait';
-s.PageSize.Height = '8.27in';
-s.PageSize.Width = '11.69in';
-% append(doc,'This document has portrait pages');
-append(doc, s);
-
 dirName.docFile = sprintf('%s%s--%s_sensor%s%s', dirName.home, date.start, date.end, sensorStr, netLayout);
 reportType = 'docx';
 doc = Document(dirName.docFile, reportType);
 
+% insert blank
 cBlank = 0; frag = 4;
 cBlankNew = cBlank + frag;
 for n = cBlank+1 : cBlankNew
@@ -30,6 +24,7 @@ titleObj{2}.FontSize = '18';
 titleObj{2}.HAlign = 'center';
 append(doc, titleObj{2});
 
+% insert blank
 cBlank = cBlankNew; frag = 12;
 cBlankNew = cBlank + frag;
 for n = cBlank+1 : cBlankNew
@@ -43,6 +38,7 @@ arthurObj.FontSize = '18';
 arthurObj.HAlign = 'center';
 append(doc, arthurObj);
 
+% insert blank
 cBlank = cBlankNew; frag = 2;
 cBlankNew = cBlank + frag;
 for n = cBlank+1 : cBlankNew
@@ -59,13 +55,21 @@ dateObj.HAlign = 'center';
 % append(dateObj, ['' datetime('now','Format','yyyy-MM-dd') '']);
 append(doc, dateObj);
 
-% cPageBreak = 1;
-% br{cPageBreak} = PageBreak();
-% append(doc ,br{cPageBreak}); cPageBreak = cPageBreak + 1;
+countFig = 0; % initialization for image count
+countTable = 0;
 
-sect{1} = DOCXPageLayout;
-sect{1}.PageSize.Orientation = 'landscape';
-sect{1}.SectionBreak = 'Next Page';
-sect{1}.PageSize.Height = '8.27in';
-sect{1}.PageSize.Width = '11.69in';
-append(doc, sect{1});
+% sizeCurrent = doc.CurrentPageLayout;
+% sizeCurrent.PageSize.Orientation  ='portrait';
+% sizeCurrent.PageSize.Height = '8.27in';
+% sizeCurrent.PageSize.Width = '11.69in';
+% % append(doc,'This document has portrait pages');
+% append(doc, sizeCurrent);
+
+%% insert next section
+countSect = 1;
+sect{countSect} = DOCXPageLayout;
+sect{countSect}.PageSize.Orientation = 'portrait';
+sect{countSect}.SectionBreak = 'Next Page';
+sect{countSect}.PageSize.Height = '11.69in';
+sect{countSect}.PageSize.Width = '8.27in';
+append(doc, sect{countSect});

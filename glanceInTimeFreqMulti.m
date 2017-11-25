@@ -1,6 +1,6 @@
 function [sensorData, dateVec, dateSerial] = glanceInTimeFreqMulti(pathRead, sensorNum, dayStart, dayEnd, pathSave, prefix, fs)
 % DESCRIPTION:
-%   This is a subfunction of mvad.m, to read user specified data, and
+%   This is a subfunction of mlad.m, to read user specified data, and
 %   display progress in command window.
 
 % AUTHOR:

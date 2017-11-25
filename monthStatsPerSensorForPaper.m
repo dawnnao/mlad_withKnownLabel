@@ -1,6 +1,6 @@
 function f = monthStatsPerSensorForPaper(stats, sensor, labelName, color)
 % DESCRIPTION:
-%   This is a subfunction of mvad.m, to auto-draw bar plot
+%   This is a subfunction of mlad.m, to auto-draw bar plot.
 
 % AUTHOR:
 %   Zhiyi Tang

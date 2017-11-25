@@ -1,6 +1,6 @@
 function p = panorama(xSerial, yLabel, yStr, legendColor)
 % DESCRIPTION:
-%   This is a subfunction for spp.m, to plot a panorama about data quality.
+%   This is a subfunction for mlad.m, to plot a panorama about data quality.
 %   Green is for good, red is for bad. Time precision is hour, which means
 %   if an hour's data is red, there is at least one bad data point.
 

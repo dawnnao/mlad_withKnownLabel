@@ -1,7 +1,7 @@
 function [label, labelCount, dateVec, dateSerial] = classifierMultiInTimeFreqWithBreakpoint(pathRead, ...
     sensorNum, dayStart, dayEnd, pathSave, labelName, activeLabel, neuralNet, fs)
 % DESCRIPTION:
-%   This is a subfunction of mvad.m, to do step 4 - anomaly detection.
+%   This is a subfunction of mlad.m, to do step 4 - anomaly detection.
 
 % AUTHOR:
 %   Zhiyi Tang

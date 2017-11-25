@@ -1,6 +1,6 @@
 function [sensorImage, dateVec, dateSerial] = data2img(pathRead, imageSetSaveRoot, sensorNum, dayStart, dayEnd, fs)
 % DESCRIPTION:
-%   This is a subfunction of mvad.m, to read user specified data, and
+%   This is a subfunction of mlad.m, to read user specified data, and
 %   display the progress in command window.
 
 % AUTHOR:

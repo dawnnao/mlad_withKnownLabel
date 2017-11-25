@@ -1,6 +1,16 @@
 function [dataForClust absIdx] = genDataForClust(sensorNumVec, clustRatio, sensorImage, downSampRatio)
-% generating data set for clustering. The absolute index (absIdx) is the number
-% of hour (time) and number of channel (location)
+% DESCRIPTION:
+%   This is a subfunction of mlad.m, to generate data set for clustering.
+%   The absolute index (absIdx) is the number of hour (time) and number of
+%   channel (location).
+
+% AUTHOR:
+%   Zhiyi Tang
+%   tangzhi1@hit.edu.cn
+%   Center of Structural Monitoring and Control
+% 
+% DATE CREATED:
+%   06/20/2017
 
 absIdx = [];
 absIdxTemp = [];

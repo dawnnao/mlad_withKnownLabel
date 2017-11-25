@@ -36,17 +36,32 @@ function sensor = mlad111_reportGen(readRoot, saveRoot, sensorNum, ...
 %                 share a network, sensorNum = {[1], [2,3]}
 %   dateStart (char) - start date of data, input format: 'yyyy-mm-dd'
 %   dateEnd (char) - end date of data, input format: 'yyyy-mm-dd'
-%   sensorClustRatio (double) - (training set size)/(the whole data set size)
+%   k - number of clusters to make
+%   sensorClustRatio (double) - (clusters' size)/(the whole data set size)
 %   sensorPSize (double) - data points in a packet in wireless transmission
 %                          (if a packet loses in transmission, all points
 %                           within become outliers)
 %   step (double) - choose steps, including: '1-Glance' '2-Label' '3-Train'
 %                                            '4-Detect' '5-Inspect
+%   labelName - user specified label names
+%   seed - seed of random number generator for reproducible analysis
+%   maxEpoch - epoch of training convolutional neural network (CNN)
+%   batchSize - samples batch size for each iteration in training CNN
+%   sizeFilter - size of the filter of the first layer in CNN (side length of a square)
+%   numFilter - number of the filter of the first layer in CNN
+%   cpuOrGpu - use cpu or gpu when training CNN, input format: 'cpu' or 'gpu'
 % 
 % DEFAULT VALUES:
 %   sensorClustRatio = 10/100
 %   sensorPSize = 10
-%   step = 1 (then program will ask go on or stop)
+%   step = [1 2 3 4 5] (then program will ask go on or stop)
+%   labelName = {'1-normal','2-missing','3-minor','4-outlier','5-square','6-trend','7-drift'};
+%   seed = 1;
+%   maxEpoch = 150;
+%   batchSize = 100;
+%   sizeFilter = 40;
+%   numFilter = 20;
+%   cpuOrGpu = 'cpu';
 % 
 % DATA FORMAT:
 %   Each mat file contains an hour data for all channels, and each channel's
@@ -94,11 +109,16 @@ function sensor = mlad111_reportGen(readRoot, saveRoot, sensorNum, ...
 % set input defaults:
 if ~exist('sensorClustRatio', 'var') || isempty(sensorClustRatio), sensorClustRatio = 10/100; end
 if ~exist('sensorPSize', 'var') || isempty(sensorPSize), sensorPSize = 10; end
-if ~exist('step', 'var'), step = []; end
+if ~exist('step', 'var'), step = [1 2 3 4 5]; end
 if ~exist('labelName', 'var') || isempty(labelName)
 %     labelName = {'1-normal','2-outlier','3-minor','4-missing','5-trend','6-drift','7-bias','8-cutoff','9-square'};
     labelName = {'1-normal','2-missing','3-minor','4-outlier','5-square','6-trend','7-drift'};
 end
+if ~exist('seed', 'var'), seed = 1; end
+if ~exist('maxEpoch', 'var'), maxEpoch = 150; end
+if ~exist('batchSize', 'var'), batchSize = 100; end
+if ~exist('sizeFilter', 'var'), sizeFilter = 40; end
+if ~exist('numFilter', 'var'), numFilter = 20; end
 if ~exist('cpuOrGpu', 'var'), cpuOrGpu = 'cpu'; end
 
 %% common variables
@@ -1152,7 +1172,8 @@ if ~exist(dirName.plot, 'dir'), mkdir(dirName.plot); end
 % set(gca, 'fontsize', 13, 'fontname', 'Times New Roman', 'fontweight', 'bold');
 % set(gcf,'Units','pixels','Position',[100, 100, 1000, 500]);  % control figure's position
 % xlim([0 39]);
-% ylim([0 9000]);
+% % digit = ceil(log10(abs(hourTotal)));
+% % ylim([0 ceil(hourTotal/(10^(digit-1)))*(10^(digit-1))]);
 % set(gca,'xtick',[1,5:5:35, 38]);
 % 
 % % minimize white space
@@ -1179,10 +1200,12 @@ if ~exist(dirName.plot, 'dir'), mkdir(dirName.plot); end
 % report generation
 fprintf('\nGenerating report...\n')
 reportCover;
+reportNet;
+reportTrainSetPano;
 reportPano;
+reportStatsTotal;
 reportStatsSensor;
 reportStatsLabel;
-reportStatsTotal;
 
 % sum results to check ratios of each anomaly
 sensor.ratioOfCategory = zeros(3,labelTotal+1);
@@ -1192,7 +1215,7 @@ for s = sensor.numVec
     end
 end
 sensor.ratioOfCategory(1,end) = sum(sensor.ratioOfCategory(1,:));
-sensor.ratioOfCategory(2,:) = (sensor.ratioOfCategory(1,:)./(sensor.ratioOfCategory(1,end)-sensor.ratioOfCategory(1,1))).*100;
+sensor.ratioOfCategory(2,2:end-1) = (sensor.ratioOfCategory(1,2:end-1)./(sensor.ratioOfCategory(1,end)-sensor.ratioOfCategory(1,1))).*100;
 sensor.ratioOfCategory(3,:) = (sensor.ratioOfCategory(1,:)./sensor.ratioOfCategory(1,end)).*100;
 
 % % crop legend to panorama's folder

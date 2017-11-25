@@ -1,6 +1,7 @@
 function [hours, mins, secs] = sec2hms(t)
 % DESCRIPTION:
-%   This is a subfunction of mvad.m, to convert seconds into hour:min:sec format
+%   This is a subfunction of mlad.m, to convert seconds into hour:min:sec
+%   format.
 
 % AUTHOR:
 %   Zhiyi Tang
