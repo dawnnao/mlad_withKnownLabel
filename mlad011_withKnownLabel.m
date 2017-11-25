@@ -705,8 +705,8 @@ date.serial.end   = datenum(date.end, dirName.formatIn);
 % anomaly detection
 fprintf('\nDetecting...\n')
 [labelTempNeural, countTempNeural, dateVec, dateSerial] = ...
-    classifierMultiInTime(readRoot, sensor.numVec, date.serial.start, date.serial.end, ...
-    dirName.home, sensor.label.name, sensor.neuralNet);
+    classifierMultiInTimeFreq(readRoot, sensor.numVec, date.serial.start, date.serial.end, ...
+    dirName.home, sensor.label.name, sensor.neuralNet, fs);
 for s = sensor.numVec
     sensor.label.neuralNet{s} = labelTempNeural{s};
     for l = 1 : labelTotal
