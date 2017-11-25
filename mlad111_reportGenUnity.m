@@ -975,7 +975,7 @@ date.serial.end   = datenum(date.end, dirName.formatIn);
 % anomaly detection
 fprintf('\nDetecting...\n')
 [labelTempNeural, countTempNeural, dateVec, dateSerial] = ...
-    classifierMultiInTimeFreqWithBreakpoint(readRoot, sensor.numVec, date.serial.start, date.serial.end, ...
+    classifierMultiInTimeFreqWithBreakpointUnity(readRoot, sensor.numVec, date.serial.start, date.serial.end, ...
     dirName.home, sensor.label.name, feature{g}.label.activeLabel, sensor.neuralNet, fs);
 
 for s = sensor.numVec
@@ -1112,7 +1112,7 @@ for s = sensor.numVec
     for n = 1 : 12
         for l = 1 : labelTotal
             aim = find(sensor.date.vec{s}(:,2) == n);
-            sensor.statsPerSensor{s}(n, l) = length(find(sensor.label.neuralNet{s}(aim) == categorical(l)));
+            sensor.statsPerSensor{s}(n, l) = length(find(sensor.label.neuralNet{s}(aim) == l));
         end
     end
     monthStatsPerSensorForPaper(sensor.statsPerSensor{s}, s, sensor.label.name, color);
@@ -1130,7 +1130,7 @@ for l = 1 : labelTotal
    for s = sensor.numVec
        for n = 1 : 12
            aim = find(sensor.date.vec{s}(:,2) == n);
-           sensor.statsPerLabel{l}(n, s) = length(find(sensor.label.neuralNet{s}(aim) == categorical(l)));
+           sensor.statsPerLabel{l}(n, s) = length(find(sensor.label.neuralNet{s}(aim) == l));
        end
    end
    if sum(sum(sensor.statsPerLabel{l})) >= 0
@@ -1149,7 +1149,7 @@ dirName.plotSum = [dirName.plot 'statsSumUp/'];
 if ~exist(dirName.plotSum, 'dir'), mkdir(dirName.plotSum); end
 for s = sensor.numVec
    for l = 1 : labelTotal
-       statsSum(s, l) = length(find(sensor.label.neuralNet{s} == categorical(l)));
+       statsSum(s, l) = length(find(sensor.label.neuralNet{s} == l));
    end
 end
 

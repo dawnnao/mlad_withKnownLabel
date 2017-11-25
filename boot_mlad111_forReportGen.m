@@ -16,7 +16,7 @@ k = 10; % number of clusters
 sensorClustRatio = 80/100;
 sensorPSize = 10;
 fs = 20;
-step = [5];
+step = [4];
 % labelName = {'1-normal','2-missing','3-minor','4-outlier','5-square','6-trend','7-drift'};
 seed = 1; % for random number generation
 maxEpoch = [150];
@@ -26,5 +26,5 @@ numFilter = [20];
 cpuOrGpu = 'gpu';
 
 %%
-sensor = mlad111_reportGen(readRoot, saveRoot, sensorNum, dateStart, dateEnd, ...
+sensor = mlad111_reportGenUnity(readRoot, saveRoot, sensorNum, dateStart, dateEnd, ...
     k, sensorClustRatio, sensorPSize, fs, step, [], seed, maxEpoch, batchSize, sizeFilter, numFilter, cpuOrGpu);
