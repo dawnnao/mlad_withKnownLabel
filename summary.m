@@ -18,8 +18,8 @@ fileBasicCNN = '2012-01-01--2012-12-31_sensor_1-38_fusion_globalEpoch_150_batchS
 out.intersect = cell(7,7);
 out.intersect(:) = {[1:333792]}; % initialization
 
-for nMlad = 8 % 1 : 8 % length(caseNum)
-    for nTrainRatio = 1 % : 3 % pct
+for nMlad = 1 : 8 % length(caseNum)
+    for nTrainRatio = 1 : 3 % pct
         for nSeed = 1 : 5
             fprintf('\nLoading...    mlad%s  trainRatio: %d  seed: %d    ', caseNumBinChar(nMlad, :), nTrainRatio, nSeed)
             if mod(nMlad, 2) == 1
