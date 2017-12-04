@@ -89,8 +89,12 @@ for day = dayStart : dayEnd
                 img(:, :, 2) = imgFreq;
                 img(:, :, 3) = ones(100, 100);
                 imshow(img)
+%                 % trial for cmyk
+%                 imgCMYK = img;
+%                 imgCMYK(:, :, 4) = zeros(100, 100);
+%                 imshow(imgCMYK)
+
 %                 set(gcf, 'visible', 'on');
-                
                 labelRaw = predict(neuralNet{s}, img)';
                 % convert and mapping
                 label{s}(count) = activeLabel(vec2ind(labelRaw));                

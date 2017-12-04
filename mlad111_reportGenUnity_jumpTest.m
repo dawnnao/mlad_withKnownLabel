@@ -1,4 +1,4 @@
-function sensor = mlad111_reportGenUnity(readRoot, saveRoot, sensorNum, ...
+function sensor = mlad111_reportGenUnity_jumpTest(readRoot, saveRoot, sensorNum, ...
     dateStart, dateEnd, k, sensorClustRatio, sensorPSize, fs, step, labelName, ...
     seed, maxEpoch, batchSize, sizeFilter, numFilter, cpuOrGpu)
 % DESCRIPTION:
@@ -508,13 +508,13 @@ while goNext == 0
                 short = short + shortTemp;
                 trainSet.amountLeft(m) = trainSet.amountLeft(m) - sAver + shortTemp;
 
-                [trainSet.label, count, shortHalfwayLeft] = dispAndLabel(trainSet.data, trainSet.label, ...
+                [trainSet.label, count, shortHalfwayLeft, trainSet.positionOut(m)] = dispAndLabel_jumpTest(trainSet.data, trainSet.label, ...
                         m, clust.sizeOfClust, trainSet.amountLeft, ...
                         trainSet.positionIn(m), trainSet.positionOut(m), count, trainSet.size, labelName, ticLabel);
                 
                 if shortHalfwayLeft > 0
                    short = short + shortHalfwayLeft;
-                   checkIn = [checkIn, m]; % drop the unwanted cluster
+%                    checkIn = [checkIn, m]; % drop the unwanted cluster
 												 
                 end
             end

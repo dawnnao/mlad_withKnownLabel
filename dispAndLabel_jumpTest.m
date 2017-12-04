@@ -1,4 +1,4 @@
-function [trainSetLabel, count, shortHalfwayLeft] = dispAndLabel(trainSetData, trainSetLabel, clust, clustSize, clustAvail, in, out, count, all, labelName, ticLabel)
+function [trainSetLabel, count, shortHalfwayLeft, out] = dispAndLabel_jumpTest(trainSetData, trainSetLabel, clust, clustSize, clustAvail, in, out, count, all, labelName, ticLabel)
 % DESCRIPTION:
 %   This is a subfunction of mlad.m, to assit user labeling samples during
 %   step 2.
@@ -58,7 +58,8 @@ while m <= out
     for l = 1 : labelTotal
         fprintf('\n%s', labelName{l})
     end
-    fprintf('\n0-redo the previous.')
+    fprintf('\n0 -redo the previous one.')
+    fprintf('\n88-jump to next sample.')
     fprintf('\n99-jump to next cluster.\n')
     prompt = '\nInput: ';
     classify = input(prompt,'s');
@@ -71,19 +72,25 @@ while m <= out
         shortHalfwayLeft = shortHalfwayLeft - 1;
         availInClust = availInClust - 1;
     elseif classify == 0
-        if m > 1
+        if m > in
             fprintf('\nRedo the previous.\n')
             m = m - 1;
             count = count - 1;
             shortHalfwayLeft = shortHalfwayLeft + 1;
             availInClust = availInClust + 1;
-        else fprintf('\nThis is already the first!\n')
+        else fprintf('\nThis is already the first in this round!\n')
         end
-    elseif classify == 88
-        fprintf('\nGoing to next sample in current cluster.\n')
-        
+    elseif classify == 88 % check here!
+        fprintf('\nJump to next sample in the current cluster.\n')
+        m = m + 1;
+        out = out + 1;
+        availInClust = availInClust - 1;
+        if availInClust == 0
+            fprintf('\nNo more availbale sample in the cluster! Go to next cluser.\n')
+            return
+        end
     elseif classify == 99
-        fprintf('\nGoing to next available cluster.\n')
+        fprintf('\nJump to next available cluster.\n')
         return
     else
         fprintf('\n\n\n\n\n\nInvalid input! Input 1-7 for labelling, 0 for redoing previous one.\n')
