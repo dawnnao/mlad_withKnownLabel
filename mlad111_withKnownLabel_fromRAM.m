@@ -549,6 +549,10 @@ for g = 1 : groupTotal
                   convolution2dLayer(sizeFilter, numFilter)
                   reluLayer
                   maxPooling2dLayer(2,'Stride',2)
+                  
+%                   convolution2dLayer(20, 20)
+%                   reluLayer
+%                   maxPooling2dLayer(2,'Stride',2)
 
 %                   % design 2
 %                   convolution2dLayer(10, numFilter)
