@@ -578,7 +578,7 @@ while goNext == 0
         panorama(sensor.date.serial{s}, sensor.label.manual{s}, yStrTemp, color(1:labelTotal+1));
         dirName.panoramaTrainSet{s} = [sprintf('%s--%s_sensor_%02d', date.start, date.end, s) '_trainingSetLabelPanorama.png'];
         saveas(gcf,[dirName.plotPanoTrainSet dirName.panoramaTrainSet{s}]);
-        fprintf('\nSenor-%02d training set panorama file location:\n%s\n', ...
+        fprintf('\nSensor-%02d training set panorama file location:\n%s\n', ...
             s, GetFullPath([dirName.plotPanoTrainSet dirName.panoramaTrainSet{s}]))
         close																 
     end
@@ -1197,16 +1197,6 @@ fprintf('\nSum-up anomaly stats image file location:\n%s\n', ...
     GetFullPath([dirName.plotSum dirName.statsSum]))
 close
 
-% report generation
-fprintf('\nGenerating report...\n')
-reportCover;
-reportNet;
-reportTrainSetPano;
-reportPano;
-reportStatsTotal;
-reportStatsSensor;
-reportStatsLabel;
-
 % sum results to check ratios of each anomaly
 sensor.ratioOfCategory = zeros(3,labelTotal+1);
 for s = sensor.numVec
@@ -1217,6 +1207,16 @@ end
 sensor.ratioOfCategory(1,end) = sum(sensor.ratioOfCategory(1,:));
 sensor.ratioOfCategory(2,2:end-1) = (sensor.ratioOfCategory(1,2:end-1)./(sensor.ratioOfCategory(1,end)-sensor.ratioOfCategory(1,1))).*100;
 sensor.ratioOfCategory(3,:) = (sensor.ratioOfCategory(1,:)./sensor.ratioOfCategory(1,end)).*100;
+
+% report generation
+fprintf('\nGenerating report...\n')
+reportCover;
+reportNet;
+reportTrainSetPano;
+reportPano;
+reportStatsTotal;
+reportStatsSensor;
+reportStatsLabel;
 
 % % crop legend to panorama's folder
 % img = imread([dirName.plotSum dirName.statsSum]);
