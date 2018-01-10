@@ -109,15 +109,96 @@ fprintf('saved.\n')
 % out.testF1Mean{4} and out.testF1Mean{8}
 barData = [];
 for c = 1 : size(out.testF1Mean{4}, 2)
-    barData = [barData, out.testF1Mean{8}(:, c), out.testF1Mean{4}(:, c)];
+    barData = [barData, out.testF1Mean{4}(:, c), out.testF1Mean{8}(:, c)];
 end
+barData = barData';
+
+%% barplot settings
+legendText = {'Normal' 'Missing' 'Minor' 'Outlier' 'Square' 'Trend' 'Drift'};
+% barColor = {...
+% [000 130 000]/255;    % 1-normal            green
+% [244 67 54]/255;      % 2-missing           red
+% [121 85 72]/255;      % 3-minor             brown
+% [255 235 59]/255;     % 4-outlier           yellow
+% [50 50 50]/255;       % 5-square            black  
+% [33 150 243]/255;     % 6-trend             blue
+% [171 71 188]/255};     % 7-drift             purple
+
+barColor = [ ...
+51  190 122;    % 1-normal            green  52 162 126
+244 67  54;      % 2-missing           red
+121 85  72;      % 3-minor             brown
+255 235 59;     % 4-outlier           yellow
+50  50  50;       % 5-square            black  
+33  150 243;     % 6-trend             blue
+171 71  188]/255;     % 7-drift             purple
+
+
+close all
+figure
+ba = bar(barData, 'EdgeColor', 'none');
+xlabel('Case No.');
+ylabel('F_1 Score');
+le = legend(legendText);
+le.Location = 'bestoutside';
+le.FontSize = 14;
+
+ax = gca;
+ax.TickLength = [0 0];
+ax.FontName = 'Helvetica';
+ax.XAxis.FontSize = 14;
+ax.YAxis.FontSize = 14;
+ax.YGrid = 'on';
+
+% b.CData = barColor(1,:);
+
+% for c = 1 : size(barData, 2)
+%     b.CData(c,:) = barColor(c,:);
+% end
+
+ba(1).Parent.Parent.Colormap = barColor;
+
+ax.Units = 'normalized';
+ax.Position = [0.07 0.15 0.8 0.8];
+
+fig = gcf;
+fig.Units = 'pixels';
+fig.Position = [1000, 100, 1100, 450];
+
+saveas(gcf, [sumFolder 'barPlot_cases_' datestr(now,'yyyy-mm-dd_HH-MM-SS') '.tif'])
 
 %%
+lineData = barData;
+
+close all
 figure
-ax = bar(barData);
-ax.TickLength = [0 0];
+li = plot(lineData, '-*');
+for c = 1 : size(lineData, 2)
+    li(c).LineWidth = 2;
+%     li(c).CData = barColor(c,:);
+end
 
 
+xlabel('Case No.');
+ylabel('F_1 Score');
+le = legend(legendText);
+le.Location = 'bestoutside';
+le.FontSize = 14;
+
+ax = gca;
+ax.FontName = 'Helvetica';
+ax.XAxis.FontSize = 14;
+ax.YAxis.FontSize = 14;
+ax.YGrid = 'on';
+
+% li(1).Parent.Parent.Colormap = barColor;
+
+ax.Units = 'normalized';
+ax.Position = [0.08 0.11 0.76 0.86];
+
+fig = gcf;
+fig.Units = 'pixels';
+fig.Position = [1000, 100, 1000, 600];
 
 
 
