@@ -87,50 +87,61 @@ ax.XTick = plotx;
 xLabel = cell(size(plotx));
 bigTick = zeros(size(plotx));
 for n = 1 : length(plotx)
-    if mod(n,24) == 1
-        bigTick(n) = 0.14;
+    
+    dateVecTemp = datevec(plotx(n));
+    if dateVecTemp(1, 3) == 1 && sum(dateVecTemp(1, 4:6)) == 0
+       xLabel{n} = datestr(plotx(n), 'mm-dd');
+       bigTick(n) = 0.3;
     end
     
-    if length(plotx) <= 24+1 && mod(n,6) == 1
-        xLabel{n} = datestr(plotx(n), 'mm-dd HH:MM');
-%         xLabel{n} = datestr(plotx(n), 'mm-dd ddd. HH:MM');
+    if dateVecTemp(1, 3) == 15 && sum(dateVecTemp(1, 4:6)) == 0
+       xLabel{n} = datestr(plotx(n), 'mm-dd');
+       bigTick(n) = 0.3;
     end
     
-    if length(plotx) > 24+1 && length(plotx) <= 24*7+1 && mod(n,12) == 1
-        xLabel{n} = datestr(plotx(n), 'mm-dd HH:MM');
-    end
-    
-    if length(plotx) > 24*7+1 &&  length(plotx) <= 24*31+1 && mod(n,24) == 1
-        bigTick(n) = 0.3;
-        xLabel{n} = datestr(plotx(n), 'mm-dd HH:MM');
-    end
-    
-    if length(plotx) > 24*31+1 && length(plotx) <= 24*31*3+1 && mod(n,24*7) == 1
-        xLabel{n} = datestr(plotx(n), 'mm-dd HH:MM');
-    end
-    
-    if length(plotx) > 24*31*3+1 && mod(n,24*7*2) == 1
-        bigTick(n) = 0.3;
-        xLabel{n} = datestr(plotx(n), 'mm-dd HH:MM');
-    end
+%     
+%     if length(plotx) <= 24+1 && mod(n,6) == 1
+%         xLabel{n} = datestr(plotx(n), 'mm-dd');
+% %         xLabel{n} = datestr(plotx(n), 'mm-dd ddd. HH:MM');
+%     end
+%     
+%     if length(plotx) > 24+1 && length(plotx) <= 24*7+1 && mod(n,12) == 1
+%         xLabel{n} = datestr(plotx(n), 'mm-dd');
+%     end
+%     
+%     if length(plotx) > 24*7+1 &&  length(plotx) <= 24*31+1 && mod(n,24) == 1
+%         bigTick(n) = 0.3;
+%         xLabel{n} = datestr(plotx(n), 'mm-dd');
+%     end
+%     
+%     if length(plotx) > 24*31+1 && length(plotx) <= 24*31*3+1 && mod(n,24*7) == 1
+%         xLabel{n} = datestr(plotx(n), 'mm-dd');
+%     end
+%     
+%     if length(plotx) > 24*31*3+1 && mod(n,24*7*2) == 1
+%         bigTick(n) = 0.3;
+%         xLabel{n} = datestr(plotx(n), 'mm-dd');
+%     end
+
 end
-xLabel{1} = ' '; % !!! make the 1st invisible
+xLabel{end} = ' '; % !!! make the last invisible
 
 %% axis control
 stem(plotx, bigTick, 'linewidth', 1, 'marker', 'none', 'color', color.axis);
 hold off
 box off
 % ax.XTick = [];
+ax.TickLength = [0 0];
 ax.XTickLabel = xLabel;
-ax.XTickLabelRotation = 12;  % rotation
+ax.XTickLabelRotation = 10;  % rotation
 % ax.XLabel.FontSize = 14;
 ax.XColor = color.axis;
 ax.YColor = color.axis;
 ax.YTick = [];
 ax.YLabel.String = yStr;
-% ax.YLabel.FontSize = 14;
-set(gca, 'fontsize', 12);
-set(gca, 'fontname', 'Times New Roman', 'fontweight', 'bold');
+set(gca, 'fontname', 'Helvetica'); % 'fontweight', 'bold'
+ax.XAxis.FontSize = 16;
+ax.YLabel.FontSize = 12;
 
 %% size control
 fig = gcf;

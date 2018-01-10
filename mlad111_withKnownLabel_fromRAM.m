@@ -107,16 +107,18 @@ groupTotal = length(sensorNum(:));
 sensor.numVec = [];
 for g = 1 : groupTotal, sensor.numVec = [sensor.numVec sensorNum{g}(:)']; end
 sensorTotal = length(sensor.numVec);
-color= {[129 199 132]/255;    % 1-normal            green
+color= {%[129 199 132]/255;    % 1-normal            green
+        [000 130 000]/255;    % 1-normal            green
         [244 67 54]/255;      % 2-missing           red
         [121 85 72]/255;      % 3-minor             brown
         [255 235 59]/255;     % 4-outlier           yellow
         [50 50 50]/255;       % 5-square            black  
         [33 150 243]/255;     % 6-trend             blue
         [171 71 188]/255;     % 7-drift             purple
-
+        
+%         [168 168 168]/255;    % for custom          gray
+        [250 250 250]/255;    % for custom          gray
         [255 112 67]/255;     % for custom          orange        
-        [168 168 168]/255;    % for custom          gray
         [0 121 107]/255;      % for custom          dark green
         [24 255 255]/255;     % for custom          high-light blue
         [118 255 3]/255;      % for custom          high-light green
@@ -234,6 +236,28 @@ end
 
 %% 2 make training set
 if ismember(2, step) || isempty(step)
+% update new parameters and load training sets
+if ~isempty(step) && step(1) == 2
+    newP{2,1} = sensor.pSize;
+    newP{3,1} = step;
+    newP{4,1} = sensor.label.name;
+    newP{5,1} = readRoot;
+    newP{6,1} = dirName.home;
+    newP{7,1} = color;
+    
+    readPath = [dirName.home dirName.file];
+    fprintf('\nLoading...\n')
+    load(readPath)
+    
+    sensor.pSize =  newP{2,1};
+    step = newP{3,1};
+    sensor.label.name = newP{4,1};
+    readRoot = newP{5,1};
+    dirName.home = newP{6,1};
+    color = newP{7,1};
+    clear newP
+end
+
 dirName.trainSetByType = [GetFullPath(dirName.home) sprintf('trainingSetByType/')];
 if exist(dirName.trainSetByType,'dir')
     check = ls(dirName.trainSetByType);
@@ -336,56 +360,58 @@ while goNext == 0
                 path.sourceFile2 = sprintf('%s0-all_absIdx_%d_%d_freq.png', path.sourceFolder, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
                 path.goalFile2 = sprintf('%s%s/%s_absIdx_%02d_%d_freq.png', dirName.trainSetByType, labelName{n}, labelName{n}, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
                 
-                if exist(path.sourceFile1, 'file')
-                   fprintf('\nGenerating training set... %s Now: %d Total: %d\n', labelName{n}, m, label2012.trainNum(n))
-                   if mod(m, 100) == 0
-                      fprintf('\nHome folder: %s\n', dirName.home)
-                   end
-                   img1 = imread(path.sourceFile1);
-                   img1 = im2double(img1);
-                   copyfile(path.sourceFile1, path.goalFile1, 'f');                   
-                else
-                   fprintf('\nCAUTION:\n%s\nNo such file! Filled with a zero.\n', path.full)
-                   sensorData(1, 1) = zeros;
-                   plot(sensorData(:, 1),'color','k');
-                   position = get(gcf,'Position');
-                   set(gcf,'Units','pixels','Position',[position(1), position(2), 100, 100]);  % control figure's position
-                   set(gca,'Units','normalized', 'Position',[0 0 1 1]);  % control axis's position in figure
-                   set(gca,'visible','off');
-                   xlim([0 size(sensorData,1)]);
-                   set(gcf,'color','white');
-                   img1 = getframe(gcf);
-                   img1 = imresize(img1.cdata, [100 100]);  % expected dimension
-                   img1 = rgb2gray(img1);
-                   img1 = im2double(img1);
-                   imwrite(img1, path.goalFile);
-                end
-                   imshow(img1)
-                   label2012.image{n}(1:10000, m) = single(img1(:));
-                   
-                if exist(path.sourceFile2, 'file')
-                   fprintf('\nGenerating training set... %s Now: %d Total: %d\n', labelName{n}, m, label2012.trainNum(n))
-                   img2 = imread(path.sourceFile2);
-                   img2 = im2double(img2);
-                   copyfile(path.sourceFile2, path.goalFile2, 'f');                   
-                else
-                   fprintf('\nCAUTION:\n%s\nNo such file! Filled with a zero.\n', path.full)
-                   sensorData(1, 1) = zeros;
-                   plot(sensorData(:, 1),'color','k');
-                   position = get(gcf,'Position');
-                   set(gcf,'Units','pixels','Position',[position(1), position(2), 100, 100]);  % control figure's position
-                   set(gca,'Units','normalized', 'Position',[0 0 1 1]);  % control axis's position in figure
-                   set(gca,'visible','off');
-                   xlim([0 size(sensorData,1)]);
-                   set(gcf,'color','white');
-                   img2 = getframe(gcf);
-                   img2 = imresize(img2.cdata, [100 100]);  % expected dimension
-                   img2 = rgb2gray(img2);
-                   img2 = im2double(img2);
-                   imwrite(img2, path.goalFile2);
-                end
-                   imshow(img2)
-                   label2012.image{n}(10001:20000, m) = single(img2(:));
+%                 if exist(path.sourceFile1, 'file')
+%                    fprintf('\nGenerating training set... %s Now: %d Total: %d\n', labelName{n}, m, label2012.trainNum(n))
+%                    if mod(m, 100) == 0
+%                       fprintf('\nHome folder: %s\n', dirName.home)
+%                    end
+%                    img1 = imread(path.sourceFile1);
+%                    img1 = im2double(img1);
+%                    copyfile(path.sourceFile1, path.goalFile1, 'f');                   
+%                 else
+%                    fprintf('\nCAUTION:\n%s\nNo such file! Filled with a zero.\n', path.full)
+%                    sensorData(1, 1) = zeros;
+%                    plot(sensorData(:, 1),'color','k');
+%                    position = get(gcf,'Position');
+%                    set(gcf,'Units','pixels','Position',[position(1), position(2), 100, 100]);  % control figure's position
+%                    set(gca,'Units','normalized', 'Position',[0 0 1 1]);  % control axis's position in figure
+%                    set(gca,'visible','off');
+%                    xlim([0 size(sensorData,1)]);
+%                    set(gcf,'color','white');
+%                    img1 = getframe(gcf);
+%                    img1 = imresize(img1.cdata, [100 100]);  % expected dimension
+%                    img1 = rgb2gray(img1);
+%                    img1 = im2double(img1);
+%                    imwrite(img1, path.goalFile);
+%                 end
+%                    imshow(img1)
+%                    label2012.image{n}(1:10000, m) = single(img1(:));
+%                    
+%                 if exist(path.sourceFile2, 'file')
+%                    fprintf('\nGenerating training set... %s Now: %d Total: %d\n', labelName{n}, m, label2012.trainNum(n))
+%                    img2 = imread(path.sourceFile2);
+%                    img2 = im2double(img2);
+%                    copyfile(path.sourceFile2, path.goalFile2, 'f');                   
+%                 else
+%                    fprintf('\nCAUTION:\n%s\nNo such file! Filled with a zero.\n', path.full)
+%                    sensorData(1, 1) = zeros;
+%                    plot(sensorData(:, 1),'color','k');
+%                    position = get(gcf,'Position');
+%                    set(gcf,'Units','pixels','Position',[position(1), position(2), 100, 100]);  % control figure's position
+%                    set(gca,'Units','normalized', 'Position',[0 0 1 1]);  % control axis's position in figure
+%                    set(gca,'visible','off');
+%                    xlim([0 size(sensorData,1)]);
+%                    set(gcf,'color','white');
+%                    img2 = getframe(gcf);
+%                    img2 = imresize(img2.cdata, [100 100]);  % expected dimension
+%                    img2 = rgb2gray(img2);
+%                    img2 = im2double(img2);
+%                    imwrite(img2, path.goalFile2);
+%                 end
+%                    imshow(img2)
+%                    label2012.image{n}(10001:20000, m) = single(img2(:));
+
+
                 
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                 [day, hour] = colLocation(label2012.absIdx{n}(m, 2) ,'2012-01-01');
@@ -424,6 +450,67 @@ while goNext == 0
             label2012.imgLabel{n}(n, :) = 1;
         end
         close
+        
+        %% added on 2018-01-08 for training set visualization | start here
+        for s = sensor.numVec
+            sensor.label.manualTrainSet{s} = zeros(labelTotal, hourTotal);
+            sensor.date.serial{s} = dateSerial;
+        end
+        
+        % form global label set
+        for n = 1 : labelTotal
+            for m = 1 : size(label2012.absIdx{n}, 1)
+                sensor.label.manualTrainSet{label2012.absIdx{n}(m,1)}(:, label2012.absIdx{n}(m,2)) = ...
+                    label2012.imgLabel{n}(:, m);
+            end
+        end
+        
+        % add a new line for non-labeled data
+        for s = sensor.numVec
+            sensor.label.manualTrainSet{s} = [sensor.label.manualTrainSet{s}; ...
+                                              zeros(1, size(sensor.label.manualTrainSet{s},2))];
+            sensor.label.manualTrainSet{s}(end, sum(sensor.label.manualTrainSet{s}) == 0) = 1;
+            sensor.label.manualTrainSet{s} = vec2ind(sensor.label.manualTrainSet{s});
+        end
+        
+        % training set panorama
+        dirName.plotPanoTrainSet = [dirName.trainSetByType 'panorama/'];
+        if ~exist(dirName.plotPanoTrainSet, 'dir'), mkdir(dirName.plotPanoTrainSet); end
+        for s = sensor.numVec
+            if mod(s,2) == 1
+                yStrTemp = '';
+            else
+                yStrTemp = sprintf('      %02d', s);
+            end
+            panorama(sensor.date.serial{s}, sensor.label.manualTrainSet{s}, yStrTemp, color(1:labelTotal+1));
+            dirName.panoramaTrainSet{s} = [sprintf('%s--%s_sensor_%02d', date.start, date.end, s) '_trainingSetLabelPanorama.png'];
+            saveas(gcf,[dirName.plotPanoTrainSet dirName.panoramaTrainSet{s}]);
+            fprintf('\nSensor-%02d training set panorama file location:\n%s\n', ...
+                s, GetFullPath([dirName.plotPanoTrainSet dirName.panoramaTrainSet{s}]));
+            close																 
+        end
+
+        n = 0;
+        panopano = [];
+        for s = sensor.numVec
+            n = n + 1;
+            p{s} = imread(GetFullPath([dirName.plotPanoTrainSet dirName.panoramaTrainSet{s}]));
+            if n > 1
+                height = size(p{s},1);
+                width = size(p{s},2);
+                p{s} = p{s}(1:ceil(height*0.22), :, :);
+            end
+            panopano = cat(1, p{s}, panopano);
+        end
+        dirName.panopanoTrainSet = [sprintf('%s--%s_sensor_all%s', date.start, date.end, sensorStr) ...
+                            '_trainingSetLabelPanorama.tif'];
+        imwrite(panopano, [dirName.plotPanoTrainSet dirName.panopanoTrainSet]);
+        
+        %% added on 2018-01-08 for training set visualization | end here
+        
+        
+        
+        
         
         save([dirName.trainSetByType 'trainSetByType.mat'], 'label2012', '-v7.3')
     end

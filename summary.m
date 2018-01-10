@@ -36,6 +36,16 @@ for nMlad = 1 : 8 % length(caseNum)
                 out.vali{nMlad}{nTrainRatio}(nSeed) = fileOrigin.confValiAccuracy;
                 out.test{nMlad}{nTrainRatio}(nSeed) = fileOrigin.confTestAccuracy;
                 
+                % collect precision
+                out.trainPrecision{nMlad}{nTrainRatio}(:, nSeed) = fileOrigin.confTrainPrecision;
+                out.valiPrecision{nMlad}{nTrainRatio}(:, nSeed) = fileOrigin.confValiPrecision;
+                out.testPrecision{nMlad}{nTrainRatio}(:, nSeed) = fileOrigin.confTestPrecision;
+                
+                % collect recall
+                out.trainRecall{nMlad}{nTrainRatio}(:, nSeed) = fileOrigin.confTrainRecall;
+                out.valiRecall{nMlad}{nTrainRatio}(:, nSeed) = fileOrigin.confValiRecall;
+                out.testRecall{nMlad}{nTrainRatio}(:, nSeed) = fileOrigin.confTestRecall;
+                
                 % collect misclassified sample indexes for intersection
                 out.testInd{nMlad}{nTrainRatio}{nSeed} = fileOrigin.confTestInd;
                 for nCube = 1 : 49
@@ -52,12 +62,38 @@ for nMlad = 1 : 8 % length(caseNum)
             
             clear fileOrigin
         end
+        
+        % calculate mean and std of accuracy
         out.trainMean{nMlad}(nTrainRatio) = nanmean(out.train{nMlad}{nTrainRatio});
         out.trainStd{nMlad}(nTrainRatio) = nanstd(out.train{nMlad}{nTrainRatio});
         out.valiMean{nMlad}(nTrainRatio) = nanmean(out.vali{nMlad}{nTrainRatio});
         out.valiStd{nMlad}(nTrainRatio) = nanstd(out.vali{nMlad}{nTrainRatio});
         out.testMean{nMlad}(nTrainRatio) = nanmean(out.test{nMlad}{nTrainRatio});
         out.testStd{nMlad}(nTrainRatio) = nanstd(out.test{nMlad}{nTrainRatio});
+        
+        % calculate f1 score
+        for nSeed = 1 : 5
+        out.trainF1{nMlad}{nTrainRatio}(:, nSeed) = ...
+            2*(out.trainPrecision{nMlad}{nTrainRatio}(:, nSeed) .* out.trainRecall{nMlad}{nTrainRatio}(:, nSeed))./ ...
+            (out.trainPrecision{nMlad}{nTrainRatio}(:, nSeed) + out.trainRecall{nMlad}{nTrainRatio}(:, nSeed));
+        
+        out.valiF1{nMlad}{nTrainRatio}(:, nSeed) = ...
+            2*(out.valiPrecision{nMlad}{nTrainRatio}(:, nSeed) .* out.valiRecall{nMlad}{nTrainRatio}(:, nSeed))./ ...
+            (out.valiPrecision{nMlad}{nTrainRatio}(:, nSeed) + out.valiRecall{nMlad}{nTrainRatio}(:, nSeed));
+        
+        out.testF1{nMlad}{nTrainRatio}(:, nSeed) = ...
+            2*(out.testPrecision{nMlad}{nTrainRatio}(:, nSeed) .* out.testRecall{nMlad}{nTrainRatio}(:, nSeed))./ ...
+            (out.testPrecision{nMlad}{nTrainRatio}(:, nSeed) + out.testRecall{nMlad}{nTrainRatio}(:, nSeed));
+        
+        end
+        
+        out.trainF1Mean{nMlad}(:, nTrainRatio) = nanmean(out.trainF1{nMlad}{nTrainRatio}, 2);
+        out.trainF1Std{nMlad}(:, nTrainRatio) = nanstd(out.trainF1{nMlad}{nTrainRatio}, 0, 2);
+        out.valiF1Mean{nMlad}(:, nTrainRatio) = nanmean(out.valiF1{nMlad}{nTrainRatio}, 2);
+        out.valiF1Std{nMlad}(:, nTrainRatio) = nanstd(out.valiF1{nMlad}{nTrainRatio}, 0, 2);
+        out.testF1Mean{nMlad}(:, nTrainRatio) = nanmean(out.testF1{nMlad}{nTrainRatio}, 2);
+        out.testF1Std{nMlad}(:, nTrainRatio) = nanstd(out.testF1{nMlad}{nTrainRatio}, 0, 2);
+        
     end
 end
 
@@ -68,6 +104,18 @@ end
 
 save([sumFolder 'summary_' datestr(now,'yyyy-mm-dd_HH-MM-SS') '.mat'], 'out', '-v7.3')
 fprintf('saved.\n')
+
+%% plot
+% out.testF1Mean{4} and out.testF1Mean{8}
+barData = [];
+for c = 1 : size(out.testF1Mean{4}, 2)
+    barData = [barData, out.testF1Mean{8}(:, c), out.testF1Mean{4}(:, c)];
+end
+
+%%
+figure
+ax = bar(barData);
+ax.TickLength = [0 0];
 
 
 
