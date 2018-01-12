@@ -97,7 +97,7 @@ if ~exist('sensorPSize', 'var') || isempty(sensorPSize), sensorPSize = 10; end
 if ~exist('step', 'var'), step = []; end
 if ~exist('labelName', 'var') || isempty(labelName)
 %     labelName = {'1-normal','2-outlier','3-minor','4-missing','5-trend','6-drift','7-bias','8-cutoff','9-square'};
-    labelName = {'1-normal','2-missing','3-minor','4-outlier','5-square','6-trend','7-drift'};
+    labelName = {'1-Normal','2-Missing','3-Minor','4-Outlier','5-Square','6-Trend','7-Drift'};
 end
 
 %% common variables
@@ -107,8 +107,8 @@ groupTotal = length(sensorNum(:));
 sensor.numVec = [];
 for g = 1 : groupTotal, sensor.numVec = [sensor.numVec sensorNum{g}(:)']; end
 sensorTotal = length(sensor.numVec);
-color= {%[129 199 132]/255;    % 1-normal            green
-        [000 130 000]/255;    % 1-normal            green
+color= {[129 199 132]/255;    % 1-normal            green
+%         [000 130 000]/255;    % 1-normal            green
         [244 67 54]/255;      % 2-missing           red
         [121 85 72]/255;      % 3-minor             brown
         [255 235 59]/255;     % 4-outlier           yellow
@@ -871,6 +871,7 @@ if ~isempty(step) && step(1) == 5
     newP{5,1} = readRoot;
     newP{6,1} = dirName.home;
     newP{7,1} = labelPath;
+    newP{8,1} = color;
     
     readPath = [dirName.home dirName.file];
     fprintf('Loading...\n')
@@ -882,6 +883,7 @@ if ~isempty(step) && step(1) == 5
     readRoot = newP{5,1};
     dirName.home = newP{6,1};
     labelPath = newP{7,1};
+    color = newP{8,1};
     clear newP
 end
 t(5) = tic;
@@ -896,6 +898,12 @@ dirName.plot = [dirName.home sprintf('/plot_globalEpoch_%d_batchSize_%d_sizeFilt
 if ~exist(dirName.plot, 'dir'), mkdir(dirName.plot); end
 
 % plot panorama
+
+%% temp
+% fprintf('\nLoading actual labels of 2012...\n')
+% sensorTemp = load(labelPath);
+%% temp ends
+
 dirName.plotPano = [dirName.plot 'panorama/'];
 if ~exist(dirName.plotPano, 'dir'), mkdir(dirName.plotPano); end
 for s = sensor.numVec
@@ -905,6 +913,7 @@ for s = sensor.numVec
         yStrTemp = sprintf('      %02d', s);
     end
     panorama(sensor.date.serial{s}, sensor.label.neuralNet{s}, yStrTemp, color(1:labelTotal));
+%     panorama(sensor.date.serial{s}, sensorTemp.label2012.sensor.label.manual{s}, yStrTemp, color(1:labelTotal));
     dirName.panorama{s} = [sprintf('%s--%s_sensor_%02d', date.start, date.end, s) '_anomalyDetectionPanorama.png'];
     saveas(gcf,[dirName.plotPano dirName.panorama{s}]);
     fprintf('\nSenor-%02d anomaly detection panorama file location:\n%s\n', ...
@@ -992,6 +1001,7 @@ if ~isempty(statsSum(1,1)) && size(statsSum, 1) == 1
     statsSum(2,1:labelTotal) = 0;
 end
 
+%%
 figure
 h = bar(statsSum, 'stacked');
 xlabel('Sensor');
@@ -999,12 +1009,12 @@ ylabel('Count (hours)');
 legend(sensor.label.name);
 lh=findall(gcf,'tag','legend');
 set(lh,'location','northeastoutside');
-title(sprintf('%s -- %s', date.start, date.end));
+% title(sprintf('%s -- %s', date.start, date.end));
 grid on
 for n = 1 : labelTotal
     set(h(n),'FaceColor', color{n});
 end
-set(gca, 'fontsize', 13, 'fontname', 'Times New Roman', 'fontweight', 'bold');
+set(gca, 'fontsize', 14, 'fontname', 'Helvetica'); % 'fontweight', 'bold'
 set(gcf,'Units','pixels','Position',[100, 100, 1000, 500]);  % control figure's position
 xlim([0 39]);
 ylim([0 9000]);
@@ -1020,13 +1030,11 @@ ax_width = outerpos(3) - ti(1) - ti(3) - 0.01;
 ax_height = outerpos(4) - ti(2) - ti(4);
 ax.Position = [left bottom ax_width ax_height];
 
-dirName.statsSum = sprintf('%s--%s_sensor%s_anomalyStats.png', ...
+%%
+dirName.statsSum = sprintf('%s--%s_sensor%s_anomalyStats.emf', ...
     date.start, date.end, sensorStr);
+saveas(gcf,[dirName.plotSum dirName.statsSum]);
 
-saveas(gcf,[dirName.plotSum dirName.statsSum]);
-dirName.statsSum = sprintf('%s--%s_sensor%s_anomalyStats.png', ...
-    date.start, date.end, sensorStr);
-saveas(gcf,[dirName.plotSum dirName.statsSum]);
 fprintf('\nSum-up anomaly stats image file location:\n%s\n', ...
     GetFullPath([dirName.plotSum dirName.statsSum]))
 close

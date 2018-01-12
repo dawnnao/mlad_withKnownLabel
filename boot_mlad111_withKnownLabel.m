@@ -2,7 +2,7 @@ clear;clc;close all;
 
 readRoot = 'C:/dataArchiveTemp/Sutong/';
 % saveRoot = 'D:/results/results_mlad_withKnownLabel/mlad111/';
-saveRoot = 'D:/results/results_mlad_withKnownLabel/round2/mlad111/';
+saveRoot = 'D:/results/results_mlad_withKnownLabel/round3/mlad111/';
 
 % readRoot = '/Volumes/BOOTCAMP/data/Sutong/';
 % saveRoot = '/Users/zhiyitang/Programming/results/';
@@ -13,7 +13,7 @@ dateEnd = '2012-12-31';
 sensorTrainRatio = 3/100;
 sensorPSize = 10;
 fs = 20;
-step = [2];
+step = [5];
 % labelName = {'1-normal','2-missing','3-minor','4-outlier','5-square','6-trend','7-drift'};
 % seed = 6; % for random number generation
 maxEpoch = [150];

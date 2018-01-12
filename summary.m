@@ -97,6 +97,7 @@ for nMlad = 1 : 8 % length(caseNum)
     end
 end
 
+%%
 sumFolder = 'summary/';
 if ~exist(sumFolder, 'dir')
     mkdir(sumFolder)
@@ -105,16 +106,9 @@ end
 save([sumFolder 'summary_' datestr(now,'yyyy-mm-dd_HH-MM-SS') '.mat'], 'out', '-v7.3')
 fprintf('saved.\n')
 
-%% plot
-% out.testF1Mean{4} and out.testF1Mean{8}
-barData = [];
-for c = 1 : size(out.testF1Mean{4}, 2)
-    barData = [barData, out.testF1Mean{4}(:, c), out.testF1Mean{8}(:, c)];
-end
-barData = barData';
-
-%% barplot settings
+%% plot settings
 legendText = {'Normal' 'Missing' 'Minor' 'Outlier' 'Square' 'Trend' 'Drift'};
+
 % barColor = {...
 % [000 130 000]/255;    % 1-normal            green
 % [244 67 54]/255;      % 2-missing           red
@@ -124,7 +118,7 @@ legendText = {'Normal' 'Missing' 'Minor' 'Outlier' 'Square' 'Trend' 'Drift'};
 % [33 150 243]/255;     % 6-trend             blue
 % [171 71 188]/255};     % 7-drift             purple
 
-barColor = [ ...
+classColor = [ ...
 51  190 122;    % 1-normal            green  52 162 126
 244 67  54;      % 2-missing           red
 121 85  72;      % 3-minor             brown
@@ -133,11 +127,19 @@ barColor = [ ...
 33  150 243;     % 6-trend             blue
 171 71  188]/255;     % 7-drift             purple
 
+%% plot for mean data
+% out.testF1Mean{4} and out.testF1Mean{8}
+meanData = [];
+for c = 1 : size(out.testF1Mean{4}, 2)
+    meanData = [meanData, out.testF1Mean{4}(:, c), out.testF1Mean{8}(:, c)];
+end
+meanData = meanData';
 
+%% mean bar plot - by case
 close all
 figure
-ba = bar(barData, 'EdgeColor', 'none');
-xlabel('Case No.');
+ba = bar(meanData, 'EdgeColor', 'none');
+xlabel('Case Number');
 ylabel('F_1 Score');
 le = legend(legendText);
 le.Location = 'bestoutside';
@@ -156,30 +158,81 @@ ax.YGrid = 'on';
 %     b.CData(c,:) = barColor(c,:);
 % end
 
-ba(1).Parent.Parent.Colormap = barColor;
+ba(1).Parent.Parent.Colormap = classColor;
 
 ax.Units = 'normalized';
-ax.Position = [0.07 0.15 0.8 0.8];
+ax.Position = [0.1 0.15 0.8 0.8];
 
 fig = gcf;
 fig.Units = 'pixels';
-fig.Position = [1000, 100, 1100, 450];
+fig.Position = [1000, 100, 1400, 450];
 
-saveas(gcf, [sumFolder 'barPlot_cases_' datestr(now,'yyyy-mm-dd_HH-MM-SS') '.tif'])
+saveas(gcf, [sumFolder 'barPlot_mean_' datestr(now,'yyyy-mm-dd_HH-MM-SS') '.tif'])
 
-%%
-lineData = barData;
+%% mean bar plot - by class
+legendTextByClass = {};
+% for n = 1 : 6
+%     legendTextByClass{n} = sprintf('Case %d', n);
+% end
+legendTextByClass = {' 1% Imbal.' ' 1% Bal.' ' 2% Imbal.' ' 2% Bal.' ' 3% Imbal.' ' 3% Bal.'};
 
 close all
 figure
-li = plot(lineData, '-*');
-for c = 1 : size(lineData, 2)
-    li(c).LineWidth = 2;
+ba = bar(meanData, 'EdgeColor', 'none');
+% xlabel('Class');
+ylabel('F_1 Score');
+le = legend(legendTextByClass);
+le.Location = 'bestoutside';
+le.FontSize = 14;
+
+ax = gca;
+ax.XTickLabel = legendText;
+ax.TickLength = [0 0];
+ax.FontName = 'Helvetica';
+ax.XAxis.FontSize = 14;
+ax.YAxis.FontSize = 14;
+ax.YTick = 0:0.1:1;
+ax.YGrid = 'on';
+% ba(1).Clim = [1 20];
+
+% b.CData = barColor(1,:);
+
+% for c = 1 : size(barData, 2)
+%     b.CData(c,:) = barColor(c,:);
+% end
+
+caseColor = [ ...
+0.85 0.85 0.85;      % 2-missing           red
+0.7  0.7  0.7;      % 3-minor             brown
+0.55 0.55 0.55;     % 4-outlier           yellow
+0.4  0.4  0.4;       % 5-square            black  
+0.25 0.25 0.25
+0.1  0.1  0.1]-0.1;     % 7-drift             purple
+
+ba(1).Parent.Parent.Colormap = caseColor;
+
+ax.Units = 'normalized';
+ax.Position = [0.08 0.15 0.8 0.8];
+
+fig = gcf;
+fig.Units = 'pixels';
+fig.Position = [1000, 100, 1400, 450];
+
+saveas(gcf, [sumFolder 'barPlot_mean_by_class_' datestr(now,'yyyy-mm-dd_HH-MM-SS') '.emf'])
+
+%% mean line plot
+close all
+figure
+
+for c = 1 : size(meanData, 2)
+    li = plot(meanData(:, c), '-*', 'Color', [classColor(c, :)], 'LineWidth', 2);
+%     li(c).LineWidth = 2;
+    hold on
 %     li(c).CData = barColor(c,:);
 end
+hold off
 
-
-xlabel('Case No.');
+xlabel('Case Number');
 ylabel('F_1 Score');
 le = legend(legendText);
 le.Location = 'bestoutside';
@@ -190,8 +243,11 @@ ax.FontName = 'Helvetica';
 ax.XAxis.FontSize = 14;
 ax.YAxis.FontSize = 14;
 ax.YGrid = 'on';
+ax.XTick = [1:1:6];
+% xlim([0 6]);
 
 % li(1).Parent.Parent.Colormap = barColor;
+colormap(classColor);
 
 ax.Units = 'normalized';
 ax.Position = [0.08 0.11 0.76 0.86];
@@ -199,6 +255,171 @@ ax.Position = [0.08 0.11 0.76 0.86];
 fig = gcf;
 fig.Units = 'pixels';
 fig.Position = [1000, 100, 1000, 600];
+
+saveas(gcf, [sumFolder 'linePlot_mean_' datestr(now,'yyyy-mm-dd_HH-MM-SS') '.tif'])
+
+%% plot for std data
+stdData = [];
+for c = 1 : size(out.testF1Std{4}, 2)
+    stdData = [stdData, out.testF1Std{4}(:, c), out.testF1Std{8}(:, c)];
+end
+stdData = stdData';
+
+%% std bar plot
+close all
+figure
+ba = bar(stdData*100, 'EdgeColor', 'none');
+xlabel('Case Number');
+ylabel('Std of F_1 Score (%)');
+le = legend(legendText);
+le.Location = 'bestoutside';
+le.FontSize = 14;
+
+ax = gca;
+ax.TickLength = [0 0];
+ax.FontName = 'Helvetica';
+ax.XAxis.FontSize = 14;
+ax.YAxis.FontSize = 14;
+ax.YGrid = 'on';
+
+% b.CData = barColor(1,:);
+
+% for c = 1 : size(barData, 2)
+%     b.CData(c,:) = barColor(c,:);
+% end
+
+ba(1).Parent.Parent.Colormap = classColor;
+
+ax.Units = 'normalized';
+ax.Position = [0.1 0.15 0.8 0.8];
+
+fig = gcf;
+fig.Units = 'pixels';
+fig.Position = [1000, 100, 1400, 450];
+
+saveas(gcf, [sumFolder 'barPlot_std_' datestr(now,'yyyy-mm-dd_HH-MM-SS') '.tif'])
+
+%% box plot training
+boxData = [NaN(5,1) ...
+           out.testF1{4}{1}' NaN(5,3) out.testF1{8}{1}' NaN(5,3) ...
+           out.testF1{4}{2}' NaN(5,3) out.testF1{8}{2}' NaN(5,3) ...
+           out.testF1{4}{3}' NaN(5,3) out.testF1{8}{3}' NaN(5,1)];
+
+boxTickLabel = {};
+boxTickDispl = [4 14 24 34 44 54]+1;
+for n = 1 : length(boxTickDispl)
+    
+    boxTickLabel{n} = sprintf('%d', n);
+    
+end
+
+close all
+figure
+bo = boxplot(boxData);
+xlabel('Case Number');
+ylabel('F_1 Score (%)');
+
+ax = gca;
+% ax.TickLength = [0 0];
+ax.XTick = boxTickDispl;
+ax.XTickLabel = boxTickLabel;
+ax.FontName = 'Helvetica';
+ax.XAxis.FontSize = 14;
+ax.YAxis.FontSize = 14;
+ax.XGrid = 'on';
+ax.YGrid = 'on';
+
+ax.Units = 'normalized';
+ax.Position = [0.1 0.13 0.8 0.85];
+
+fig = gcf;
+fig.Units = 'pixels';
+fig.Position = [1000, 100, 1400, 500];
+
+saveas(gcf, [sumFolder 'boxPlot_test_' datestr(now,'yyyy-mm-dd_HH-MM-SS') '.tif'])
+
+
+%% box plot test
+boxData = [NaN(5,1) ...
+           out.testF1{4}{1}' NaN(5,3) out.testF1{8}{1}' NaN(5,3) ...
+           out.testF1{4}{2}' NaN(5,3) out.testF1{8}{2}' NaN(5,3) ...
+           out.testF1{4}{3}' NaN(5,3) out.testF1{8}{3}' NaN(5,1)];
+
+boxTickLabel = {};
+boxTickDispl = [4 14 24 34 44 54]+1;
+for n = 1 : length(boxTickDispl)
+    
+    boxTickLabel{n} = sprintf('%d', n);
+    
+end
+
+close all
+figure
+bo = boxplot(boxData, 'PlotStyle', 'compact');
+xlabel('Case Number');
+ylabel('F_1 Score (%)');
+
+ax = gca;
+% ax.TickLength = [0 0];
+ax.XTick = boxTickDispl;
+ax.YTick = 0:0.1:1;
+ax.XTickLabel = boxTickLabel;
+ax.FontName = 'Helvetica';
+ax.XAxis.FontSize = 14;
+ax.YAxis.FontSize = 14;
+ax.XGrid = 'on';
+ax.YGrid = 'on';
+
+ax.Units = 'normalized';
+ax.Position = [0.1 0.13 0.8 0.85];
+
+fig = gcf;
+fig.Units = 'pixels';
+fig.Position = [1000, 100, 1400, 500];
+
+% saveas(gcf, [sumFolder 'boxPlot_test_' datestr(now,'yyyy-mm-dd_HH-MM-SS') '.tif'])
+
+%% box plot test trial
+boxData = {...
+           [out.testF1{4}{1}'] [out.testF1{8}{1}]' ...
+           [out.testF1{4}{2}'] [out.testF1{8}{2}'] ...
+           [out.testF1{4}{3}'] [out.testF1{8}{3}']};
+
+boxTickLabel = {};
+boxTickDispl = [4 11 18 25 32 39]+1;
+for n = 1 : length(boxTickDispl)
+    
+    boxTickLabel{n} = sprintf('%d', n);
+    
+end
+
+close all
+figure
+bo = boxplot(boxData, 'FactorGap', 10);
+xlabel('Case Number');
+ylabel('F_1 Score (%)');
+
+ax = gca;
+% ax.TickLength = [0 0];
+% ax.XTick = boxTickDispl;
+ax.YTick = 0:0.1:1;
+% ax.XTickLabel = boxTickLabel;
+ax.FontName = 'Helvetica';
+ax.XAxis.FontSize = 14;
+ax.YAxis.FontSize = 14;
+ax.XGrid = 'on';
+ax.YGrid = 'on';
+
+ax.Units = 'normalized';
+ax.Position = [0.1 0.13 0.8 0.85];
+
+fig = gcf;
+fig.Units = 'pixels';
+fig.Position = [1000, 100, 1400, 500];
+
+% saveas(gcf, [sumFolder 'boxPlot_test_' datestr(now,'yyyy-mm-dd_HH-MM-SS') '.tif'])
+
+
 
 
 
