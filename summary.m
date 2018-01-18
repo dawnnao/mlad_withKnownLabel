@@ -135,11 +135,19 @@ for c = 1 : size(out.testF1Mean{4}, 2)
 end
 meanData = meanData';
 
+%% plot for mean data
+% out.testF1Mean{1}, out.testF1Mean{5} and out.testF1Mean{8} | just column 3
+meanData = [];
+for c = 3 % 1 : size(out.testF1Mean{4}, 2)
+    meanData = [meanData, out.testF1Mean{1}(:, c), out.testF1Mean{5}(:, c), out.testF1Mean{8}(:, c)];
+end
+meanData = meanData';
+
 %% mean bar plot - by case
 close all
 figure
 ba = bar(meanData, 'EdgeColor', 'none');
-xlabel('Case Number');
+% xlabel('Case Number');
 ylabel('F_1 Score');
 le = legend(legendText);
 le.Location = 'bestoutside';
@@ -147,6 +155,7 @@ le.FontSize = 14;
 
 ax = gca;
 ax.TickLength = [0 0];
+ax.XTickLabel = {'DNN 3% Imbal.' 'DNN 3% Bal.' 'CNN 3% Bal.'};
 ax.FontName = 'Helvetica';
 ax.XAxis.FontSize = 14;
 ax.YAxis.FontSize = 14;
@@ -161,11 +170,13 @@ ax.YGrid = 'on';
 ba(1).Parent.Parent.Colormap = classColor;
 
 ax.Units = 'normalized';
-ax.Position = [0.1 0.15 0.8 0.8];
+% ax.Position = [0.08 0.15 0.8 0.8];
+ax.Position = [0.07 0.15 0.8 0.8];
 
 fig = gcf;
 fig.Units = 'pixels';
-fig.Position = [1000, 100, 1400, 450];
+% fig.Position = [1000, 100, 1400, 450];
+fig.Position = [1000, 100, 1100, 600];
 
 saveas(gcf, [sumFolder 'barPlot_mean_' datestr(now,'yyyy-mm-dd_HH-MM-SS') '.tif'])
 
@@ -174,7 +185,9 @@ legendTextByClass = {};
 % for n = 1 : 6
 %     legendTextByClass{n} = sprintf('Case %d', n);
 % end
-legendTextByClass = {' 1% Imbal.' ' 1% Bal.' ' 2% Imbal.' ' 2% Bal.' ' 3% Imbal.' ' 3% Bal.'};
+% legendTextByClass = {' 1% Imbal.' ' 1% Bal.' ' 2% Imbal.' ' 2% Bal.' ' 3% Imbal.' ' 3% Bal.'};
+
+legendTextByClass = {'DNN 3% Imbal.' 'DNN 3% Bal.' 'CNN 3% Bal.'};
 
 close all
 figure
@@ -212,11 +225,13 @@ caseColor = [ ...
 ba(1).Parent.Parent.Colormap = caseColor;
 
 ax.Units = 'normalized';
-ax.Position = [0.08 0.15 0.8 0.8];
+% ax.Position = [0.08 0.15 0.8 0.8];
+ax.Position = [0.055 0.15 0.8 0.8];
 
 fig = gcf;
 fig.Units = 'pixels';
-fig.Position = [1000, 100, 1400, 450];
+% fig.Position = [1000, 100, 1400, 450];
+fig.Position = [1000, 100, 1400, 600];
 
 saveas(gcf, [sumFolder 'barPlot_mean_by_class_' datestr(now,'yyyy-mm-dd_HH-MM-SS') '.emf'])
 
