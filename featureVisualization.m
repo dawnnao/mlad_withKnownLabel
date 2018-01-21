@@ -1,5 +1,6 @@
 % clear;clc; close all
 % load('D:\results\results_mlad_withKnownLabel\round2\mlad111\test\2012-01-01--2012-12-31_sensor_1-38_fusion_trainRatio_3pct_seed_1 - visualizationTest\2012-01-01--2012-12-31_sensor_1-38_fusion_globalEpoch_150_batchSize_100_sizeFilter_40_numFilter_20.mat')
+% load('D:\results\results_mlad_withKnownLabel\round2\mlad011\2012-01-01--2012-12-31_sensor_1-38_fusion_trainRatio_3pct_seed_1\2012-01-01--2012-12-31_sensor_1-38_fusion_globalEpoch_150_batchSize_100_sizeFilter_40_numFilter_20.mat')
 % pathRoot = 'C:\Users\Owner\Google Drive\research\17-2 aut-phd-year2-1\secondPaper!\images\samples';
 
 %%
@@ -25,8 +26,8 @@ ax.Position = [0.01 0.1 0.99 0.8];  % control ax's position in figure
 fig = gcf;
 fig.Units = 'pixels';
 fig.Position = [20 50 400 500];  % control figure's position
-saveas(gcf, sprintf('%s/filterVisualization.tif', pathRoot));
-saveas(gcf, sprintf('%s/filterVisualization.emf', pathRoot));
+% saveas(gcf, sprintf('%s/filterVisualization.tif', pathRoot));
+% saveas(gcf, sprintf('%s/filterVisualization.emf', pathRoot));
 
 %%
 close all
@@ -53,8 +54,8 @@ for n = 1 : 7
     fig = gcf;
     fig.Units = 'pixels';
     fig.Position = [20 50 400 500];  % control figure's position
-    saveas(gcf, sprintf('%s/type-%d_featureMaps.tif', pathRoot, n));
-    saveas(gcf, sprintf('%s/type-%d_featureMaps.emf', pathRoot, n));
+%     saveas(gcf, sprintf('%s/type-%d_featureMaps.tif', pathRoot, n));
+%     saveas(gcf, sprintf('%s/type-%d_featureMaps.emf', pathRoot, n));
     clear img
 end
 

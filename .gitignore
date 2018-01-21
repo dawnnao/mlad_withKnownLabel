@@ -3,7 +3,6 @@ multi*
 abnormal types
 test*.m
 sutong-*.txt
-*.mat
 *.m~
 20*
 ~*
@@ -18,6 +17,8 @@ visualizeFeatures*
 plotForPaper*
 clusterOverview*
 *.emf
+summary/*.mat
+labelMan
 
 # Compiled source #
 ###################
