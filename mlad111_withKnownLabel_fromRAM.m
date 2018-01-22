@@ -809,7 +809,7 @@ date.serial.end   = datenum(date.end, dirName.formatIn);
 
 % anomaly detection
 fprintf('\nDetecting...\n')
-[labelTempNeural, countTempNeural, dateVec, dateSerial] = ...
+[labelTempNeural, countTempNeural, dateVec, dateSerial, labelDecimalTempNeural] = ...
     classifierMultiInTimeFreq_fromRAM(readRoot, sensor.numVec, date.serial.start, date.serial.end, ...
     dirName.home, sensor.label.name, sensor.neuralNet, fs, img2012);
 
@@ -822,6 +822,12 @@ for s = sensor.numVec
     sensor.date.serial{s} = dateSerial;
 end
 clear labelTempNeural countTempNeural
+
+% temp for roc plot
+for s = sensor.numVec
+    sensor.labelDecimal.neuralNet{s} = labelDecimalTempNeural{s};
+end
+% clear labelDecimalTempNeural
 
 elapsedTime(4) = toc(t(4)); [hours, mins, secs] = sec2hms(elapsedTime(4));
 fprintf('\n\n\nSTEP4:\nAnomaly detection completes, using %02dh%02dm%05.2fs .\n', ...

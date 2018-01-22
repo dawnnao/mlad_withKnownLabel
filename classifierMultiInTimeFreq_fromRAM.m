@@ -1,4 +1,4 @@
-function [label, labelCount, dateVec, dateSerial] = classifierMultiInTimeFreq_fromRAM(pathRead, ...
+function [label, labelCount, dateVec, dateSerial, labelDecimal] = classifierMultiInTimeFreq_fromRAM(pathRead, ...
     sensorNum, dayStart, dayEnd, pathSave, labelName, neuralNet, fs, img2012)
 % DESCRIPTION:
 %   This is a subfunction of mvad.m, to do step 4 - anomaly detection.
@@ -20,6 +20,7 @@ for s = sensorNum
         if ~exist(pathSaveNet{s,l},'dir'), mkdir(pathSaveNet{s,l}); end
         if strcmp(class(neuralNet{s}), 'SeriesNetwork') % CNN
             label{s} = categorical(zeros(hourTotal,1));
+            labelDecimal{s} = zeros(7, hourTotal); % temp for roc plot
         elseif strcmp(class(neuralNet{s}), 'network') % ANN 
             label{s} = zeros(hourTotal,1);
         end
@@ -53,6 +54,7 @@ for day = dayStart : dayEnd
                 img(:, :, 2) = imgFreq;
                 img(:, :, 3) = ones(100, 100);
                 label{s}(count) = classify(neuralNet{s}, img);
+                labelDecimal{s}(:, count) = predict(neuralNet{s}, img); % temp for roc plot
                 labelIdx = str2double(str2mat(label{s}(count)));
             elseif strcmp(class(neuralNet{s}), 'network') % ANN
                 img = [imgTime(:); imgFreq(:)];
