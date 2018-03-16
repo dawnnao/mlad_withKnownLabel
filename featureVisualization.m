@@ -1,7 +1,7 @@
 % clear;clc; close all
-% load('D:\results\results_mlad_withKnownLabel\round2\mlad111\test\2012-01-01--2012-12-31_sensor_1-38_fusion_trainRatio_3pct_seed_1 - visualizationTest\2012-01-01--2012-12-31_sensor_1-38_fusion_globalEpoch_150_batchSize_100_sizeFilter_40_numFilter_20.mat')
+load('D:\results\results_mlad_withKnownLabel\round2\mlad111\test\2012-01-01--2012-12-31_sensor_1-38_fusion_trainRatio_3pct_seed_1 - visualizationTest\2012-01-01--2012-12-31_sensor_1-38_fusion_globalEpoch_150_batchSize_100_sizeFilter_40_numFilter_20.mat')
 % load('D:\results\results_mlad_withKnownLabel\round2\mlad011\2012-01-01--2012-12-31_sensor_1-38_fusion_trainRatio_3pct_seed_1\2012-01-01--2012-12-31_sensor_1-38_fusion_globalEpoch_150_batchSize_100_sizeFilter_40_numFilter_20.mat')
-% pathRoot = 'C:\Users\Owner\Google Drive\research\17-2 aut-phd-year2-1\secondPaper!\images\samples';
+pathRoot = 'C:\Users\Owner\Google Drive\research\17-2 aut-phd-year2-1\secondPaper!\images\samples';
 
 %%
 net = sensor.neuralNet{1};
@@ -19,8 +19,8 @@ title([name ' Layer Features'])
 
 %%
 ax = gca;
-set(gca, 'fontsize', 14);
-set(gca, 'fontname', 'Times New Roman', 'fontweight', 'bold');
+set(gca, 'fontsize', 16);
+set(gca, 'fontname', 'Helvetica', 'fontweight', 'normal'); % 
 ax.Position = [0.01 0.1 0.99 0.8];  % control ax's position in figure
 
 fig = gcf;
@@ -47,15 +47,16 @@ for n = 1 : 7
     title(['Feature maps of Pattern ',name{n}])
     
     ax = gca;
-    set(gca, 'fontsize', 14);
-    set(gca, 'fontname', 'Times New Roman', 'fontweight', 'bold');
+    set(gca, 'fontsize', 16);
+    set(gca, 'fontname', 'Helvetica', 'fontweight', 'light'); % 'fontweight', 'bold'
+%     set(gcf, 'fontname', 'Helvetica', 'fontweight', 'normal'); % 
     ax.Position = [0.01 0.1 0.99 0.8];  % control ax's position in figure
 
     fig = gcf;
     fig.Units = 'pixels';
     fig.Position = [20 50 400 500];  % control figure's position
-%     saveas(gcf, sprintf('%s/type-%d_featureMaps.tif', pathRoot, n));
-%     saveas(gcf, sprintf('%s/type-%d_featureMaps.emf', pathRoot, n));
+    saveas(gcf, sprintf('%s/type-%d_featureMaps_%s.tif', pathRoot, n, datestr(now,'yyyy-mm-dd_HH-MM-SS')));
+    saveas(gcf, sprintf('%s/type-%d_featureMaps_%s.emf', pathRoot, n, datestr(now,'yyyy-mm-dd_HH-MM-SS')));
     clear img
 end
 

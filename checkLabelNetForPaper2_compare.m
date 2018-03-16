@@ -1,6 +1,6 @@
 clear; clc; close all;
 
-% % win
+% win
 load('E:\results\adi\2012-01-01--2012-12-31_sensor_1-38_fusion_seed_5_trainRatio_3pct\sensorLabelNetSerial.mat') %!!!
 labelNet = reshape(sensorLabelNetSerial, [8784 38])';
 
@@ -22,7 +22,8 @@ clear labelByType
 
 %%
 path.root = 'C:/dataArchiveTemp/Sutong/'; % raw data path
-load('C:/Users/Owner/Documents/GitHub/adi/trainingSet_justLabel_inSensorCell_latest.mat')
+labelManPath = 'C:/Users/Owner/Documents/GitHub/mlad_withKnownLabel/labelMan/label2012_modifiedAfterRound1Test.mat';
+load(labelManPath)
 
 % mac
 % path.root = '/Users/zhiyitang/Programming/data/Sutong/'; % raw data path

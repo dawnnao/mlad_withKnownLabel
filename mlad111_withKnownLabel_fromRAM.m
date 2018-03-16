@@ -1009,8 +1009,8 @@ end
 
 %%
 figure
-h = bar(statsSum, 'stacked');
-xlabel('Sensor');
+h = bar(statsSum, 'stacked', 'EdgeColor', 'none');
+xlabel('Channel');
 ylabel('Count (hours)');
 legend(sensor.label.name);
 lh=findall(gcf,'tag','legend');
@@ -1040,10 +1040,18 @@ ax.Position = [left bottom ax_width ax_height];
 dirName.statsSum = sprintf('%s--%s_sensor%s_anomalyStats.emf', ...
     date.start, date.end, sensorStr);
 saveas(gcf,[dirName.plotSum dirName.statsSum]);
+dirName.statsSum = sprintf('%s--%s_sensor%s_anomalyStats.tif', ...
+    date.start, date.end, sensorStr);
+saveas(gcf,[dirName.plotSum dirName.statsSum]);
+dirName.statsSum = sprintf('%s--%s_sensor%s_anomalyStats.fig', ...
+    date.start, date.end, sensorStr);
+saveas(gcf,[dirName.plotSum dirName.statsSum]);
 
 fprintf('\nSum-up anomaly stats image file location:\n%s\n', ...
     GetFullPath([dirName.plotSum dirName.statsSum]))
-close
+% close
+
+%%
 
 % reportStatsTotal;!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -1128,6 +1136,7 @@ ax.Position = [left bottom ax_width ax_height];
 dirName.plotConfusionMatrix2012 = [dirName.plot '/confusionMatrix2012/'];
 if ~exist(dirName.plotConfusionMatrix2012, 'dir'), mkdir(dirName.plotConfusionMatrix2012); end
 saveas(gcf, [dirName.plotConfusionMatrix2012 sprintf('comfusionMatrix_2012_') datestr(now,'yyyy-mm-dd_HH-MM-SS') sprintf('.png')]);
+saveas(gcf, [dirName.plotConfusionMatrix2012 sprintf('comfusionMatrix_2012_') datestr(now,'yyyy-mm-dd_HH-MM-SS') sprintf('.fig')]);
 close
 
 %%

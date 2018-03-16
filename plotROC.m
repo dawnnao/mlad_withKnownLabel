@@ -1,3 +1,4 @@
+% based on the main file
 %% labelNet
 sensorLabelDecimalNetSerial = [];
 for mTemp = 1 : 38
@@ -5,7 +6,7 @@ for mTemp = 1 : 38
 end
 
 %% labelMan
-labelPath = 'C:/Users/Owner/Documents/GitHub/mlad_withKnownLabel/labelMan/label2012_modifiedAfterRound1Test.mat';
+labelPath = 'C:/Users/Owner/Documents/GitHub/mlad_withKnownLabel/labelMan/label2012_modifiedAfterRound2Test.mat';
 fprintf('\nLoading actual labels of 2012...\n')
 sensorTemp = load(labelPath);
 
@@ -57,17 +58,21 @@ ax.YAxis.FontSize = 16;
 % % rocPlot(1).Parent.Parent.Colormap = classColor;
 % 
 % ax.Units = 'normalized';
-% % ax.Position = [0.08 0.15 0.8 0.8];
 % % ax.Position = [0.07 0.15 0.8 0.8];
 % 
 fig = gcf;
 fig.Units = 'pixels';
+% ax.Position = [0.07 0.15 0.8 0.8];
 % fig.Position = [1000, 100, 1400, 450];
-fig.Position = [1000, 100, 600, 600];
+% ax.Position = [0.08 0.15 0.8 0.8];
+% fig.Position = [1000, 100, 600, 600];
+grid on
+ax.XTick = 0 : 0.2 : 1;
 
+% gca.Position = [0.08 0.15 0.8 0.8];
+% gcf.Position = [1000, 100, 600, 600];
 
 % delete title
-% 
 
 %%
 sumFolder = 'summary/';
@@ -75,7 +80,7 @@ if ~exist(sumFolder, 'dir')
     mkdir(sumFolder)
 end
 
-saveas(gcf, [sumFolder 'rocPlot_' datestr(now,'yyyy-mm-dd_HH-MM-SS') '.tif'])
-saveas(gcf, [sumFolder 'rocPlot_' datestr(now,'yyyy-mm-dd_HH-MM-SS') '.emf'])
-saveas(gcf, [sumFolder 'rocPlot_' datestr(now,'yyyy-mm-dd_HH-MM-SS') '.fig'])
+saveas(gcf, [sumFolder 'rocPlot_mlad100_' datestr(now,'yyyy-mm-dd_HH-MM-SS') '.tif'])
+saveas(gcf, [sumFolder 'rocPlot_mlad100_' datestr(now,'yyyy-mm-dd_HH-MM-SS') '.emf'])
+saveas(gcf, [sumFolder 'rocPlot_mlad100_' datestr(now,'yyyy-mm-dd_HH-MM-SS') '.fig'])
 

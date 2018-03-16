@@ -112,15 +112,16 @@ for nMlad = 1 : 8 % length(caseNum)
 end
 
 %%
+save([sumFolder 'summary_' datestr(now,'yyyy-mm-dd_HH-MM-SS') '.mat'], 'out', '-v7.3')
+fprintf('saved.\n')
+
+%% plot settings
 sumFolder = 'summary/';
 if ~exist(sumFolder, 'dir')
     mkdir(sumFolder)
 end
 
-save([sumFolder 'summary_' datestr(now,'yyyy-mm-dd_HH-MM-SS') '.mat'], 'out', '-v7.3')
-fprintf('saved.\n')
-
-%% plot settings
+% legendText = {'1-Normal' '2-Missing' '3-Minor' '4-Outlier' '5-Square' '6-Trend' '7-Drift'};
 legendText = {'Normal' 'Missing' 'Minor' 'Outlier' 'Square' 'Trend' 'Drift'};
 
 % barColor = {...
@@ -145,15 +146,36 @@ classColor = [ ...
 % out.testF1Mean{4} and out.testF1Mean{8}
 meanData = [];
 for c = 1 : size(out.testF1Mean{4}, 2)
-    meanData = [meanData, out.testF1Mean{4}(:, c), out.testF1Mean{8}(:, c)];
+    meanData = [meanData, out.testF1Mean{4}(:, c)];
 end
-meanData = meanData';
 
-%% plot for mean data
+for c = 1 : size(out.testF1Mean{8}, 2)
+    meanData = [meanData, out.testF1Mean{8}(:, c)];
+end
+
+% meanData = meanData';
+
+%% plot for mean data F1
 % out.testF1Mean{1}, out.testF1Mean{5} and out.testF1Mean{8} | just column 3
 meanData = [];
 for c = 3 % 1 : size(out.testF1Mean{4}, 2)
     meanData = [meanData, out.testF1Mean{1}(:, c), out.testF1Mean{5}(:, c), out.testF1Mean{8}(:, c)];
+end
+meanData = meanData';
+
+%% plot for mean data Recall
+% out.testF1Mean{1}, out.testF1Mean{5} and out.testF1Mean{8} | just column 3
+meanData = [];
+for c = 3 % 1 : size(out.testF1Mean{4}, 2)
+    meanData = [meanData, out.testRecallMean{1}(:, c), out.testRecallMean{5}(:, c), out.testRecallMean{8}(:, c)];
+end
+meanData = meanData';
+
+%% plot for mean data Precision
+% out.testF1Mean{1}, out.testF1Mean{5} and out.testF1Mean{8} | just column 3
+meanData = [];
+for c = 3 % 1 : size(out.testF1Mean{4}, 2)
+    meanData = [meanData, out.testPrecisionMean{1}(:, c), out.testPrecisionMean{5}(:, c), out.testPrecisionMean{8}(:, c)];
 end
 meanData = meanData';
 
@@ -162,7 +184,9 @@ close all
 figure
 ba = bar(meanData, 'EdgeColor', 'none');
 % xlabel('Case Number');
-ylabel('F_1 Score');
+% ylabel('F_1 Score');
+ylabel('Recall');
+% ylabel('Precision');
 le = legend(legendText);
 le.Location = 'bestoutside';
 le.FontSize = 14;
@@ -184,15 +208,22 @@ ax.YGrid = 'on';
 ba(1).Parent.Parent.Colormap = classColor;
 
 ax.Units = 'normalized';
-% ax.Position = [0.08 0.15 0.8 0.8];
-ax.Position = [0.07 0.15 0.8 0.8];
+ax.Position = [0.08 0.1 0.8 0.85];
+% ax.Position = [0.07 0.15 0.8 0.8];
 
 fig = gcf;
 fig.Units = 'pixels';
-% fig.Position = [1000, 100, 1400, 450];
-fig.Position = [1000, 100, 1100, 600];
+fig.Position = [1000, 100, 1400, 400];
+% fig.Position = [1000, 100, 1100, 600];
 
-saveas(gcf, [sumFolder 'barPlot_mean_' datestr(now,'yyyy-mm-dd_HH-MM-SS') '.tif'])
+% saveas(gcf, [sumFolder 'barPlot_mean_F1_' datestr(now,'yyyy-mm-dd_HH-MM-SS') '.tif'])
+% saveas(gcf, [sumFolder 'barPlot_mean_F1_' datestr(now,'yyyy-mm-dd_HH-MM-SS') '.emf'])
+% 
+% saveas(gcf, [sumFolder 'barPlot_mean_Recall_' datestr(now,'yyyy-mm-dd_HH-MM-SS') '.tif'])
+% saveas(gcf, [sumFolder 'barPlot_mean_Recall_' datestr(now,'yyyy-mm-dd_HH-MM-SS') '.emf'])
+% 
+% saveas(gcf, [sumFolder 'barPlot_mean_Precision_' datestr(now,'yyyy-mm-dd_HH-MM-SS') '.tif'])
+% saveas(gcf, [sumFolder 'barPlot_mean_Precision_' datestr(now,'yyyy-mm-dd_HH-MM-SS') '.emf'])
 
 %% mean bar plot - by class
 legendTextByClass = {};
@@ -201,23 +232,31 @@ legendTextByClass = {};
 % end
 % legendTextByClass = {' 1% Imbal.' ' 1% Bal.' ' 2% Imbal.' ' 2% Bal.' ' 3% Imbal.' ' 3% Bal.'};
 
-legendTextByClass = {'DNN 3% Imbal.' 'DNN 3% Bal.' 'CNN 3% Bal.'};
+
+% meanData = [meanData(1,:) ones]
+
+% meanData = [meanData(:,1:3) ones(7,1) meanData(:,4:6)];
+legendTextByClass = {' Imbal. 1%' ' Imbal. 2%' ' Imbal. 3%' ' Bal.    1%' ' Bal.    2%' ' Bal.    3%'};
+
+% legendTextByClass = {'DNN 3% Imbal.' 'DNN 3% Bal.' 'CNN 3% Bal.'};
 
 close all
 figure
-ba = bar(meanData, 'EdgeColor', 'none');
+xBar = [10 25 40 55 70 85 100];
+ba = bar(xBar, meanData, 'EdgeColor', 'none');
 % xlabel('Class');
 ylabel('F_1 Score');
 le = legend(legendTextByClass);
 le.Location = 'bestoutside';
 le.FontSize = 14;
+xlim([0, 110]);
 
 ax = gca;
 ax.XTickLabel = legendText;
 ax.TickLength = [0 0];
 ax.FontName = 'Helvetica';
-ax.XAxis.FontSize = 14;
-ax.YAxis.FontSize = 14;
+ax.XAxis.FontSize = 18;
+ax.YAxis.FontSize = 18;
 ax.YTick = 0:0.1:1;
 ax.YGrid = 'on';
 % ba(1).Clim = [1 20];
@@ -239,15 +278,17 @@ caseColor = [ ...
 ba(1).Parent.Parent.Colormap = caseColor;
 
 ax.Units = 'normalized';
-% ax.Position = [0.08 0.15 0.8 0.8];
-ax.Position = [0.055 0.15 0.8 0.8];
+ax.Position = [0.07 0.1 0.8 0.85];
+% ax.Position = [0.055 0.15 0.8 0.8];
 
 fig = gcf;
 fig.Units = 'pixels';
-% fig.Position = [1000, 100, 1400, 450];
-fig.Position = [1000, 100, 1400, 600];
+fig.Position = [1000, 100, 1400, 400];
+% fig.Position = [1000, 100, 1400, 600];
 
+saveas(gcf, [sumFolder 'barPlot_mean_by_class_' datestr(now,'yyyy-mm-dd_HH-MM-SS') '.fig'])
 saveas(gcf, [sumFolder 'barPlot_mean_by_class_' datestr(now,'yyyy-mm-dd_HH-MM-SS') '.emf'])
+saveas(gcf, [sumFolder 'barPlot_mean_by_class_' datestr(now,'yyyy-mm-dd_HH-MM-SS') '.tif'])
 
 %% mean line plot
 close all

@@ -677,6 +677,7 @@ for g = 1 : groupTotal
     ax_height = outerpos(4) - ti(2) - ti(4) - 0.03;
     ax.Position = [left bottom ax_width ax_height];
     saveas(gcf,[dirName.net sprintf('group-%d_netConfuseTrain.png', g)]);
+    saveas(gcf,[dirName.net sprintf('group-%d_netConfuseTrain.fig', g)]);
     close
     
     yVali = predict(sensor.neuralNet{s}, feature{g}.image(:, :, :, feature{g}.trainSize+1:end))';
@@ -706,6 +707,7 @@ for g = 1 : groupTotal
     ax_height = outerpos(4) - ti(2) - ti(4) - 0.03;
     ax.Position = [left bottom ax_width ax_height];
     saveas(gcf,[dirName.net sprintf('group-%d_netConfuseVali.png', g)]);
+    saveas(gcf,[dirName.net sprintf('group-%d_netConfuseVali.fig', g)]);
     close
     
     % copy to every sensor

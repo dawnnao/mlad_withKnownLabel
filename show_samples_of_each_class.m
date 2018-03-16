@@ -7,7 +7,7 @@ count = 1;
 fileNames = [];
 for class = 1 : 7
     listNames = dir(sprintf('%s/class_%d', samplePath, class));
-    for n = 1 : 10
+    for n = randperm(10)
         fileNames{count} = [listNames(n+2).folder '\' listNames(n+2).name];
         count = count + 1;
     end
