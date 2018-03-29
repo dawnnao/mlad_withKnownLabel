@@ -805,6 +805,12 @@ dirName.plot = [dirName.home sprintf('/plot_globalEpoch_%d_batchSize_%d_sizeFilt
 if ~exist(dirName.plot, 'dir'), mkdir(dirName.plot); end
 
 % plot panorama
+
+%% temp
+% fprintf('\nLoading actual labels of 2012...\n') % groundTruth visualization
+% sensorTemp = load(labelPath);
+%% temp ends
+
 dirName.plotPano = [dirName.plot 'panorama/'];
 if ~exist(dirName.plotPano, 'dir'), mkdir(dirName.plotPano); end
 for s = sensor.numVec

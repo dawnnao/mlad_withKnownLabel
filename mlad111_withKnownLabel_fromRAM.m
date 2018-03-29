@@ -117,6 +117,7 @@ color= {[129 199 132]/255;    % 1-normal            green
         [171 71 188]/255;     % 7-drift             purple
         
 %         [168 168 168]/255;    % for custom          gray
+        [255 255 255]/255;    % for custom          white
         [250 250 250]/255;    % for custom          gray
         [255 112 67]/255;     % for custom          orange        
         [0 121 107]/255;      % for custom          dark green
@@ -906,7 +907,7 @@ if ~exist(dirName.plot, 'dir'), mkdir(dirName.plot); end
 % plot panorama
 
 %% temp
-% fprintf('\nLoading actual labels of 2012...\n')
+% fprintf('\nLoading actual labels of 2012...\n') % groundTruth visualization
 % sensorTemp = load(labelPath);
 %% temp ends
 

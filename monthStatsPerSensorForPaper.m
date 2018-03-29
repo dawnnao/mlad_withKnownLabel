@@ -15,11 +15,13 @@ h = bar3(stats);
 set(gca, 'fontsize', 26, 'fontname', 'Times New Roman', 'fontweight', 'bold')
 axisX = xlabel('Anomaly Pattern');
 axisY = ylabel('Month');
-ylim([0,13]);
+% ylim([0,13]);
 zlabel('Count (hours)');
 hTitle = title(sprintf('Channel %02d', sensor));
 % set(hTitle,'Position',[-5 3 440]);
 set(hTitle,'Position',[-7.5 4.4 483.7]);
+set(gca,'yticklabel',[5 : 10]);
+
 
 
 set(axisX,'Rotation', -28);

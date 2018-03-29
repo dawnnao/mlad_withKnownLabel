@@ -702,8 +702,10 @@ if ~isempty(step) && step(1) == 4
     newP{3,1} = step;
     newP{4,1} = sensor.label.name;
     newP{5,1} = readRoot;
-    newP{6,1} = dirName.home;
+    newP{6,1} = dirName;
     newP{7,1} = labelPath;
+    newP{8,1} = date;
+%     newP{9,1} = dirName.file;
     
     readPath = [dirName.home dirName.file];
     load(readPath)
@@ -712,8 +714,10 @@ if ~isempty(step) && step(1) == 4
     step = newP{3,1};
     sensor.label.name = newP{4,1};
     readRoot = newP{5,1};
-    dirName.home = newP{6,1};
+    dirName = newP{6,1};
     labelPath = newP{7,1};
+    date = newP{8,1};
+%     dirName.file = newP{9,1};
     clear newP
 end
 
@@ -784,8 +788,10 @@ if ~isempty(step) && step(1) == 5
     newP{3,1} = step;
     newP{4,1} = sensor.label.name;
     newP{5,1} = readRoot;
-    newP{6,1} = dirName.home;
+    newP{6,1} = dirName;
     newP{7,1} = labelPath;
+    newP{8,1} = date;
+    newP{9,1} = sensor.numVec;
     
     readPath = [dirName.home dirName.file];
     fprintf('Loading...\n')
@@ -795,8 +801,10 @@ if ~isempty(step) && step(1) == 5
     step = newP{3,1};
     sensor.label.name = newP{4,1};
     readRoot = newP{5,1};
-    dirName.home = newP{6,1};
+    dirName = newP{6,1};
     labelPath = newP{7,1};
+    date = newP{8,1};
+    sensor.numVec = newP{9,1};
     clear newP
 end
 t(5) = tic;
@@ -810,57 +818,57 @@ hourTotal = (date.serial.end-date.serial.start+1)*24;
 dirName.plot = [dirName.home sprintf('/plot_autoenc1epoch_%d_globalEpoch_%d/', maxEpoch(1), maxEpoch(2))];
 if ~exist(dirName.plot, 'dir'), mkdir(dirName.plot); end
 
-% plot panorama
-dirName.plotPano = [dirName.plot 'panorama/'];
-if ~exist(dirName.plotPano, 'dir'), mkdir(dirName.plotPano); end
-for s = sensor.numVec
-    if mod(s,2) == 1
-        yStrTemp = '';
-    else
-        yStrTemp = sprintf('      %02d', s);
-    end
-    panorama(sensor.date.serial{s}, sensor.label.neuralNet{s}, yStrTemp, color(1:labelTotal));
-    dirName.panorama{s} = [sprintf('%s--%s_sensor_%02d', date.start, date.end, s) '_anomalyDetectionPanorama.png'];
-    saveas(gcf,[dirName.plotPano dirName.panorama{s}]);
-    fprintf('\nSenor-%02d anomaly detection panorama file location:\n%s\n', ...
-        s, GetFullPath([dirName.plotPano dirName.panorama{s}]))
-    close
-    
-    % update sensor.status
-    sensor.status{s}(2,5) = {1};
-end
-
-n = 0;
-panopano = [];
-for s = sensor.numVec
-    n = n + 1;
-    p{s} = imread(GetFullPath([dirName.plotPano dirName.panorama{s}]));
-    if n > 1
-        height = size(p{s},1);
-        width = size(p{s},2);
-        p{s} = p{s}(1:ceil(height*0.22), :, :);
-    end
-    panopano = cat(1, p{s}, panopano);
-end
-dirName.panopano = [sprintf('%s--%s_sensor_all%s', date.start, date.end, sensorStr) ...
-                    '_anomalyDetectionPanorama.tif'];
-imwrite(panopano, [dirName.plotPano dirName.panopano]);
-
-% reportPano; % make report chapter - Panorama!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-clear height width p n
+% % plot panorama
+% dirName.plotPano = [dirName.plot 'panorama/'];
+% if ~exist(dirName.plotPano, 'dir'), mkdir(dirName.plotPano); end
+% for s = sensor.numVec
+%     if mod(s,2) == 1
+%         yStrTemp = '';
+%     else
+%         yStrTemp = sprintf('      %02d', s);
+%     end
+%     panorama(sensor.date.serial{s}, sensor.label.neuralNet{s}, yStrTemp, color(1:labelTotal));
+%     dirName.panorama{s} = [sprintf('%s--%s_sensor_%02d', date.start, date.end, s) '_anomalyDetectionPanorama.png'];
+%     saveas(gcf,[dirName.plotPano dirName.panorama{s}]);
+%     fprintf('\nSenor-%02d anomaly detection panorama file location:\n%s\n', ...
+%         s, GetFullPath([dirName.plotPano dirName.panorama{s}]))
+%     close
+%     
+%     % update sensor.status
+%     sensor.status{s}(2,5) = {1};
+% end
+% 
+% n = 0;
+% panopano = [];
+% for s = sensor.numVec
+%     n = n + 1;
+%     p{s} = imread(GetFullPath([dirName.plotPano dirName.panorama{s}]));
+%     if n > 1
+%         height = size(p{s},1);
+%         width = size(p{s},2);
+%         p{s} = p{s}(1:ceil(height*0.22), :, :);
+%     end
+%     panopano = cat(1, p{s}, panopano);
+% end
+% dirName.panopano = [sprintf('%s--%s_sensor_all%s', date.start, date.end, sensorStr) ...
+%                     '_anomalyDetectionPanorama.tif'];
+% imwrite(panopano, [dirName.plotPano dirName.panopano]);
+% 
+% % reportPano; % make report chapter - Panorama!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+% 
+% clear height width p n
 
 % plot monthly stats per sensor
 dirName.plotSPS = [dirName.plot 'statsPerSensor/'];
 if ~exist(dirName.plotSPS, 'dir'), mkdir(dirName.plotSPS); end
 for s = sensor.numVec
-    for n = 1 : 12
+    for n = 5 : 10 % 1 : 12
         for l = 1 : labelTotal
             aim = find(sensor.date.vec{s}(:,2) == n);
             sensor.statsPerSensor{s}(n, l) = length(find(sensor.label.neuralNet{s}(aim) == l));
         end
     end
-    monthStatsPerSensorForPaper(sensor.statsPerSensor{s}, s, sensor.label.name, color);
+    monthStatsPerSensorForPaper(sensor.statsPerSensor{s}(5:10, :), s, sensor.label.name, color);
     dirName.statsPerSensor{s} = [sprintf('%s--%s_sensor_%02d', date.start, date.end, s) '_anomalyStats.png'];
     saveas(gcf,[dirName.plotSPS dirName.statsPerSensor{s}]);
     fprintf('\nSenor-%02d anomaly stats bar-plot file location:\n%s\n', ...
@@ -876,13 +884,13 @@ dirName.plotSPT = [dirName.plot 'statsPerType/'];
 if ~exist(dirName.plotSPT, 'dir'), mkdir(dirName.plotSPT); end
 for l = 1 : labelTotal
    for s = sensor.numVec
-       for n = 1 : 12
+       for n = 5 : 10 % 1 : 12
            aim = find(sensor.date.vec{s}(:,2) == n);
            sensor.statsPerLabel{l}(n, s) = length(find(sensor.label.neuralNet{s}(aim) == l));
        end
    end
    if sum(sum(sensor.statsPerLabel{l})) > 0
-        monthStatsPerLabelForPaper(sensor.statsPerLabel{l}, l, sensor.label.name{l}, color);
+        monthStatsPerLabelForPaper(sensor.statsPerLabel{l}(5:10, :), l, sensor.label.name{l}, color);
         dirName.statsPerLabel{l} = sprintf('%s--%s_sensor%s_anomalyStats_%s.png', ...
             date.start, date.end, sensorStr, sensor.label.name{l});
         saveas(gcf,[dirName.plotSPT dirName.statsPerLabel{l}]);
@@ -908,7 +916,7 @@ if ~isempty(statsSum(1,1)) && size(statsSum, 1) == 1
 end
 
 figure
-h = bar(statsSum, 'stacked');
+h = bar(statsSum(sensor.numVec, :), 'stacked');
 xlabel('Sensor');
 ylabel('Count (hours)');
 legend(sensor.label.name);
@@ -921,9 +929,9 @@ for n = 1 : labelTotal
 end
 set(gca, 'fontsize', 13, 'fontname', 'Times New Roman', 'fontweight', 'bold');
 set(gcf,'Units','pixels','Position',[100, 100, 1000, 500]);  % control figure's position
-xlim([0 39]);
-ylim([0 9000]);
-set(gca,'xtick',[1,5:5:35, 38]);
+xlim([0 29]);
+% ylim([0 9000]);
+% set(gca,'xtick',[1,5:5:35, 38]);
 
 % minimize white space
 ax = gca;
@@ -982,51 +990,51 @@ save(savePath, 'sensorLabelNetSerial', '-v7.3')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% temp
 
 %% comparison between detection results and actual labels of 2012
-labelNet = sensorLabelNetSerial;
-labelNet = ind2vec(labelNet);
-
-for n = 1 : labelTotal
-    if ~ismember(n, sensorLabelNetSerial)
-       labelNet(n, :) = 0;
-    end
-end
-
-fprintf('\nLoading actual labels of 2012...\n')
-sensorTemp = load(labelPath);
-
-labelMan = [];
-for mTemp = 1 : 38
-    labelMan = cat(1, labelMan, sensorTemp.label2012.sensor.label.manual{mTemp}');
-end
-labelMan = ind2vec(labelMan');
-
-fprintf('\nPlotting confusion matrix...\n')
-[confTestC, confTestCM, confTestInd, confTestPer] = confusion(labelMan, labelNet); %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-confTestAccuracy = 1 - confTestC;
-confTestPrecision = confTestPer(:, 3);        
-for m = 1 : 7
-   confTestRecall(m, 1) = confTestCM(m, m) / sum(confTestCM(m, :)); 
-end
-
-figure
-plotconfusion(labelNet, labelMan)
-xlabel('Predicted');
-ylabel('Actual');
-title([]);
-set(gca,'fontname', 'Times New Roman', 'fontweight', 'bold', 'fontsize', 12);
-% minimize white space
-ax = gca;
-outerpos = ax.OuterPosition;
-ti = ax.TightInset; 
-left = outerpos(1) + ti(1);
-bottom = outerpos(2) + ti(2) + 0.03;
-ax_width = outerpos(3) - ti(1) - ti(3);
-ax_height = outerpos(4) - ti(2) - ti(4) - 0.03;
-ax.Position = [left bottom ax_width ax_height];
-dirName.plotConfusionMatrix2012 = [dirName.plot '/confusionMatrix2012/'];
-if ~exist(dirName.plotConfusionMatrix2012, 'dir'), mkdir(dirName.plotConfusionMatrix2012); end
-saveas(gcf, [dirName.plotConfusionMatrix2012 sprintf('comfusionMatrix_2012_') datestr(now,'yyyy-mm-dd_HH-MM-SS') sprintf('.png')]);
-close
+% labelNet = sensorLabelNetSerial;
+% labelNet = ind2vec(labelNet);
+% 
+% for n = 1 : labelTotal
+%     if ~ismember(n, sensorLabelNetSerial)
+%        labelNet(n, :) = 0;
+%     end
+% end
+% 
+% fprintf('\nLoading actual labels of 2012...\n')
+% sensorTemp = load(labelPath);
+% 
+% labelMan = [];
+% for mTemp = 1 : 38
+%     labelMan = cat(1, labelMan, sensorTemp.label2012.sensor.label.manual{mTemp}');
+% end
+% labelMan = ind2vec(labelMan');
+% 
+% fprintf('\nPlotting confusion matrix...\n')
+% [confTestC, confTestCM, confTestInd, confTestPer] = confusion(labelMan, labelNet); %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% confTestAccuracy = 1 - confTestC;
+% confTestPrecision = confTestPer(:, 3);        
+% for m = 1 : 7
+%    confTestRecall(m, 1) = confTestCM(m, m) / sum(confTestCM(m, :)); 
+% end
+% 
+% figure
+% plotconfusion(labelNet, labelMan)
+% xlabel('Predicted');
+% ylabel('Actual');
+% title([]);
+% set(gca,'fontname', 'Times New Roman', 'fontweight', 'bold', 'fontsize', 12);
+% % minimize white space
+% ax = gca;
+% outerpos = ax.OuterPosition;
+% ti = ax.TightInset; 
+% left = outerpos(1) + ti(1);
+% bottom = outerpos(2) + ti(2) + 0.03;
+% ax_width = outerpos(3) - ti(1) - ti(3);
+% ax_height = outerpos(4) - ti(2) - ti(4) - 0.03;
+% ax.Position = [left bottom ax_width ax_height];
+% dirName.plotConfusionMatrix2012 = [dirName.plot '/confusionMatrix2012/'];
+% if ~exist(dirName.plotConfusionMatrix2012, 'dir'), mkdir(dirName.plotConfusionMatrix2012); end
+% saveas(gcf, [dirName.plotConfusionMatrix2012 sprintf('comfusionMatrix_2012_') datestr(now,'yyyy-mm-dd_HH-MM-SS') sprintf('.png')]);
+% close
 
 %%
 elapsedTime(5) = toc(t(5)); [hours, mins, secs] = sec2hms(elapsedTime(5));
