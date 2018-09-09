@@ -235,6 +235,28 @@ end
 
 %% 2 make training set
 if ismember(2, step) || isempty(step)
+% update new parameters and load training sets
+if ~isempty(step) && step(1) == 2
+    newP{2,1} = sensor.pSize;
+    newP{3,1} = step;
+    newP{4,1} = sensor.label.name;
+    newP{5,1} = readRoot;
+    newP{6,1} = dirName.home;
+    newP{7,1} = color;
+    
+    readPath = [dirName.home dirName.file];
+    fprintf('\nLoading...\n')
+    load(readPath)
+    
+    sensor.pSize =  newP{2,1};
+    step = newP{3,1};
+    sensor.label.name = newP{4,1};
+    readRoot = newP{5,1};
+    dirName.home = newP{6,1};
+    color = newP{7,1};
+    clear newP
+end
+
 dirName.trainSetByType = [GetFullPath(dirName.home) sprintf('trainingSetByType/')];
 if exist(dirName.trainSetByType,'dir')
     check = ls(dirName.trainSetByType);
@@ -242,20 +264,20 @@ if exist(dirName.trainSetByType,'dir')
     if ~isempty(check)
         fprintf('\nCAUTION:\n%s\nTraining set folder is already there and not empty, continue?\n', dirName.trainSetByType)
         rightInput = 0;
-        while rightInput == 0
-            prompt = 'y(yes)/n(no): ';
-            go = input(prompt,'s');
-            if strcmp(go,'y') || strcmp(go,'yes')
-                rightInput = 1;
-                fprintf('\nContinue...\n')
-            elseif strcmp(go,'n') || strcmp(go,'no')
-                rightInput = 1;
-                fprintf('\nFinish.\n')
-                return
-            else
-                fprintf('Invalid input! Please re-input.\n')
-            end
-        end
+%         while rightInput == 0
+%             prompt = 'y(yes)/n(no): ';
+%             go = input(prompt,'s');
+%             if strcmp(go,'y') || strcmp(go,'yes')
+%                 rightInput = 1;
+%                 fprintf('\nContinue...\n')
+%             elseif strcmp(go,'n') || strcmp(go,'no')
+%                 rightInput = 1;
+%                 fprintf('\nFinish.\n')
+%                 return
+%             else
+%                 fprintf('Invalid input! Please re-input.\n')
+%             end
+%         end
     end
 elseif ~exist(dirName.trainSetByType,'dir'), mkdir(dirName.trainSetByType);
 end
@@ -333,70 +355,127 @@ while goNext == 0
                 path.sourceFile = sprintf('%s0-all_absIdx_%d_%d_time.png', path.sourceFolder, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
                 path.goalFile = sprintf('%s%s/%s_absIdx_%02d_%d.png', dirName.trainSetByType, labelName{n}, labelName{n}, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
                 
-                if exist(path.sourceFile, 'file')
-                   fprintf('\nGenerating training set... %s Now: %d Total: %d\n', labelName{n}, m, label2012.trainNum(n))
-                   if mod(m, 100) == 0
-                      fprintf('\nHome folder: %s\n', dirName.home)
-                   end
-                   img = imread(path.sourceFile);
-                   img = im2double(img);
-                   copyfile(path.sourceFile, path.goalFile, 'f');
-                else
-                   fprintf('\nCAUTION:\n%s\nNo such file! Filled with a zero.\n', path.full)
-                   sensorData(1, 1) = zeros;
-                   plot(sensorData(:, 1),'color','k');
-                   position = get(gcf,'Position');
-                   set(gcf,'Units','pixels','Position',[position(1), position(2), 100, 100]);  % control figure's position
-                   set(gca,'Units','normalized', 'Position',[0 0 1 1]);  % control axis's position in figure
-                   set(gca,'visible','off');
-                   xlim([0 size(sensorData,1)]);
-                   set(gcf,'color','white');
-                   img = getframe(gcf);
-                   img = imresize(img.cdata, [100 100]);  % expected dimension
-                   img = rgb2gray(img);
-                   img = im2double(img);
-                   imwrite(img, path.goalFile);
-                end
-                   imshow(img)
-                   label2012.image{n}(:, m) = single(img(:));
-                
-                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                 [day, hour] = colLocation(label2012.absIdx{n}(m, 2) ,'2012-01-01');
-%                 dateVec(1, :) = datevec(day,'yyyy-mm-dd');
-%                 dateVec(1, 4) = hour;
-%                 path.folder = sprintf('%04d-%02d-%02d', dateVec(1,1),dateVec(1,2), dateVec(1,3));
-%                 path.file = [path.folder sprintf(' %02d-VIB.mat', hour)];
-%                 path.full = [readRoot '/' path.folder '/' path.file];
-%                 if ~exist(path.full, 'file')
-%                     fprintf('\nCAUTION:\n%s\nNo such file! Filled with a zero.\n', path.full)
-%                     sensorData(1, 1) = zeros;  % always save in column 1
+%                 if exist(path.sourceFile, 'file')
+%                    fprintf('\nGenerating training set... %s Now: %d Total: %d\n', labelName{n}, m, label2012.trainNum(n))
+%                    if mod(m, 100) == 0
+%                       fprintf('\nHome folder: %s\n', dirName.home)
+%                    end
+%                    img = imread(path.sourceFile);
+%                    img = im2double(img);
+%                    copyfile(path.sourceFile, path.goalFile, 'f');
 %                 else
-%                     read = ['load(''' path.full ''');']; eval(read);
-%                     sensorData(:, 1) = data(:, label2012.absIdx{n}(m, 1));  % always save in column 1
+%                    fprintf('\nCAUTION:\n%s\nNo such file! Filled with a zero.\n', path.full)
+%                    sensorData(1, 1) = zeros;
+%                    plot(sensorData(:, 1),'color','k');
+%                    position = get(gcf,'Position');
+%                    set(gcf,'Units','pixels','Position',[position(1), position(2), 100, 100]);  % control figure's position
+%                    set(gca,'Units','normalized', 'Position',[0 0 1 1]);  % control axis's position in figure
+%                    set(gca,'visible','off');
+%                    xlim([0 size(sensorData,1)]);
+%                    set(gcf,'color','white');
+%                    img = getframe(gcf);
+%                    img = imresize(img.cdata, [100 100]);  % expected dimension
+%                    img = rgb2gray(img);
+%                    img = im2double(img);
+%                    imwrite(img, path.goalFile);
 %                 end
+%                    imshow(img)
+%                    label2012.image{n}(:, m) = single(img(:));
 %                 
-%                 fprintf('\nGenerating training set... %s Now: %d Total: %d\n', labelName{n}, m, label2012.trainNum(n))
-%                 plot(sensorData(:, 1),'color','k');
-%                 position = get(gcf,'Position');
-%                 set(gcf,'Units','pixels','Position',[position(1), position(2), 100, 100]);  % control figure's position
-%                 set(gca,'Units','normalized', 'Position',[0 0 1 1]);  % control axis's position in figure
-%                 set(gca,'visible','off');
-%                 xlim([0 size(sensorData,1)]);
-%                 set(gcf,'color','white');
-%                 img = getframe(gcf);
-%                 img = imresize(img.cdata, [100 100]);  % expected dimension
-%                 img = rgb2gray(img);
-%                 img = im2double(img);
-%                 imshow(img)
-%                 imwrite(img, [dirName.trainSetByType labelName{n} ...
-%                     sprintf('/%s_absIdx_%02d_%d.png', labelName{n}, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2))]);
-%                 label2012.image{n}(:, m) = single(img(:));
+%                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %                 [day, hour] = colLocation(label2012.absIdx{n}(m, 2) ,'2012-01-01');
+% %                 dateVec(1, :) = datevec(day,'yyyy-mm-dd');
+% %                 dateVec(1, 4) = hour;
+% %                 path.folder = sprintf('%04d-%02d-%02d', dateVec(1,1),dateVec(1,2), dateVec(1,3));
+% %                 path.file = [path.folder sprintf(' %02d-VIB.mat', hour)];
+% %                 path.full = [readRoot '/' path.folder '/' path.file];
+% %                 if ~exist(path.full, 'file')
+% %                     fprintf('\nCAUTION:\n%s\nNo such file! Filled with a zero.\n', path.full)
+% %                     sensorData(1, 1) = zeros;  % always save in column 1
+% %                 else
+% %                     read = ['load(''' path.full ''');']; eval(read);
+% %                     sensorData(:, 1) = data(:, label2012.absIdx{n}(m, 1));  % always save in column 1
+% %                 end
+% %                 
+% %                 fprintf('\nGenerating training set... %s Now: %d Total: %d\n', labelName{n}, m, label2012.trainNum(n))
+% %                 plot(sensorData(:, 1),'color','k');
+% %                 position = get(gcf,'Position');
+% %                 set(gcf,'Units','pixels','Position',[position(1), position(2), 100, 100]);  % control figure's position
+% %                 set(gca,'Units','normalized', 'Position',[0 0 1 1]);  % control axis's position in figure
+% %                 set(gca,'visible','off');
+% %                 xlim([0 size(sensorData,1)]);
+% %                 set(gcf,'color','white');
+% %                 img = getframe(gcf);
+% %                 img = imresize(img.cdata, [100 100]);  % expected dimension
+% %                 img = rgb2gray(img);
+% %                 img = im2double(img);
+% %                 imshow(img)
+% %                 imwrite(img, [dirName.trainSetByType labelName{n} ...
+% %                     sprintf('/%s_absIdx_%02d_%d.png', labelName{n}, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2))]);
+% %                 label2012.image{n}(:, m) = single(img(:));
             end
             clear img
             label2012.imgLabel{n} = zeros(labelTotal, label2012.trainNum(n));
             label2012.imgLabel{n}(n, :) = 1;
         end
         close
+        
+        %% added on 2018-09-08 for training set visualization | start here
+        for s = sensor.numVec
+            sensor.label.manualTrainSet{s} = zeros(labelTotal, hourTotal);
+            sensor.date.serial{s} = dateSerial;
+        end
+        
+        % form global label set
+        for n = 1 : labelTotal
+            for m = 1 : size(label2012.absIdx{n}, 1)
+                sensor.label.manualTrainSet{label2012.absIdx{n}(m,1)}(:, label2012.absIdx{n}(m,2)) = ...
+                    label2012.imgLabel{n}(:, m);
+            end
+        end
+        
+        % add a new line for non-labeled data
+        for s = sensor.numVec
+            sensor.label.manualTrainSet{s} = [sensor.label.manualTrainSet{s}; ...
+                                              zeros(1, size(sensor.label.manualTrainSet{s},2))];
+            sensor.label.manualTrainSet{s}(end, sum(sensor.label.manualTrainSet{s}) == 0) = 1;
+            sensor.label.manualTrainSet{s} = vec2ind(sensor.label.manualTrainSet{s});
+        end
+        
+        % training set panorama
+        dirName.plotPanoTrainSet = [dirName.trainSetByType 'panorama/'];
+        if ~exist(dirName.plotPanoTrainSet, 'dir'), mkdir(dirName.plotPanoTrainSet); end
+        for s = sensor.numVec
+            if mod(s,2) == 1
+                yStrTemp = '';
+            else
+                yStrTemp = sprintf('      %02d', s);
+            end
+            panorama(sensor.date.serial{s}, sensor.label.manualTrainSet{s}, yStrTemp, color(1:labelTotal+1));
+            dirName.panoramaTrainSet{s} = [sprintf('%s--%s_sensor_%02d', date.start, date.end, s) '_trainingSetLabelPanorama.png'];
+            saveas(gcf,[dirName.plotPanoTrainSet dirName.panoramaTrainSet{s}]);
+            fprintf('\nSensor-%02d training set panorama file location:\n%s\n', ...
+                s, GetFullPath([dirName.plotPanoTrainSet dirName.panoramaTrainSet{s}]));
+            close																 
+        end
+
+        n = 0;
+        panopano = [];
+        for s = sensor.numVec
+            n = n + 1;
+            p{s} = imread(GetFullPath([dirName.plotPanoTrainSet dirName.panoramaTrainSet{s}]));
+            if n > 1
+                height = size(p{s},1);
+                width = size(p{s},2);
+                p{s} = p{s}(1:ceil(height*0.22), :, :);
+            end
+            panopano = cat(1, p{s}, panopano);
+        end
+        dirName.panopanoTrainSet = [sprintf('%s--%s_sensor_all%s', date.start, date.end, sensorStr) ...
+                            '_trainingSetLabelPanorama.tif'];
+        imwrite(panopano, [dirName.plotPanoTrainSet dirName.panopanoTrainSet]);
+        
+        %% added on 2018-01-08 for training set visualization | end here
         
         save([dirName.trainSetByType 'trainSetByType.mat'], 'label2012', '-v7.3')
     end
@@ -793,6 +872,7 @@ if ~isempty(step) && step(1) == 5
     newP{5,1} = readRoot;
     newP{6,1} = dirName.home;
     newP{7,1} = labelPath;
+    newP{8,1} = color;
     
     readPath = [dirName.home dirName.file];
     fprintf('Loading...\n')
@@ -804,6 +884,7 @@ if ~isempty(step) && step(1) == 5
     readRoot = newP{5,1};
     dirName.home = newP{6,1};
     labelPath = newP{7,1};
+    color = newP{8,1};
     clear newP
 end
 t(5) = tic;
@@ -811,6 +892,29 @@ dirName.formatIn = 'yyyy-mm-dd';
 date.serial.start = datenum(date.start, dirName.formatIn);  % day numbers from year 0000
 date.serial.end   = datenum(date.end, dirName.formatIn);
 hourTotal = (date.serial.end-date.serial.start+1)*24;
+
+%% extract test set
+% extract test set from the whole nn predicted set
+sensor.label.neuralNetTestSet = sensor.label.neuralNet;
+for s = sensor.numVec
+    index_train_set = find(sensor.label.manualTrainSet{s} ~= 8);
+    sensor.label.neuralNetTestSet{s}(index_train_set) = 8;
+    index_train_set = [];
+end
+
+fprintf('\nLoading actual labels of 2012...\n')
+sensorTemp = load(labelPath);
+
+% extract test set from the whole manual labeled set
+sensor.label.manualTestSet = sensorTemp.label2012.sensor.label.manual;
+for s = sensor.numVec
+    index_train_set = find(sensor.label.manualTrainSet{s} ~= 8);
+    sensor.label.manualTestSet{s}(index_train_set) = 8;
+    index_train_set = [];
+end
+
+
+%% plot panorama of test set
 
 % reportCover; % make report cover!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -826,8 +930,8 @@ for s = sensor.numVec
     else
         yStrTemp = sprintf('      %02d', s);
     end
-    panorama(sensor.date.serial{s}, sensor.label.neuralNet{s}, yStrTemp, color(1:labelTotal));
-    dirName.panorama{s} = [sprintf('%s--%s_sensor_%02d', date.start, date.end, s) '_anomalyDetectionPanorama.png'];
+    panorama(sensor.date.serial{s}, sensor.label.neuralNetTestSet{s}, yStrTemp, color(1:labelTotal));
+    dirName.panorama{s} = [sprintf('%s--%s_sensor_%02d', date.start, date.end, s) '_anomalyDetectionPanorama_testSet.png'];
     saveas(gcf,[dirName.plotPano dirName.panorama{s}]);
     fprintf('\nSenor-%02d anomaly detection panorama file location:\n%s\n', ...
         s, GetFullPath([dirName.plotPano dirName.panorama{s}]))
@@ -850,7 +954,7 @@ for s = sensor.numVec
     panopano = cat(1, p{s}, panopano);
 end
 dirName.panopano = [sprintf('%s--%s_sensor_all%s', date.start, date.end, sensorStr) ...
-                    '_anomalyDetectionPanorama.tif'];
+                    '_anomalyDetectionPanorama_testSet.tif'];
 imwrite(panopano, [dirName.plotPano dirName.panopano]);
 
 % reportPano; % make report chapter - Panorama!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -864,11 +968,11 @@ for s = sensor.numVec
     for n = 1 : 12
         for l = 1 : labelTotal
             aim = find(sensor.date.vec{s}(:,2) == n);
-            sensor.statsPerSensor{s}(n, l) = length(find(sensor.label.neuralNet{s}(aim) == l));
+            sensor.statsPerSensor{s}(n, l) = length(find(sensor.label.neuralNetTestSet{s}(aim) == l));
         end
     end
     monthStatsPerSensorForPaper(sensor.statsPerSensor{s}, s, sensor.label.name, color);
-    dirName.statsPerSensor{s} = [sprintf('%s--%s_sensor_%02d', date.start, date.end, s) '_anomalyStats.png'];
+    dirName.statsPerSensor{s} = [sprintf('%s--%s_sensor_%02d', date.start, date.end, s) '_anomalyStats_testSet.png'];
     saveas(gcf,[dirName.plotSPS dirName.statsPerSensor{s}]);
     fprintf('\nSenor-%02d anomaly stats bar-plot file location:\n%s\n', ...
         s, GetFullPath([dirName.plotSPS dirName.statsPerSensor{s}]))
@@ -885,12 +989,12 @@ for l = 1 : labelTotal
    for s = sensor.numVec
        for n = 1 : 12
            aim = find(sensor.date.vec{s}(:,2) == n);
-           sensor.statsPerLabel{l}(n, s) = length(find(sensor.label.neuralNet{s}(aim) == l));
+           sensor.statsPerLabel{l}(n, s) = length(find(sensor.label.neuralNetTestSet{s}(aim) == l));
        end
    end
    if sum(sum(sensor.statsPerLabel{l})) > 0
         monthStatsPerLabelForPaper(sensor.statsPerLabel{l}, l, sensor.label.name{l}, color);
-        dirName.statsPerLabel{l} = sprintf('%s--%s_sensor%s_anomalyStats_%s.png', ...
+        dirName.statsPerLabel{l} = sprintf('%s--%s_sensor%s_anomalyStats_%s_testSet.png', ...
             date.start, date.end, sensorStr, sensor.label.name{l});
         saveas(gcf,[dirName.plotSPT dirName.statsPerLabel{l}]);
         fprintf('\n%s anomaly stats bar-plot file location:\n%s\n', ...
@@ -906,7 +1010,7 @@ dirName.plotSum = [dirName.plot 'statsSumUp/'];
 if ~exist(dirName.plotSum, 'dir'), mkdir(dirName.plotSum); end
 for s = sensor.numVec
    for l = 1 : labelTotal
-       statsSum(s, l) = length(find(sensor.label.neuralNet{s} == l));
+       statsSum(s, l) = length(find(sensor.label.neuralNetTestSet{s} == l));
    end
 end
 
@@ -942,13 +1046,14 @@ ax_width = outerpos(3) - ti(1) - ti(3) - 0.01;
 ax_height = outerpos(4) - ti(2) - ti(4);
 ax.Position = [left bottom ax_width ax_height];
 
-dirName.statsSum = sprintf('%s--%s_sensor%s_anomalyStats.png', ...
+dirName.statsSum = sprintf('%s--%s_sensor%s_anomalyStats_testSet.emf', ...
     date.start, date.end, sensorStr);
+saveas(gcf,[dirName.plotSum dirName.statsSum]);
 
-saveas(gcf,[dirName.plotSum dirName.statsSum]);
-dirName.statsSum = sprintf('%s--%s_sensor%s_anomalyStats.png', ...
+dirName.statsSum = sprintf('%s--%s_sensor%s_anomalyStats_testSet.tif', ...
     date.start, date.end, sensorStr);
 saveas(gcf,[dirName.plotSum dirName.statsSum]);
+
 fprintf('\nSum-up anomaly stats image file location:\n%s\n', ...
     GetFullPath([dirName.plotSum dirName.statsSum]))
 close
@@ -956,15 +1061,15 @@ close
 % reportStatsTotal;!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 % sum results to check ratios of each anomaly
-sensor.ratioOfCategory = zeros(3,labelTotal+1);
+sensor.ratioOfCategory_testSet = zeros(3,labelTotal+1);
 for s = sensor.numVec
     for m = 1 : labelTotal
-        sensor.ratioOfCategory(1,m) = sensor.ratioOfCategory(1,m) + length(cell2mat(sensor.count(m,s)));
+        sensor.ratioOfCategory_testSet(1,m) = sensor.ratioOfCategory_testSet(1,m) + length(cell2mat(sensor.count(m,s)));
     end
 end
-sensor.ratioOfCategory(1,end) = sum(sensor.ratioOfCategory(1,:));
-sensor.ratioOfCategory(2,:) = (sensor.ratioOfCategory(1,:)./(sensor.ratioOfCategory(1,end)-sensor.ratioOfCategory(1,1))).*100;
-sensor.ratioOfCategory(3,:) = (sensor.ratioOfCategory(1,:)./sensor.ratioOfCategory(1,end)).*100;
+sensor.ratioOfCategory_testSet(1,end) = sum(sensor.ratioOfCategory_testSet(1,:));
+sensor.ratioOfCategory_testSet(2,:) = (sensor.ratioOfCategory_testSet(1,:)./(sensor.ratioOfCategory_testSet(1,end)-sensor.ratioOfCategory_testSet(1,1))).*100;
+sensor.ratioOfCategory_testSet(3,:) = (sensor.ratioOfCategory_testSet(1,:)./sensor.ratioOfCategory_testSet(1,end)).*100;
 
 % % crop legend to panorama's folder
 % img = imread([dirName.plotSum dirName.statsSum]);
@@ -980,43 +1085,54 @@ sensor.ratioOfCategory(3,:) = (sensor.ratioOfCategory(1,:)./sensor.ratioOfCatego
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% temp
-sensorLabelNetSerial = [];
+sensorLabelNetSerialTestSet = [];
 for mTemp = 1 : 38
-    sensorLabelNetSerial = cat(2, sensorLabelNetSerial, sensor.label.neuralNet{mTemp});
+    sensorLabelNetSerialTestSet = cat(2, sensorLabelNetSerialTestSet, sensor.label.neuralNetTestSet{mTemp});
 end
-savePath = [GetFullPath(dirName.home) '/' 'sensorLabelNetSerial.mat'];
-save(savePath, 'sensorLabelNetSerial', '-v7.3')
+savePath = [GetFullPath(dirName.home) '/' 'sensorLabelNetSerialTestSet.mat'];
+save(savePath, 'sensorLabelNetSerialTestSet', '-v7.3')
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% temp
 
-%% comparison between detection results and actual labels of 2012
-labelNet = sensorLabelNetSerial;
-labelNet = ind2vec(labelNet);
+%% comparison between detection results and actual labels of 2012 (only for test set)
 
+labelNetTestSet = sensorLabelNetSerialTestSet;
+labelNetTestSet = ind2vec(labelNetTestSet);
+labelNetTestSet = labelNetTestSet(1:end-1, :);
+
+% clear classes that not show up
 for n = 1 : labelTotal
     if ~ismember(n, sensorLabelNetSerial)
        labelNet(n, :) = 0;
     end
 end
 
-fprintf('\nLoading actual labels of 2012...\n')
-sensorTemp = load(labelPath);
-
-labelMan = [];
+labelManTestSet = [];
 for mTemp = 1 : 38
-    labelMan = cat(1, labelMan, sensorTemp.label2012.sensor.label.manual{mTemp}');
+    labelManTestSetTemp = sensorTemp.label2012.sensor.label.manual{mTemp}';
+    index_train_set = find(sensor.label.manualTrainSet{mTemp} ~= 8);
+    labelManTestSetTemp(index_train_set) = 8;
+    index_train_set = [];
+%     labelManTestSetTemp_idx8 = find(labelManTestSetTemp == 8);
+%     labelManTestSetTemp(labelManTestSetTemp_idx8) = NaN;
+    labelManTestSet = cat(1, labelManTestSet, labelManTestSetTemp);
 end
-labelMan = ind2vec(labelMan');
+labelManTestSet = ind2vec(labelManTestSet');
+labelManTestSet = labelManTestSet(1:end-1, :);
+
+% delete empty columns
+labelManTestSet = labelManTestSet(:, sum(labelManTestSet) ~= 0);
+labelNetTestSet = labelNetTestSet(:, sum(labelNetTestSet) ~= 0);
 
 fprintf('\nPlotting confusion matrix...\n')
-[confTestC, confTestCM, confTestInd, confTestPer] = confusion(labelMan, labelNet); %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-confTestAccuracy = 1 - confTestC;
-confTestPrecision = confTestPer(:, 3);        
+[confTestC_testSet, confTestCM_testSet, confTestInd_testSet, confTestPer_testSet] = confusion(labelManTestSet, labelNetTestSet); %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+confTestAccuracy_testSet = 1 - confTestC_testSet;
+confTestPrecision_testSet = confTestPer_testSet(:, 3);        
 for m = 1 : 7
-   confTestRecall(m, 1) = confTestCM(m, m) / sum(confTestCM(m, :)); 
+   confTestRecall_testSet(m, 1) = confTestCM_testSet(m, m) / sum(confTestCM_testSet(m, :)); 
 end
 
 figure
-plotconfusion(labelNet, labelMan)
+plotconfusion(labelNetTestSet, labelManTestSet)
 xlabel('Predicted');
 ylabel('Actual');
 title([]);
@@ -1032,8 +1148,234 @@ ax_height = outerpos(4) - ti(2) - ti(4) - 0.03;
 ax.Position = [left bottom ax_width ax_height];
 dirName.plotConfusionMatrix2012 = [dirName.plot '/confusionMatrix2012/'];
 if ~exist(dirName.plotConfusionMatrix2012, 'dir'), mkdir(dirName.plotConfusionMatrix2012); end
-saveas(gcf, [dirName.plotConfusionMatrix2012 sprintf('comfusionMatrix_2012_') datestr(now,'yyyy-mm-dd_HH-MM-SS') sprintf('.png')]);
+saveas(gcf, [dirName.plotConfusionMatrix2012 sprintf('comfusionMatrix_2012_testSet') datestr(now,'yyyy-mm-dd_HH-MM-SS') sprintf('.tif')]);
+saveas(gcf, [dirName.plotConfusionMatrix2012 sprintf('comfusionMatrix_2012_testSet') datestr(now,'yyyy-mm-dd_HH-MM-SS') sprintf('.fig')]);
 close
+
+%% plot panorama of the whole data set
+
+% % reportCover; % make report cover!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+% 
+% dirName.plot = [dirName.home sprintf('/plot_autoenc1epoch_%d_globalEpoch_%d/', maxEpoch(1), maxEpoch(2))];
+% if ~exist(dirName.plot, 'dir'), mkdir(dirName.plot); end
+% 
+% % plot panorama
+% dirName.plotPano = [dirName.plot 'panorama/'];
+% if ~exist(dirName.plotPano, 'dir'), mkdir(dirName.plotPano); end
+% for s = sensor.numVec
+%     if mod(s,2) == 1
+%         yStrTemp = '';
+%     else
+%         yStrTemp = sprintf('      %02d', s);
+%     end
+%     panorama(sensor.date.serial{s}, sensor.label.neuralNet{s}, yStrTemp, color(1:labelTotal));
+%     dirName.panorama{s} = [sprintf('%s--%s_sensor_%02d', date.start, date.end, s) '_anomalyDetectionPanorama.png'];
+%     saveas(gcf,[dirName.plotPano dirName.panorama{s}]);
+%     fprintf('\nSenor-%02d anomaly detection panorama file location:\n%s\n', ...
+%         s, GetFullPath([dirName.plotPano dirName.panorama{s}]))
+%     close
+%     
+%     % update sensor.status
+%     sensor.status{s}(2,5) = {1};
+% end
+% 
+% n = 0;
+% panopano = [];
+% for s = sensor.numVec
+%     n = n + 1;
+%     p{s} = imread(GetFullPath([dirName.plotPano dirName.panorama{s}]));
+%     if n > 1
+%         height = size(p{s},1);
+%         width = size(p{s},2);
+%         p{s} = p{s}(1:ceil(height*0.22), :, :);
+%     end
+%     panopano = cat(1, p{s}, panopano);
+% end
+% dirName.panopano = [sprintf('%s--%s_sensor_all%s', date.start, date.end, sensorStr) ...
+%                     '_anomalyDetectionPanorama.tif'];
+% imwrite(panopano, [dirName.plotPano dirName.panopano]);
+% 
+% % reportPano; % make report chapter - Panorama!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+% 
+% clear height width p n
+% 
+% % plot monthly stats per sensor
+% dirName.plotSPS = [dirName.plot 'statsPerSensor/'];
+% if ~exist(dirName.plotSPS, 'dir'), mkdir(dirName.plotSPS); end
+% for s = sensor.numVec
+%     for n = 1 : 12
+%         for l = 1 : labelTotal
+%             aim = find(sensor.date.vec{s}(:,2) == n);
+%             sensor.statsPerSensor{s}(n, l) = length(find(sensor.label.neuralNet{s}(aim) == l));
+%         end
+%     end
+%     monthStatsPerSensorForPaper(sensor.statsPerSensor{s}, s, sensor.label.name, color);
+%     dirName.statsPerSensor{s} = [sprintf('%s--%s_sensor_%02d', date.start, date.end, s) '_anomalyStats.png'];
+%     saveas(gcf,[dirName.plotSPS dirName.statsPerSensor{s}]);
+%     fprintf('\nSenor-%02d anomaly stats bar-plot file location:\n%s\n', ...
+%         s, GetFullPath([dirName.plotSPS dirName.statsPerSensor{s}]))
+% 
+%     close
+% end
+% 
+% % reportStatsSensor;!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+% 
+% % plot anomaly space-time distribution per class
+% dirName.plotSPT = [dirName.plot 'statsPerType/'];
+% if ~exist(dirName.plotSPT, 'dir'), mkdir(dirName.plotSPT); end
+% for l = 1 : labelTotal
+%    for s = sensor.numVec
+%        for n = 1 : 12
+%            aim = find(sensor.date.vec{s}(:,2) == n);
+%            sensor.statsPerLabel{l}(n, s) = length(find(sensor.label.neuralNet{s}(aim) == l));
+%        end
+%    end
+%    if sum(sum(sensor.statsPerLabel{l})) > 0
+%         monthStatsPerLabelForPaper(sensor.statsPerLabel{l}, l, sensor.label.name{l}, color);
+%         dirName.statsPerLabel{l} = sprintf('%s--%s_sensor%s_anomalyStats_%s.png', ...
+%             date.start, date.end, sensorStr, sensor.label.name{l});
+%         saveas(gcf,[dirName.plotSPT dirName.statsPerLabel{l}]);
+%         fprintf('\n%s anomaly stats bar-plot file location:\n%s\n', ...
+%             sensor.label.name{l}, GetFullPath([dirName.plotSPT dirName.statsPerLabel{l}]))
+%         close
+%     end
+% end
+% 
+% % reportStatsLabel;!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+% 
+% % plot sensor-type bar stats
+% dirName.plotSum = [dirName.plot 'statsSumUp/'];
+% if ~exist(dirName.plotSum, 'dir'), mkdir(dirName.plotSum); end
+% for s = sensor.numVec
+%    for l = 1 : labelTotal
+%        statsSum(s, l) = length(find(sensor.label.neuralNet{s} == l));
+%    end
+% end
+% 
+% if ~isempty(statsSum(1,1)) && size(statsSum, 1) == 1
+%     statsSum(2,1:labelTotal) = 0;
+% end
+% 
+% figure
+% h = bar(statsSum, 'stacked');
+% xlabel('Sensor');
+% ylabel('Count (hours)');
+% legend(sensor.label.name);
+% lh=findall(gcf,'tag','legend');
+% set(lh,'location','northeastoutside');
+% title(sprintf('%s -- %s', date.start, date.end));
+% grid on
+% for n = 1 : labelTotal
+%     set(h(n),'FaceColor', color{n});
+% end
+% set(gca, 'fontsize', 13, 'fontname', 'Times New Roman', 'fontweight', 'bold');
+% set(gcf,'Units','pixels','Position',[100, 100, 1000, 500]);  % control figure's position
+% xlim([0 39]);
+% ylim([0 9000]);
+% set(gca,'xtick',[1,5:5:35, 38]);
+% 
+% % minimize white space
+% ax = gca;
+% outerpos = ax.OuterPosition;
+% ti = ax.TightInset; 
+% left = outerpos(1) + ti(1);
+% bottom = outerpos(2) + ti(2);
+% ax_width = outerpos(3) - ti(1) - ti(3) - 0.01;
+% ax_height = outerpos(4) - ti(2) - ti(4);
+% ax.Position = [left bottom ax_width ax_height];
+% 
+% dirName.statsSum = sprintf('%s--%s_sensor%s_anomalyStats.png', ...
+%     date.start, date.end, sensorStr);
+% 
+% saveas(gcf,[dirName.plotSum dirName.statsSum]);
+% dirName.statsSum = sprintf('%s--%s_sensor%s_anomalyStats.png', ...
+%     date.start, date.end, sensorStr);
+% saveas(gcf,[dirName.plotSum dirName.statsSum]);
+% fprintf('\nSum-up anomaly stats image file location:\n%s\n', ...
+%     GetFullPath([dirName.plotSum dirName.statsSum]))
+% close
+% 
+% % reportStatsTotal;!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+% 
+% % sum results to check ratios of each anomaly
+% sensor.ratioOfCategory = zeros(3,labelTotal+1);
+% for s = sensor.numVec
+%     for m = 1 : labelTotal
+%         sensor.ratioOfCategory(1,m) = sensor.ratioOfCategory(1,m) + length(cell2mat(sensor.count(m,s)));
+%     end
+% end
+% sensor.ratioOfCategory(1,end) = sum(sensor.ratioOfCategory(1,:));
+% sensor.ratioOfCategory(2,:) = (sensor.ratioOfCategory(1,:)./(sensor.ratioOfCategory(1,end)-sensor.ratioOfCategory(1,1))).*100;
+% sensor.ratioOfCategory(3,:) = (sensor.ratioOfCategory(1,:)./sensor.ratioOfCategory(1,end)).*100;
+% 
+% % % crop legend to panorama's folder
+% % img = imread([dirName.plotSum dirName.statsSum]);
+% % if ispc
+% % %     imgLegend = imcrop(img, [646.5 42.5 172 300]);
+% %     imgLegend = imcrop(img, [596.5 36.5 272 232]);
+% % elseif ismac
+% % %     imgLegend = imcrop(img, [660.5 42.5 160 229]);
+% %     imgLegend = imcrop(img, [882.5 57.5 204 280]);
+% % end
+% % figure, imshow(imgLegend)
+% % saveas(gcf, [dirName.plotPano 'legend.png']); close
+% 
+% 
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% temp
+% sensorLabelNetSerial = [];
+% for mTemp = 1 : 38
+%     sensorLabelNetSerial = cat(2, sensorLabelNetSerial, sensor.label.neuralNet{mTemp});
+% end
+% savePath = [GetFullPath(dirName.home) '/' 'sensorLabelNetSerial.mat'];
+% save(savePath, 'sensorLabelNetSerial', '-v7.3')
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% temp
+% 
+% %% comparison between detection results and actual labels of 2012
+% labelNet = sensorLabelNetSerial;
+% labelNet = ind2vec(labelNet);
+% 
+% for n = 1 : labelTotal
+%     if ~ismember(n, sensorLabelNetSerial)
+%        labelNet(n, :) = 0;
+%     end
+% end
+% 
+% fprintf('\nLoading actual labels of 2012...\n')
+% sensorTemp = load(labelPath);
+% 
+% labelMan = [];
+% for mTemp = 1 : 38
+%     labelMan = cat(1, labelMan, sensorTemp.label2012.sensor.label.manual{mTemp}');
+% end
+% labelMan = ind2vec(labelMan');
+% 
+% fprintf('\nPlotting confusion matrix...\n')
+% [confTestC, confTestCM, confTestInd, confTestPer] = confusion(labelMan, labelNet); %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% confTestAccuracy = 1 - confTestC;
+% confTestPrecision = confTestPer(:, 3);        
+% for m = 1 : 7
+%    confTestRecall(m, 1) = confTestCM(m, m) / sum(confTestCM(m, :)); 
+% end
+% 
+% figure
+% plotconfusion(labelNet, labelMan)
+% xlabel('Predicted');
+% ylabel('Actual');
+% title([]);
+% set(gca,'fontname', 'Times New Roman', 'fontweight', 'bold', 'fontsize', 12);
+% % minimize white space
+% ax = gca;
+% outerpos = ax.OuterPosition;
+% ti = ax.TightInset; 
+% left = outerpos(1) + ti(1);
+% bottom = outerpos(2) + ti(2) + 0.03;
+% ax_width = outerpos(3) - ti(1) - ti(3);
+% ax_height = outerpos(4) - ti(2) - ti(4) - 0.03;
+% ax.Position = [left bottom ax_width ax_height];
+% dirName.plotConfusionMatrix2012 = [dirName.plot '/confusionMatrix2012/'];
+% if ~exist(dirName.plotConfusionMatrix2012, 'dir'), mkdir(dirName.plotConfusionMatrix2012); end
+% saveas(gcf, [dirName.plotConfusionMatrix2012 sprintf('comfusionMatrix_2012_') datestr(now,'yyyy-mm-dd_HH-MM-SS') sprintf('.png')]);
+% close
 
 %%
 elapsedTime(5) = toc(t(5)); [hours, mins, secs] = sec2hms(elapsedTime(5));

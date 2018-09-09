@@ -25,7 +25,7 @@ classColor = [ ...
 33  150 243;     % 6-trend             blue
 171 71  188]/255;     % 7-drift             purple
 
-%% plot for mean data F1
+%% plot for mean data F1 (with the whole data set as test data)
 % out.trainF1Mean{1}, out.trainF1Mean{5} and out.trainF1Mean{8} | just column 3
 
 numOfCase = 1;
@@ -35,7 +35,7 @@ for c = 3 % 1 : size(out.trainF1Mean{4}, 2)
 end
 meanData = meanData';
 
-close all
+% close all
 figure
 xBar = [10 25 40];
 ba = bar(xBar, meanData, 'EdgeColor', 'none');
@@ -75,6 +75,60 @@ fig.Units = 'pixels';
 fig.Position = [1000, 100, 1450, 450];
 % fig.Position = [1000, 100, 1450, 450];
 % fig.Position = [1000, 100, 1100, 600];
+
+% saveas(gcf, [sumFolder sprintf('barPlot_mlad_%d_mean_F1_%s.fig', numOfCase, datestr(now,'yyyy-mm-dd_HH-MM-SS'))])
+% saveas(gcf, [sumFolder sprintf('barPlot_mlad_%d_mean_F1_%s.tif', numOfCase, datestr(now,'yyyy-mm-dd_HH-MM-SS'))])
+% saveas(gcf, [sumFolder sprintf('barPlot_mlad_%d_mean_F1_%s.emf', numOfCase, datestr(now,'yyyy-mm-dd_HH-MM-SS'))])
+
+%% plot for mean data F1 £¨with the pure test set£©
+% out.trainF1Mean{1}, out.trainF1Mean{5} and out.trainF1Mean{8} | just column 3
+
+numOfCase = 8;
+meanData = [];
+for c = 3 % 1 : size(out.trainF1Mean{4}, 2)
+    meanData = [meanData, out.trainF1Mean{numOfCase}(:, c), out.valiF1Mean{numOfCase}(:, c), out.testF1Mean_testSet{numOfCase}(:, c)];
+end
+meanData = meanData';
+
+close all
+figure
+xBar = [10 25 40];
+ba = bar(xBar, meanData, 'EdgeColor', 'none');
+% xlabel('Case Number');
+ylabel('F_1 Score');
+% ylabel('Recall');
+% ylabel('Precision');
+% le = legend(legendText);
+% le.Location = 'bestoutside';
+% le.FontSize = 24;
+xlim([1 49]);
+
+ax = gca;
+ax.TickLength = [0 0];
+ax.XTickLabel = {'Training' 'Validation' 'Testing'};
+ax.FontName = 'Helvetica';
+ax.XAxis.FontSize = 24;
+ax.YAxis.FontSize = 24;
+ax.YTick = [0 0.2 0.4 0.6 0.8 1];
+ax.YGrid = 'on';
+
+% b.CData = barColor(1,:);
+
+% for c = 1 : size(barData, 2)
+%     b.CData(c,:) = barColor(c,:);
+% end
+
+ba(1).Parent.Parent.Colormap = classColor;
+
+ax.Units = 'normalized';
+% ax.Position = [0.09 0.12 0.76 0.85]; % with legend
+ax.Position = [0.09 0.12 0.9 0.85]; % no legend
+
+
+fig = gcf;
+fig.Units = 'pixels';
+% fig.Position = [1000, 100, 1450, 450]; % with legend
+fig.Position = [1000, 100, 1200, 450]; % no legend
 
 saveas(gcf, [sumFolder sprintf('barPlot_mlad_%d_mean_F1_%s.fig', numOfCase, datestr(now,'yyyy-mm-dd_HH-MM-SS'))])
 saveas(gcf, [sumFolder sprintf('barPlot_mlad_%d_mean_F1_%s.tif', numOfCase, datestr(now,'yyyy-mm-dd_HH-MM-SS'))])

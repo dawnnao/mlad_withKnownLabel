@@ -140,7 +140,7 @@ ax.YColor = color.axis;
 ax.YTick = [];
 ax.YLabel.String = yStr;
 set(gca, 'fontname', 'Helvetica'); % 'fontweight', 'bold'
-ax.XAxis.FontSize = 20;
+ax.XAxis.FontSize = 16;
 ax.YLabel.FontSize = 12;
 % axes('Color','none','YColor','none');
 
@@ -148,7 +148,7 @@ ax.YLabel.FontSize = 12;
 fig = gcf;
 fig.Units = 'normalized';
 % fig.Position = [0 0.75 1 0.15];  % control figure's position
-fig.Position = [0 0.75 1 0.08];  % control figure's position
+fig.Position = [0 0.75 1 0.07];  % control figure's position
 % set(gcf,'color','w');
 fig.Color = 'w';
 ax.Units = 'normalized';

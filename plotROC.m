@@ -1,9 +1,22 @@
 % based on the main file
-%% labelNet
+%% added on 20180907
+labelNet_testSet_forROC = sensor.labelDecimal;
+for s = sensor.numVec
+    index_train_set = find(sensor.label.manualTrainSet{s} == 8);
+    labelNet_testSet_forROC.neuralNet{s} = labelNet_testSet_forROC.neuralNet{s}(:, index_train_set);
+    index_train_set = [];
+end
+
 sensorLabelDecimalNetSerial = [];
 for mTemp = 1 : 38
-    sensorLabelDecimalNetSerial = cat(2, sensorLabelDecimalNetSerial, sensor.labelDecimal.neuralNet{mTemp});
+    sensorLabelDecimalNetSerial = cat(2, sensorLabelDecimalNetSerial, labelNet_testSet_forROC.neuralNet{mTemp});
 end
+
+%% labelNet
+% sensorLabelDecimalNetSerial = [];
+% for mTemp = 1 : 38
+%     sensorLabelDecimalNetSerial = cat(2, sensorLabelDecimalNetSerial, labelNet_testSet_forROC{mTemp});
+% end
 
 %% labelMan
 labelPath = 'C:/Users/Owner/Documents/GitHub/mlad_withKnownLabel/labelMan/label2012_modifiedAfterRound2Test.mat';
@@ -40,7 +53,9 @@ classColor = [ ...
 %%
 close all
 figure
-rocPlot = plotroc(labelMan, sensorLabelDecimalNetSerial);
+rocPlot = plotroc(labelManTestSet, sensorLabelDecimalNetSerial);
+% rocPlot = plotroc(labelManTestSet, labelNetTestSet);
+
 % plotroc(feature{g}.label.manual(:,feature{g}.trainSize+1 : end), yVali)
 % [tpr, fpr, thresholds] = roc(labelMan, labelNet);
 % le = legend(legendText);

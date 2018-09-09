@@ -1,0 +1,1 @@
+set(findall(gcf,'-property','FontSize'),'FontSize',18)

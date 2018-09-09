@@ -2,7 +2,7 @@
 clc;close all;
 
 readRoot = 'C:/dataArchiveTemp/Sutong/';
-saveRoot = 'D:/results/results_mlad_withKnownLabel/round3/mlad011/';
+saveRoot = 'D:/results/results_mlad_withKnownLabel/round4/mlad011/';
 
 % readRoot = '/Volumes/ssd/sutong-2012-tidy';
 % saveRoot = '/Users/tangzhiyi/Documents/MATLAB/adi/case';
@@ -13,7 +13,7 @@ dateEnd = '2012-12-31';
 % sensorTrainRatio = 1/100;
 sensorPSize = 10;
 fs = 20;
-step = [2];
+step = [2, 5];
 % labelName = {'1-normal','2-missing','3-minor','4-outlier','5-square','6-trend','7-drift'};
 % seed = 6; % for random number generation
 maxEpoch = [150];
@@ -30,7 +30,7 @@ labelPath = 'C:/Users/Owner/Documents/GitHub/mlad_withKnownLabel/labelMan/label2
 
 %%
 for sensorTrainRatio = 0.03 % : 0.01 : 0.03
-    for seed = 1 % : 5
+    for seed = 1 : 5
         sensor = mlad011_withKnownLabel_fromRAM(readRoot, saveRoot, sensorNum, dateStart, dateEnd, ...
             sensorTrainRatio, sensorPSize, fs, step, [], seed, maxEpoch, batchSize, sizeFilter, numFilter, ...
             publicImagesetPath, labelPath, []);
