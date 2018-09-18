@@ -1080,6 +1080,17 @@ fprintf('\nSum-up anomaly stats image file location:\n%s\n', ...
 % reportStatsTotal;!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 % sum results to check ratios of each anomaly
+
+% for s = sensor.numVec
+%     sensor.label.neuralNet{s} = labelTempNeural{s};
+%     for l = 1 : labelTotal
+%         sensor.count_testSet{l,s} = countTempNeural{l,s};
+%     end
+% %     sensor.date.vec{s} = dateVec;
+% %     sensor.date.serial{s} = dateSerial;
+% end
+% % clear labelTempNeural countTempNeural
+
 sensor.ratioOfCategory_testSet = zeros(3,labelTotal+1);
 for s = sensor.numVec
     for m = 1 : labelTotal

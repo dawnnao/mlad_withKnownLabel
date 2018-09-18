@@ -266,20 +266,20 @@ if exist(dirName.trainSetByType,'dir')
     if ~isempty(check)
         fprintf('\nCAUTION:\n%s\nTraining set folder is already there and not empty, continue?\n', dirName.trainSetByType)
         rightInput = 0;
-        while rightInput == 0
-            prompt = 'y(yes)/n(no): ';
-            go = input(prompt,'s');
-            if strcmp(go,'y') || strcmp(go,'yes')
-                rightInput = 1;
-                fprintf('\nContinue...\n')
-            elseif strcmp(go,'n') || strcmp(go,'no')
-                rightInput = 1;
-                fprintf('\nFinish.\n')
-                return
-            else
-                fprintf('Invalid input! Please re-input.\n')
-            end
-        end
+%         while rightInput == 0
+%             prompt = 'y(yes)/n(no): ';
+%             go = input(prompt,'s');
+%             if strcmp(go,'y') || strcmp(go,'yes')
+%                 rightInput = 1;
+%                 fprintf('\nContinue...\n')
+%             elseif strcmp(go,'n') || strcmp(go,'no')
+%                 rightInput = 1;
+%                 fprintf('\nFinish.\n')
+%                 return
+%             else
+%                 fprintf('Invalid input! Please re-input.\n')
+%             end
+%         end
     end
 elseif ~exist(dirName.trainSetByType,'dir'), mkdir(dirName.trainSetByType);
 end

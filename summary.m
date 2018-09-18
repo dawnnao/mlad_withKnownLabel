@@ -1,4 +1,4 @@
-clear; clc; close all;
+clear; clc; close all; warning off;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 rootFolder = 'D:/results/results_mlad_withKnownLabel/round4/';
@@ -22,7 +22,7 @@ out.intersect_testSet = cell(7,7);
 out.intersect_testSet(:) = {[1:333792]}; % initialization
 
 for nMlad = 1 : 8 % length(caseNum)
-    for nTrainRatio = 3 % pct
+    for nTrainRatio = 1 : 3 % pct
         for nSeed = 1 : 5
             fprintf('\nLoading...    mlad%s  trainRatio: %d  seed: %d    ', caseNumBinChar(nMlad, :), nTrainRatio, nSeed)
             if mod(nMlad, 2) == 1
@@ -179,7 +179,7 @@ classColor = [ ...
 33  150 243;     % 6-trend             blue
 171 71  188]/255;     % 7-drift             purple
 
-%% plot for mean data
+%% plot for mean data F1
 
 % out.valiF1Mean{4} and out.valiF1Mean{8} (6 cases in paper2)
 meanData = [];
@@ -193,7 +193,7 @@ end
 
 % meanData = meanData';
 
-%% plot for mean data F1
+%% plot for mean data F1 £¨comparative study£©
 % out.valiF1Mean{1}, out.valiF1Mean{5} and out.valiF1Mean{8} | just column 3
 meanData = [];
 for c = 3 % 1 : size(out.valiF1Mean{4}, 2)
