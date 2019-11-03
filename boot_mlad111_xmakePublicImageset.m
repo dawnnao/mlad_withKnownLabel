@@ -1,7 +1,8 @@
 clear;clc;close all;
 
 readRoot = 'C:/dataArchiveTemp/Sutong/';
-saveRoot = 'D:/results/results_mlad_withKnownLabel/publicImageset/';
+% saveRoot = 'D:/results/results_mlad_withKnownLabel/publicImageset/';
+saveRoot = 'D:/results/results_mlad_withKnownLabel/publicImageset_spectrogram/';
 
 % readRoot = '/Volumes/BOOTCAMP/data/Sutong/';
 % saveRoot = '/Users/zhiyitang/Programming/results/';
