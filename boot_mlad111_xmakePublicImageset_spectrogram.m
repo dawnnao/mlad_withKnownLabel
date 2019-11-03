@@ -1,6 +1,8 @@
 clear;clc;close all;
 
-readRoot = 'C:/dataArchiveTemp/Sutong/';
+% readRoot = 'C:/dataArchiveTemp/Sutong/';
+readRoot = 'D:/sutong/sutong_2012/';
+
 % saveRoot = 'D:/results/results_mlad_withKnownLabel/publicImageset/';
 saveRoot = 'D:/results/results_mlad_withKnownLabel/publicImageset_spectrogram/';
 

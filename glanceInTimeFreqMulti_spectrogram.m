@@ -40,7 +40,7 @@ for day = dayStart : dayEnd
             for window = 128 : 128 : 1024
                 window
                 figure
-                spectrogram(sensorData(:, s), window, window-8, window, fs, 'yaxis')
+                spectrogram(sensorData(:, s), window, 0, window, fs, 'yaxis')
                 colormap gray
                 position = get(gcf,'Position');
                 set(gcf,'Units','pixels','Position',[position(1), position(2), 200, 200]);  % control figure's position
