@@ -1,8 +1,8 @@
 clear;clc;close all;
 
 readRoot = 'C:/dataArchiveTemp/Sutong/';
-saveRoot = 'D:/results/results_mlad_withKnownLabel/publicImageset/';
-% saveRoot = 'D:/results/results_mlad_withKnownLabel/publicImageset_spectrogram/';
+% saveRoot = 'D:/results/results_mlad_withKnownLabel/publicImageset/';
+saveRoot = 'D:/results/results_mlad_withKnownLabel/publicImageset_spectrogram/';
 
 % readRoot = '/Volumes/BOOTCAMP/data/Sutong/';
 % saveRoot = '/Users/zhiyitang/Programming/results/';
@@ -31,5 +31,5 @@ step = [1];
 
 %%
 % sensor = mlad111(readRoot, saveRoot, sensorNum, dateStart, dateEnd, k, sensorTrainRatio, sensorPSize, fs, step, []);
-sensor = mlad111_makePublicImageset(readRoot, saveRoot, sensorNum, dateStart, dateEnd, k, sensorTrainRatio, sensorPSize, fs, step, []);
+sensor = mlad111_makePublicImageset_spectrogram(readRoot, saveRoot, sensorNum, dateStart, dateEnd, k, sensorTrainRatio, sensorPSize, fs, step, []);
 

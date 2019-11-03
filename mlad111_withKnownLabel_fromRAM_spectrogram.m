@@ -194,7 +194,7 @@ for g = 1 : groupTotal
         end
     end
             [~, sensor.date.vec{s}, sensor.date.serial{s}] = ...
-            glanceInTimeFreqMulti(readRoot, sensor.num{g}, date.serial.start, date.serial.end, dirName.all, '0-all_');
+            glanceInTimeFreqMulti_spectrogram(readRoot, sensor.num{g}, date.serial.start, date.serial.end, dirName.all, '0-all_');
     %     util.hours = size(sensor.date.vec{s}, 1);
 
         elapsedTime(1) = toc(t(1)); [hours, mins, secs] = sec2hms(elapsedTime(1));
