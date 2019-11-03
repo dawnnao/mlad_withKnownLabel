@@ -31,5 +31,5 @@ step = [1];
 
 %%
 % sensor = mlad111(readRoot, saveRoot, sensorNum, dateStart, dateEnd, k, sensorTrainRatio, sensorPSize, fs, step, []);
-sensor = mlad111_makePublicImageset_spectrogram(readRoot, saveRoot, sensorNum, dateStart, dateEnd, k, sensorTrainRatio, sensorPSize, fs, step, []);
+sensor = mlad111_xmakePublicImageset_spectrogram(readRoot, saveRoot, sensorNum, dateStart, dateEnd, k, sensorTrainRatio, sensorPSize, fs, step, []);
 
