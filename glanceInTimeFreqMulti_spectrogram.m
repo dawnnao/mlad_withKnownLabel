@@ -33,24 +33,31 @@ for day = dayStart : dayEnd
             read = ['load(''' path.full ''');']; eval(read);
             sensorData(:, sensorNum) = data(:, sensorNum);  % always save in column 1
         end
+        
         data = [];
         for s = sensorNum
             % spectrogram plot
             c = 1;
             for window = 128 : 128 : 1024
-                window
-                figure
+%                 window
+%                 figure
+                sensorData(isnan(sensorData(:, s)), s) = 0.1;
+                [~, f, t, p] = spectrogram(sensorData(:, s), window, 0, window, fs, 'yaxis');
                 spectrogram(sensorData(:, s), window, 0, window, fs, 'yaxis')
                 colormap gray
-                position = get(gcf,'Position');
-                set(gcf,'Units','pixels','Position',[position(1), position(2), 200, 200]);  % control figure's position
-                set(gca,'Units','normalized', 'Position',[0 0 1 1]);  % control axis's position in figure
-                set(gca,'visible','off');
+                position = get(gcf, 'Position');
+                set(gcf,'Units', 'pixels','Position', [position(1), position(2), 200, 200]);  % control figure's position
+                set(gca,'Units', 'normalized', 'Position', [0 0 1 1]);  % control axis's position in figure
+                set(gca, 'visible', 'off');
+%                 xlim([0 size(sensorData,1)]);
+%                 xlim([0 length(t)]);
+%                 min(t)
+%                 max(t)
                 img = getframe(gcf);
                 img = imresize(img.cdata, [100 100]);  % expected dimension
                 img = rgb2gray(img);
                 img = im2double(img);
-                imshow(img)
+%                 imshow(img)
                 pathSaveAll = [pathSave{s} '/' sprintf('%sabsIdx_%d_%d_spectrogram_%d', prefix, s, count, c) '_time.png'];
                 imwrite(img, pathSaveAll);
                 c = c + 1;

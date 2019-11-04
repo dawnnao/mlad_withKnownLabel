@@ -1,10 +1,11 @@
 clear;clc;close all;
 
 % readRoot = 'C:/dataArchiveTemp/Sutong/';
-readRoot = 'D:/sutong/sutong_2012/';
+readRoot = 'C:/dataArchive/sutong/sutong_2012/';
 
 % saveRoot = 'D:/results/results_mlad_withKnownLabel/publicImageset/';
-saveRoot = 'D:/results/results_mlad_withKnownLabel/publicImageset_spectrogram/';
+% saveRoot = 'D:/results/results_mlad_withKnownLabel/publicImageset_spectrogram/';
+saveRoot = 'C:/results/results_mlad_withKnownLabel/publicImageset_spectrogram/';
 
 % readRoot = '/Volumes/BOOTCAMP/data/Sutong/';
 % saveRoot = '/Users/zhiyitang/Programming/results/';
@@ -21,7 +22,7 @@ saveRoot = 'D:/results/results_mlad_withKnownLabel/publicImageset_spectrogram/';
 % fs = 20;
 % step = [2];
 
-sensorNum = [1:38];
+sensorNum = [24];
 dateStart = '2012-01-01';
 dateEnd = '2012-12-31';
 k = 100; % number of clusters
