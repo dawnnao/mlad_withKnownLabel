@@ -330,11 +330,29 @@ while goNext == 0
             for m = 1 : label2012.trainNum(n)
                 path.sourceFolder = sprintf('%ssensor%02d/0-all/',publicImagesetPath , label2012.absIdx{n}(m, 1));
                 
-                path.sourceFile1 = sprintf('%s0-all_absIdx_%d_%d_time.png', path.sourceFolder, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
-                path.goalFile1 = sprintf('%s%s/%s_absIdx_%02d_%d_time.png', dirName.trainSetByType, labelName{n}, labelName{n}, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
+                path.sourceFile1 = sprintf('%s0-all_absIdx_%d_%d_spectrogram_1_time.png', path.sourceFolder, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
+                path.goalFile1 = sprintf('%s%s/%s_absIdx_%02d_%d_spectrogram_1_time.png', dirName.trainSetByType, labelName{n}, labelName{n}, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
                 
-                path.sourceFile2 = sprintf('%s0-all_absIdx_%d_%d_freq.png', path.sourceFolder, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
-                path.goalFile2 = sprintf('%s%s/%s_absIdx_%02d_%d_freq.png', dirName.trainSetByType, labelName{n}, labelName{n}, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
+                path.sourceFile2 = sprintf('%s0-all_absIdx_%d_%d_spectrogram_2_time.png', path.sourceFolder, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
+                path.goalFile2 = sprintf('%s%s/%s_absIdx_%02d_%d_spectrogram_2_time.png', dirName.trainSetByType, labelName{n}, labelName{n}, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
+                
+                path.sourceFile3 = sprintf('%s0-all_absIdx_%d_%d_spectrogram_3_time.png', path.sourceFolder, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
+                path.goalFile3 = sprintf('%s%s/%s_absIdx_%02d_%d_spectrogram_3_time.png', dirName.trainSetByType, labelName{n}, labelName{n}, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
+                
+                path.sourceFile4 = sprintf('%s0-all_absIdx_%d_%d_spectrogram_4_time.png', path.sourceFolder, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
+                path.goalFile4 = sprintf('%s%s/%s_absIdx_%02d_%d_spectrogram_4_time.png', dirName.trainSetByType, labelName{n}, labelName{n}, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
+                
+                path.sourceFile5 = sprintf('%s0-all_absIdx_%d_%d_spectrogram_5_time.png', path.sourceFolder, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
+                path.goalFile5 = sprintf('%s%s/%s_absIdx_%02d_%d_spectrogram_5_time.png', dirName.trainSetByType, labelName{n}, labelName{n}, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
+                
+                path.sourceFile6 = sprintf('%s0-all_absIdx_%d_%d_spectrogram_6_time.png', path.sourceFolder, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
+                path.goalFile6 = sprintf('%s%s/%s_absIdx_%02d_%d_spectrogram_6_time.png', dirName.trainSetByType, labelName{n}, labelName{n}, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
+                
+                path.sourceFile7 = sprintf('%s0-all_absIdx_%d_%d_spectrogram_7_time.png', path.sourceFolder, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
+                path.goalFile7 = sprintf('%s%s/%s_absIdx_%02d_%d_spectrogram_7_time.png', dirName.trainSetByType, labelName{n}, labelName{n}, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
+                
+                path.sourceFile8 = sprintf('%s0-all_absIdx_%d_%d_spectrogram_8_time.png', path.sourceFolder, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
+                path.goalFile8 = sprintf('%s%s/%s_absIdx_%02d_%d_spectrogram_8_time.png', dirName.trainSetByType, labelName{n}, labelName{n}, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
                 
                 if exist(path.sourceFile1, 'file')
                    fprintf('\nGenerating training set... %s Now: %d Total: %d\n', labelName{n}, m, label2012.trainNum(n))
@@ -363,6 +381,7 @@ while goNext == 0
                    imshow(img1)
                    label2012.image{n}(1:10000, m) = single(img1(:));
                    
+                   
                 if exist(path.sourceFile2, 'file')
                    fprintf('\nGenerating training set... %s Now: %d Total: %d\n', labelName{n}, m, label2012.trainNum(n))
                    img2 = imread(path.sourceFile2);
@@ -386,6 +405,156 @@ while goNext == 0
                 end
                    imshow(img2)
                    label2012.image{n}(10001:20000, m) = single(img2(:));
+                   
+                   
+                if exist(path.sourceFile3, 'file')
+                   fprintf('\nGenerating training set... %s Now: %d Total: %d\n', labelName{n}, m, label2012.trainNum(n))
+                   img3 = imread(path.sourceFile3);
+                   img3 = im2double(img3);
+                   copyfile(path.sourceFile3, path.goalFile3, 'f');                   
+                else
+                   fprintf('\nCAUTION:\n%s\nNo such file! Filled with a zero.\n', path.full)
+                   sensorData(1, 1) = zeros;
+                   plot(sensorData(:, 1),'color','k');
+                   position = get(gcf,'Position');
+                   set(gcf,'Units','pixels','Position',[position(1), position(2), 100, 100]);  % control figure's position
+                   set(gca,'Units','normalized', 'Position',[0 0 1 1]);  % control axis's position in figure
+                   set(gca,'visible','off');
+                   xlim([0 size(sensorData,1)]);
+                   set(gcf,'color','white');
+                   img3 = getframe(gcf);
+                   img3 = imresize(img3.cdata, [100 100]);  % expected dimension
+                   img3 = rgb2gray(img3);
+                   img3 = im2double(img3);
+                   imwrite(img3, path.goalFile3);
+                end
+                   imshow(img3)
+                   label2012.image{n}(20001:30000, m) = single(img3(:));
+                   
+                   
+                if exist(path.sourceFile4, 'file')
+                   fprintf('\nGenerating training set... %s Now: %d Total: %d\n', labelName{n}, m, label2012.trainNum(n))
+                   img4 = imread(path.sourceFile4);
+                   img4 = im2double(img4);
+                   copyfile(path.sourceFile4, path.goalFile4, 'f');                   
+                else
+                   fprintf('\nCAUTION:\n%s\nNo such file! Filled with a zero.\n', path.full)
+                   sensorData(1, 1) = zeros;
+                   plot(sensorData(:, 1),'color','k');
+                   position = get(gcf,'Position');
+                   set(gcf,'Units','pixels','Position',[position(1), position(2), 100, 100]);  % control figure's position
+                   set(gca,'Units','normalized', 'Position',[0 0 1 1]);  % control axis's position in figure
+                   set(gca,'visible','off');
+                   xlim([0 size(sensorData,1)]);
+                   set(gcf,'color','white');
+                   img4 = getframe(gcf);
+                   img4 = imresize(img4.cdata, [100 100]);  % expected dimension
+                   img4 = rgb2gray(img4);
+                   img4 = im2double(img4);
+                   imwrite(img4, path.goalFile4);
+                end
+                   imshow(img4)
+                   label2012.image{n}(30001:40000, m) = single(img4(:));
+                   
+                   
+                if exist(path.sourceFile5, 'file')
+                   fprintf('\nGenerating training set... %s Now: %d Total: %d\n', labelName{n}, m, label2012.trainNum(n))
+                   img5 = imread(path.sourceFile5);
+                   img5 = im2double(img5);
+                   copyfile(path.sourceFile5, path.goalFile5, 'f');                   
+                else
+                   fprintf('\nCAUTION:\n%s\nNo such file! Filled with a zero.\n', path.full)
+                   sensorData(1, 1) = zeros;
+                   plot(sensorData(:, 1),'color','k');
+                   position = get(gcf,'Position');
+                   set(gcf,'Units','pixels','Position',[position(1), position(2), 100, 100]);  % control figure's position
+                   set(gca,'Units','normalized', 'Position',[0 0 1 1]);  % control axis's position in figure
+                   set(gca,'visible','off');
+                   xlim([0 size(sensorData,1)]);
+                   set(gcf,'color','white');
+                   img5 = getframe(gcf);
+                   img5 = imresize(img5.cdata, [100 100]);  % expected dimension
+                   img5 = rgb2gray(img5);
+                   img5 = im2double(img5);
+                   imwrite(img5, path.goalFile5);
+                end
+                   imshow(img5)
+                   label2012.image{n}(40001:50000, m) = single(img5(:));
+                   
+                   
+                if exist(path.sourceFile6, 'file')
+                   fprintf('\nGenerating training set... %s Now: %d Total: %d\n', labelName{n}, m, label2012.trainNum(n))
+                   img6 = imread(path.sourceFile6);
+                   img6 = im2double(img6);
+                   copyfile(path.sourceFile6, path.goalFile6, 'f');                   
+                else
+                   fprintf('\nCAUTION:\n%s\nNo such file! Filled with a zero.\n', path.full)
+                   sensorData(1, 1) = zeros;
+                   plot(sensorData(:, 1),'color','k');
+                   position = get(gcf,'Position');
+                   set(gcf,'Units','pixels','Position',[position(1), position(2), 100, 100]);  % control figure's position
+                   set(gca,'Units','normalized', 'Position',[0 0 1 1]);  % control axis's position in figure
+                   set(gca,'visible','off');
+                   xlim([0 size(sensorData,1)]);
+                   set(gcf,'color','white');
+                   img6 = getframe(gcf);
+                   img6 = imresize(img6.cdata, [100 100]);  % expected dimension
+                   img6 = rgb2gray(img6);
+                   img6 = im2double(img6);
+                   imwrite(img6, path.goalFile6);
+                end
+                   imshow(img6)
+                   label2012.image{n}(50001:60000, m) = single(img6(:));
+                   
+                   
+                if exist(path.sourceFile7, 'file')
+                   fprintf('\nGenerating training set... %s Now: %d Total: %d\n', labelName{n}, m, label2012.trainNum(n))
+                   img7 = imread(path.sourceFile7);
+                   img7 = im2double(img7);
+                   copyfile(path.sourceFile7, path.goalFile7, 'f');                   
+                else
+                   fprintf('\nCAUTION:\n%s\nNo such file! Filled with a zero.\n', path.full)
+                   sensorData(1, 1) = zeros;
+                   plot(sensorData(:, 1),'color','k');
+                   position = get(gcf,'Position');
+                   set(gcf,'Units','pixels','Position',[position(1), position(2), 100, 100]);  % control figure's position
+                   set(gca,'Units','normalized', 'Position',[0 0 1 1]);  % control axis's position in figure
+                   set(gca,'visible','off');
+                   xlim([0 size(sensorData,1)]);
+                   set(gcf,'color','white');
+                   img7 = getframe(gcf);
+                   img7 = imresize(img7.cdata, [100 100]);  % expected dimension
+                   img7 = rgb2gray(img7);
+                   img7 = im2double(img7);
+                   imwrite(img7, path.goalFile7);
+                end
+                   imshow(img7)
+                   label2012.image{n}(60001:70000, m) = single(img7(:));
+                   
+                   
+                if exist(path.sourceFile8, 'file')
+                   fprintf('\nGenerating training set... %s Now: %d Total: %d\n', labelName{n}, m, label2012.trainNum(n))
+                   img8 = imread(path.sourceFile8);
+                   img8 = im2double(img8);
+                   copyfile(path.sourceFile8, path.goalFile8, 'f');                   
+                else
+                   fprintf('\nCAUTION:\n%s\nNo such file! Filled with a zero.\n', path.full)
+                   sensorData(1, 1) = zeros;
+                   plot(sensorData(:, 1),'color','k');
+                   position = get(gcf,'Position');
+                   set(gcf,'Units','pixels','Position',[position(1), position(2), 100, 100]);  % control figure's position
+                   set(gca,'Units','normalized', 'Position',[0 0 1 1]);  % control axis's position in figure
+                   set(gca,'visible','off');
+                   xlim([0 size(sensorData,1)]);
+                   set(gcf,'color','white');
+                   img8 = getframe(gcf);
+                   img8 = imresize(img8.cdata, [100 100]);  % expected dimension
+                   img8 = rgb2gray(img8);
+                   img8 = im2double(img8);
+                   imwrite(img8, path.goalFile8);
+                end
+                   imshow(img8)
+                   label2012.image{n}(70001:80000, m) = single(img8(:));
                 
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                 [day, hour] = colLocation(label2012.absIdx{n}(m, 2) ,'2012-01-01');
@@ -522,15 +691,15 @@ for g = 1 : groupTotal
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % convert feature into 4D matrices for CNN training
     numTemp = size(feature{g}.image, 2);
-    feature{g}.image = reshape(feature{g}.image, [100, 100, 2, numTemp]);
+    feature{g}.image = reshape(feature{g}.image, [100, 100, 8, numTemp]);
     % for define output layer size
     feature{g}.label.activeLabelNum = length(unique(vec2ind(feature{g}.label.manual)));
 end
 
-% add channel-3 into image
-for n = 1 : numTemp
-    feature{g}.image(:, :, 3, n) = ones(100, 100);
-end
+% % add channel-3 into image
+% for n = 1 : numTemp
+%     feature{g}.image(:, :, 3, n) = ones(100, 100);
+% end
 
 rng(seed,'twister');
 fprintf('\nTraining...\n')
@@ -543,7 +712,7 @@ for g = 1 : groupTotal
         feature{g}.trainRatio = 50/100;
         feature{g}.trainSize = floor(size(feature{g}.image,4) * feature{g}.trainRatio);
         % design architecture of CNN
-        layers = [imageInputLayer([100 100 3])
+        layers = [imageInputLayer([100 100 8])
                   
                   % design 1
                   convolution2dLayer(sizeFilter, numFilter)
