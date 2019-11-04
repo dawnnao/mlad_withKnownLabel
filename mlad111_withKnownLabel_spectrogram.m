@@ -363,7 +363,7 @@ while goNext == 0
                    img1 = im2double(img1);
                    copyfile(path.sourceFile1, path.goalFile1, 'f');                   
                 else
-                   fprintf('\nCAUTION:\n%s\nNo such file! Filled with a zero.\n', path.full)
+                   fprintf('\nCAUTION:\n%s\nNo such file! Filled with a zero.\n', path.sourceFile1)
                    sensorData(1, 1) = zeros;
                    plot(sensorData(:, 1),'color','k');
                    position = get(gcf,'Position');
@@ -376,7 +376,7 @@ while goNext == 0
                    img1 = imresize(img1.cdata, [100 100]);  % expected dimension
                    img1 = rgb2gray(img1);
                    img1 = im2double(img1);
-                   imwrite(img1, path.goalFile);
+                   imwrite(img1, path.goalFile1);
                 end
                    imshow(img1)
                    label2012.image{n}(1:10000, m) = single(img1(:));
@@ -388,7 +388,7 @@ while goNext == 0
                    img2 = im2double(img2);
                    copyfile(path.sourceFile2, path.goalFile2, 'f');                   
                 else
-                   fprintf('\nCAUTION:\n%s\nNo such file! Filled with a zero.\n', path.full)
+                   fprintf('\nCAUTION:\n%s\nNo such file! Filled with a zero.\n', path.sourceFile2)
                    sensorData(1, 1) = zeros;
                    plot(sensorData(:, 1),'color','k');
                    position = get(gcf,'Position');
@@ -413,7 +413,7 @@ while goNext == 0
                    img3 = im2double(img3);
                    copyfile(path.sourceFile3, path.goalFile3, 'f');                   
                 else
-                   fprintf('\nCAUTION:\n%s\nNo such file! Filled with a zero.\n', path.full)
+                   fprintf('\nCAUTION:\n%s\nNo such file! Filled with a zero.\n', path.sourceFile3)
                    sensorData(1, 1) = zeros;
                    plot(sensorData(:, 1),'color','k');
                    position = get(gcf,'Position');
@@ -438,7 +438,7 @@ while goNext == 0
                    img4 = im2double(img4);
                    copyfile(path.sourceFile4, path.goalFile4, 'f');                   
                 else
-                   fprintf('\nCAUTION:\n%s\nNo such file! Filled with a zero.\n', path.full)
+                   fprintf('\nCAUTION:\n%s\nNo such file! Filled with a zero.\n', path.sourceFile4)
                    sensorData(1, 1) = zeros;
                    plot(sensorData(:, 1),'color','k');
                    position = get(gcf,'Position');
@@ -463,7 +463,7 @@ while goNext == 0
                    img5 = im2double(img5);
                    copyfile(path.sourceFile5, path.goalFile5, 'f');                   
                 else
-                   fprintf('\nCAUTION:\n%s\nNo such file! Filled with a zero.\n', path.full)
+                   fprintf('\nCAUTION:\n%s\nNo such file! Filled with a zero.\n', path.sourceFile5)
                    sensorData(1, 1) = zeros;
                    plot(sensorData(:, 1),'color','k');
                    position = get(gcf,'Position');
@@ -488,7 +488,7 @@ while goNext == 0
                    img6 = im2double(img6);
                    copyfile(path.sourceFile6, path.goalFile6, 'f');                   
                 else
-                   fprintf('\nCAUTION:\n%s\nNo such file! Filled with a zero.\n', path.full)
+                   fprintf('\nCAUTION:\n%s\nNo such file! Filled with a zero.\n', path.sourceFile6)
                    sensorData(1, 1) = zeros;
                    plot(sensorData(:, 1),'color','k');
                    position = get(gcf,'Position');
@@ -513,7 +513,7 @@ while goNext == 0
                    img7 = im2double(img7);
                    copyfile(path.sourceFile7, path.goalFile7, 'f');                   
                 else
-                   fprintf('\nCAUTION:\n%s\nNo such file! Filled with a zero.\n', path.full)
+                   fprintf('\nCAUTION:\n%s\nNo such file! Filled with a zero.\n', path.sourceFile7)
                    sensorData(1, 1) = zeros;
                    plot(sensorData(:, 1),'color','k');
                    position = get(gcf,'Position');
@@ -538,7 +538,7 @@ while goNext == 0
                    img8 = im2double(img8);
                    copyfile(path.sourceFile8, path.goalFile8, 'f');                   
                 else
-                   fprintf('\nCAUTION:\n%s\nNo such file! Filled with a zero.\n', path.full)
+                   fprintf('\nCAUTION:\n%s\nNo such file! Filled with a zero.\n', path.sourceFile8)
                    sensorData(1, 1) = zeros;
                    plot(sensorData(:, 1),'color','k');
                    position = get(gcf,'Position');
