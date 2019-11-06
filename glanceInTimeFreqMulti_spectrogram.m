@@ -49,8 +49,13 @@ for day = dayStart : dayEnd
 %                 figure
                 sensorData(isnan(sensorData(:, s)), s) = 0.1;
 %                 [~, f, t, p] = spectrogram(sensorData(:, s), window, 0, window, fs, 'yaxis');
-                spectrogram(sensorData(:, s), window, 0, window, fs, 'yaxis', 'power')
+                [~, f, t, p] = spectrogram(sensorData(:, s), window, 0, window, fs, 'yaxis', 'power');
+                db = pow2db(p);
+
                 colormap gray
+                spg = pcolor(t, f, dB);
+                spg.EdgeColor = 'none';                
+                
                 position = get(gcf, 'Position');
                 set(gcf,'Units', 'pixels','Position', [position(1), position(2), 200, 200]);  % control figure's position
                 set(gca,'Units', 'normalized', 'Position', [0 0 1 1]);  % control axis's position in figure
