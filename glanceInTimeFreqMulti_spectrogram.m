@@ -14,8 +14,14 @@ function [sensorData, dateVec, dateSerial] = glanceInTimeFreqMulti_spectrogram(p
 path.root = pathRead;
 hourTotal = (dayEnd-dayStart+1)*24;
 count = 1;
+
+windows = ones(8, 1) * 32;
+for n = 1 : 7
+    windows(n+1, 1) = windows(n, 1) * 2;
+end
+
 figure
-set(gcf,'Units','pixels','Position',[100, 100, 100, 100]);
+set(gcf,'Units','pixels','Position', [100, 100, 100, 100]);
 for day = dayStart : dayEnd
     string = datestr(day);
     for hour = 0:23
@@ -38,12 +44,12 @@ for day = dayStart : dayEnd
         for s = sensorNum
             % spectrogram plot
             c = 1;
-            for window = 128 : 128 : 1024
+            for window = windows'
 %                 window
 %                 figure
                 sensorData(isnan(sensorData(:, s)), s) = 0.1;
-                [~, f, t, p] = spectrogram(sensorData(:, s), window, 0, window, fs, 'yaxis');
-                spectrogram(sensorData(:, s), window, 0, window, fs, 'yaxis')
+%                 [~, f, t, p] = spectrogram(sensorData(:, s), window, 0, window, fs, 'yaxis');
+                spectrogram(sensorData(:, s), window, 0, window, fs, 'yaxis', 'power')
                 colormap gray
                 position = get(gcf, 'Position');
                 set(gcf,'Units', 'pixels','Position', [position(1), position(2), 200, 200]);  % control figure's position
@@ -58,20 +64,22 @@ for day = dayStart : dayEnd
                 img = rgb2gray(img);
                 img = im2double(img);
 %                 imshow(img)
-                pathSaveAll = [pathSave{s} '/' sprintf('%sabsIdx_%d_%d_spectrogram_%d', prefix, s, count, c) '_time.png'];
+                pathSaveAll = [pathSave{s} '/' sprintf('%sabsIdx_%d_%d_spectrogram_%d', prefix, s, count, c) '.png'];
                 imwrite(img, pathSaveAll);
                 c = c + 1;
+                img = [];
 %                 close
             end
-
-            tocRemain = toc(ticRemain);
-            tRemain = tocRemain * (hourTotal - count);
-            [hours, mins, secs] = sec2hms(tRemain);
-            fprintf('\nGenerating sensor-%02d images...  %d-%02d-%02d  %02d:00-%02d:00  Done!', ...
-                s, dateVec(count,1), dateVec(count,2), dateVec(count,3), hour, hour+1)
-            fprintf('\nTotal: %d  Now: %d  ', hourTotal, count)
-            fprintf('About %02dh%02dm%05.2fs left.\n', hours, mins, secs)
         end
+        
+        tocRemain = toc(ticRemain);
+        tRemain = tocRemain * (hourTotal - count);
+        [hours, mins, secs] = sec2hms(tRemain);
+        fprintf('\nGenerating images...  %d-%02d-%02d  %02d:00-%02d:00  Done!', ...
+            dateVec(count,1), dateVec(count,2), dateVec(count,3), hour, hour+1)
+        fprintf('\nTotal: %d  Now: %d  ', hourTotal, count)
+        fprintf('About %02dh%02dm%05.2fs left.\n', hours, mins, secs)
+        
         count = count+1;
         sensorData = [];
     end
