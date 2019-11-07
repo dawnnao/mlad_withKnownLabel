@@ -22,7 +22,7 @@ saveRoot = 'C:/results/results_mlad_withKnownLabel/publicImageset_spectrogram/';
 % fs = 20;
 % step = [2];
 
-sensorNum = [24];
+sensorNum = [1 : 38];
 dateStart = '2012-01-01';
 dateEnd = '2012-12-31';
 k = 100; % number of clusters

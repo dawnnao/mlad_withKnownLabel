@@ -53,7 +53,7 @@ for day = dayStart : dayEnd
                 db = pow2db(p);
 
                 colormap gray
-                spg = pcolor(t, f, dB);
+                spg = pcolor(t, f, db);
                 spg.EdgeColor = 'none';                
                 
                 position = get(gcf, 'Position');

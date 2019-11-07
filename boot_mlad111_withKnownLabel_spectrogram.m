@@ -11,7 +11,7 @@ saveRoot = 'D:/results/results_mlad_withKnownLabel/spectrogram/mlad111/';
 
 sensorNum = [24];
 dateStart = '2012-01-01';
-dateEnd = '2012-06-30';
+dateEnd = '2012-12-31';
 sensorTrainRatio = 3/100;
 sensorPSize = 10;
 fs = 20;
