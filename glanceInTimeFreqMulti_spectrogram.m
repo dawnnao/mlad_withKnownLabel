@@ -45,10 +45,7 @@ for day = dayStart : dayEnd
             % spectrogram plot
             c = 1;
             for window = windows'
-%                 window
-%                 figure
                 sensorData(isnan(sensorData(:, s)), s) = 0.1;
-%                 [~, f, t, p] = spectrogram(sensorData(:, s), window, 0, window, fs, 'yaxis');
                 [~, f, t, p] = spectrogram(sensorData(:, s), window, 0, window, fs, 'yaxis', 'power');
                 db = pow2db(p);
 
@@ -60,15 +57,13 @@ for day = dayStart : dayEnd
                 set(gcf,'Units', 'pixels','Position', [position(1), position(2), 200, 200]);  % control figure's position
                 set(gca,'Units', 'normalized', 'Position', [0 0 1 1]);  % control axis's position in figure
                 set(gca, 'visible', 'off');
-%                 xlim([0 size(sensorData,1)]);
-%                 xlim([0 length(t)]);
-%                 min(t)
-%                 max(t)
+%                 xlim([0 max(t)]);
                 img = getframe(gcf);
                 img = imresize(img.cdata, [100 100]);  % expected dimension
                 img = rgb2gray(img);
                 img = im2double(img);
 %                 imshow(img)
+
                 pathSaveAll = [pathSave{s} '/' sprintf('%sabsIdx_%d_%d_spectrogram_%d', prefix, s, count, c) '.png'];
                 imwrite(img, pathSaveAll);
                 c = c + 1;
