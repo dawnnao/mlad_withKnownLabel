@@ -9,7 +9,7 @@ saveRoot = 'D:/results/results_mlad_withKnownLabel/spectrogram/mlad111/';
 % readRoot = '/Volumes/BOOTCAMP/data/Sutong/';
 % saveRoot = '/Users/zhiyitang/Programming/results/';
 
-sensorNum = [24];
+sensorNum = [1 : 38];
 dateStart = '2012-01-01';
 dateEnd = '2012-12-31';
 sensorTrainRatio = 3/100;
@@ -22,7 +22,7 @@ maxEpoch = [150];
 batchSize = 100;
 sizeFilter = [40];
 numFilter = [20];
-publicImagesetPath = 'C:/results/results_mlad_withKnownLabel/publicImageset_spectrogram/2012-01-01--2012-12-31_sensor_24_parallel_halfyear/';
+publicImagesetPath = 'C:/results/results_mlad_withKnownLabel/publicImageset_spectrogram/2012-01-01--2012-12-31_sensor_1-38_fusion/';
 % labelPath = 'C:/Users/Owner/Documents/GitHub/adi/trainingSet_justLabel_inSensorCell_latest.mat';
 labelPath = 'C:/Users/Owner/Documents/GitHub/mlad_withKnownLabel/labelMan/label2012_modifiedAfterRound2Test.mat';
 

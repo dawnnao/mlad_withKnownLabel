@@ -330,29 +330,29 @@ while goNext == 0
             for m = 1 : label2012.trainNum(n)
                 path.sourceFolder = sprintf('%ssensor%02d/0-all/',publicImagesetPath , label2012.absIdx{n}(m, 1));
                 
-                path.sourceFile1 = sprintf('%s0-all_absIdx_%d_%d_spectrogram_1_time.png', path.sourceFolder, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
-                path.goalFile1 = sprintf('%s%s/%s_absIdx_%02d_%d_spectrogram_1_time.png', dirName.trainSetByType, labelName{n}, labelName{n}, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
+                path.sourceFile1 = sprintf('%s0-all_absIdx_%d_%d_spectrogram_1.png', path.sourceFolder, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
+                path.goalFile1 = sprintf('%s%s/%s_absIdx_%02d_%d_spectrogram_1.png', dirName.trainSetByType, labelName{n}, labelName{n}, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
                 
-                path.sourceFile2 = sprintf('%s0-all_absIdx_%d_%d_spectrogram_2_time.png', path.sourceFolder, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
-                path.goalFile2 = sprintf('%s%s/%s_absIdx_%02d_%d_spectrogram_2_time.png', dirName.trainSetByType, labelName{n}, labelName{n}, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
+                path.sourceFile2 = sprintf('%s0-all_absIdx_%d_%d_spectrogram_2.png', path.sourceFolder, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
+                path.goalFile2 = sprintf('%s%s/%s_absIdx_%02d_%d_spectrogram_2.png', dirName.trainSetByType, labelName{n}, labelName{n}, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
                 
-                path.sourceFile3 = sprintf('%s0-all_absIdx_%d_%d_spectrogram_3_time.png', path.sourceFolder, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
-                path.goalFile3 = sprintf('%s%s/%s_absIdx_%02d_%d_spectrogram_3_time.png', dirName.trainSetByType, labelName{n}, labelName{n}, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
+                path.sourceFile3 = sprintf('%s0-all_absIdx_%d_%d_spectrogram_3.png', path.sourceFolder, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
+                path.goalFile3 = sprintf('%s%s/%s_absIdx_%02d_%d_spectrogram_3.png', dirName.trainSetByType, labelName{n}, labelName{n}, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
                 
-                path.sourceFile4 = sprintf('%s0-all_absIdx_%d_%d_spectrogram_4_time.png', path.sourceFolder, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
-                path.goalFile4 = sprintf('%s%s/%s_absIdx_%02d_%d_spectrogram_4_time.png', dirName.trainSetByType, labelName{n}, labelName{n}, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
+                path.sourceFile4 = sprintf('%s0-all_absIdx_%d_%d_spectrogram_4.png', path.sourceFolder, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
+                path.goalFile4 = sprintf('%s%s/%s_absIdx_%02d_%d_spectrogram_4.png', dirName.trainSetByType, labelName{n}, labelName{n}, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
                 
-                path.sourceFile5 = sprintf('%s0-all_absIdx_%d_%d_spectrogram_5_time.png', path.sourceFolder, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
-                path.goalFile5 = sprintf('%s%s/%s_absIdx_%02d_%d_spectrogram_5_time.png', dirName.trainSetByType, labelName{n}, labelName{n}, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
+                path.sourceFile5 = sprintf('%s0-all_absIdx_%d_%d_spectrogram_5.png', path.sourceFolder, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
+                path.goalFile5 = sprintf('%s%s/%s_absIdx_%02d_%d_spectrogram_5.png', dirName.trainSetByType, labelName{n}, labelName{n}, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
                 
-                path.sourceFile6 = sprintf('%s0-all_absIdx_%d_%d_spectrogram_6_time.png', path.sourceFolder, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
-                path.goalFile6 = sprintf('%s%s/%s_absIdx_%02d_%d_spectrogram_6_time.png', dirName.trainSetByType, labelName{n}, labelName{n}, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
+                path.sourceFile6 = sprintf('%s0-all_absIdx_%d_%d_spectrogram_6.png', path.sourceFolder, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
+                path.goalFile6 = sprintf('%s%s/%s_absIdx_%02d_%d_spectrogram_6.png', dirName.trainSetByType, labelName{n}, labelName{n}, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
                 
-                path.sourceFile7 = sprintf('%s0-all_absIdx_%d_%d_spectrogram_7_time.png', path.sourceFolder, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
-                path.goalFile7 = sprintf('%s%s/%s_absIdx_%02d_%d_spectrogram_7_time.png', dirName.trainSetByType, labelName{n}, labelName{n}, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
+                path.sourceFile7 = sprintf('%s0-all_absIdx_%d_%d_spectrogram_7.png', path.sourceFolder, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
+                path.goalFile7 = sprintf('%s%s/%s_absIdx_%02d_%d_spectrogram_7.png', dirName.trainSetByType, labelName{n}, labelName{n}, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
                 
-                path.sourceFile8 = sprintf('%s0-all_absIdx_%d_%d_spectrogram_8_time.png', path.sourceFolder, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
-                path.goalFile8 = sprintf('%s%s/%s_absIdx_%02d_%d_spectrogram_8_time.png', dirName.trainSetByType, labelName{n}, labelName{n}, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
+                path.sourceFile8 = sprintf('%s0-all_absIdx_%d_%d_spectrogram_8.png', path.sourceFolder, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
+                path.goalFile8 = sprintf('%s%s/%s_absIdx_%02d_%d_spectrogram_8.png', dirName.trainSetByType, labelName{n}, labelName{n}, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
                 
                 if exist(path.sourceFile1, 'file')
                    fprintf('\nGenerating training set... %s Now: %d Total: %d\n', labelName{n}, m, label2012.trainNum(n))
