@@ -354,13 +354,14 @@ while goNext == 0
                 path.sourceFile8 = sprintf('%s0-all_absIdx_%d_%d_spectrogram_8.png', path.sourceFolder, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
                 path.goalFile8 = sprintf('%s%s/%s_absIdx_%02d_%d_spectrogram_8.png', dirName.trainSetByType, labelName{n}, labelName{n}, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
                 
-                publicImagesetPath_tf = 'C:/results/results_mlad_withKnownLabel/publicImageset/2012-01-01--2012-12-31_sensor_1-38_fusion/';
+                publicImagesetPath_tf = 'D:/results/results_mlad_withKnownLabel/publicImageset/2012-01-01--2012-12-31_sensor_1-38_fusion/';
+                path.sourceFolder2 = sprintf('%ssensor%02d/0-all/',publicImagesetPath_tf , label2012.absIdx{n}(m, 1));
                 
-                path.sourceFile9 = sprintf('%s0-all_absIdx_%d_%d_time.png', publicImagesetPath_tf, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
+                path.sourceFile9 = sprintf('%s0-all_absIdx_%d_%d_time.png', path.sourceFolder2, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
                 path.goalFile9 = sprintf('%s%s/%s_absIdx_%02d_%d_time.png', dirName.trainSetByType, labelName{n}, labelName{n}, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
                 
-                path.sourceFile10 = sprintf('%s0-all_absIdx_%d_%d_freq.png', publicImagesetPath_tf, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
-                path.goalFile10 = sprintf('%s%s/%s_absIdx_%02d_%_freq.png', dirName.trainSetByType, labelName{n}, labelName{n}, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
+                path.sourceFile10 = sprintf('%s0-all_absIdx_%d_%d_freq.png', path.sourceFolder2, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
+                path.goalFile10 = sprintf('%s%s/%s_absIdx_%02d_%d_freq.png', dirName.trainSetByType, labelName{n}, labelName{n}, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
                 
                 if exist(path.sourceFile1, 'file')
                    fprintf('\nGenerating training set... %s Now: %d Total: %d\n', labelName{n}, m, label2012.trainNum(n))
@@ -565,7 +566,7 @@ while goNext == 0
                    label2012.image{n}(70001:80000, m) = single(img8(:));
                    
                    
-                   if exist(path.sourceFile9, 'file')
+                 if exist(path.sourceFile9, 'file')
                    fprintf('\nGenerating training set... %s Now: %d Total: %d\n', labelName{n}, m, label2012.trainNum(n))
                    img9 = imread(path.sourceFile9);
                    img9 = im2double(img9);
@@ -590,7 +591,7 @@ while goNext == 0
                    label2012.image{n}(80001:90000, m) = single(img9(:));
                    
                    
-                   if exist(path.sourceFile10, 'file')
+                 if exist(path.sourceFile10, 'file')
                    fprintf('\nGenerating training set... %s Now: %d Total: %d\n', labelName{n}, m, label2012.trainNum(n))
                    img10 = imread(path.sourceFile10);
                    img10 = im2double(img10);
@@ -770,7 +771,7 @@ for g = 1 : groupTotal
         feature{g}.trainRatio = 50/100;
         feature{g}.trainSize = floor(size(feature{g}.image,4) * feature{g}.trainRatio);
         % design architecture of CNN
-        layers = [imageInputLayer([100 100 8])
+        layers = [imageInputLayer([100 100 10])
                   
                   % design 1
                   convolution2dLayer(sizeFilter, numFilter)
