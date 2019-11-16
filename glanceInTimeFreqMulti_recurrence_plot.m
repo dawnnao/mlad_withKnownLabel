@@ -45,16 +45,16 @@ for day = dayStart : dayEnd
             % recurrence plot
             sensorData(isnan(sensorData(:, s)), s) = 0.1;
             sensorData_temp = downsample(sensorData(:, s), 100)';
-            figure
+%             figure
             for i = 1 : length(sensorData_temp)
-                rp(:,i) = abs(repmat(sensorData_temp(i), N, 1) - sensorData_temp(:));
+                rp(:,i) = abs(repmat(sensorData_temp(i), length(sensorData_temp), 1) - sensorData_temp(:));
             end
             imagesc(rp)
             axis square
             colormap('gray')
             
             position = get(gcf, 'Position');
-            set(gcf,'Units', 'pixels','Position', [position(1), position(2), 200, 200]);  % control figure's position
+            set(gcf,'Units', 'pixels','Position', [position(1), position(2), 100, 100]);  % control figure's position
             set(gca,'Units', 'normalized', 'Position', [0 0 1 1]);  % control axis's position in figure
             set(gca, 'visible', 'off');
 %                 xlim([0 max(t)]);
@@ -63,9 +63,8 @@ for day = dayStart : dayEnd
             img = rgb2gray(img);
             img = im2double(img);
             
-            pathSaveAll = [pathSave{s} '/' sprintf('%sabsIdx_%d_%d_recurrence_plot_%d', prefix, s, count, c) '.png'];
+            pathSaveAll = [pathSave{s} '/' sprintf('%sabsIdx_%d_%d_recurrence_plot', prefix, s, count) '.png'];
             imwrite(img, pathSaveAll);
-            c = c + 1;
             img = [];            
         end
         
