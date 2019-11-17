@@ -354,6 +354,7 @@ while goNext == 0
                 path.sourceFile8 = sprintf('%s0-all_absIdx_%d_%d_spectrogram_8.png', path.sourceFolder, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
                 path.goalFile8 = sprintf('%s%s/%s_absIdx_%02d_%d_spectrogram_8.png', dirName.trainSetByType, labelName{n}, labelName{n}, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
                 
+                % time and frequency plot
                 publicImagesetPath_tf = 'D:/results/results_mlad_withKnownLabel/publicImageset/2012-01-01--2012-12-31_sensor_1-38_fusion/';
                 path.sourceFolder2 = sprintf('%ssensor%02d/0-all/',publicImagesetPath_tf , label2012.absIdx{n}(m, 1));
                 
@@ -362,6 +363,13 @@ while goNext == 0
                 
                 path.sourceFile10 = sprintf('%s0-all_absIdx_%d_%d_freq.png', path.sourceFolder2, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
                 path.goalFile10 = sprintf('%s%s/%s_absIdx_%02d_%d_freq.png', dirName.trainSetByType, labelName{n}, labelName{n}, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
+                
+                % recurrence plot
+                publicImagesetPath_recurrence_plot = 'C:/results/results_mlad_withKnownLabel/publicImageset_recurrence_plot/2012-01-01--2012-12-31_sensor_1-38_fusion/';
+                path.sourceFolder3 = sprintf('%ssensor%02d/0-all/',publicImagesetPath_recurrence_plot , label2012.absIdx{n}(m, 1));
+                
+                path.sourceFile11 = sprintf('%s0-all_absIdx_%d_%d_rp.png', path.sourceFolder3, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
+                path.goalFile11 = sprintf('%s%s/%s_absIdx_%02d_%d_rp.png', dirName.trainSetByType, labelName{n}, labelName{n}, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
                 
                 if exist(path.sourceFile1, 'file')
                    fprintf('\nGenerating training set... %s Now: %d Total: %d\n', labelName{n}, m, label2012.trainNum(n))
@@ -614,6 +622,31 @@ while goNext == 0
                 end
                    imshow(img10)
                    label2012.image{n}(90001:100000, m) = single(img10(:));
+                   
+                   
+               if exist(path.sourceFile11, 'file')
+                   fprintf('\nGenerating training set... %s Now: %d Total: %d\n', labelName{n}, m, label2012.trainNum(n))
+                   img11 = imread(path.sourceFile11);
+                   img11 = im2double(img11);
+                   copyfile(path.sourceFile11, path.goalFile11, 'f');                   
+                else
+                   fprintf('\nCAUTION:\n%s\nNo such file! Filled with a zero.\n', path.sourceFile11)
+                   sensorData(1, 1) = zeros;
+                   plot(sensorData(:, 1),'color','k');
+                   position = get(gcf,'Position');
+                   set(gcf,'Units','pixels','Position',[position(1), position(2), 100, 100]);  % control figure's position
+                   set(gca,'Units','normalized', 'Position',[0 0 1 1]);  % control axis's position in figure
+                   set(gca,'visible','off');
+                   xlim([0 size(sensorData,1)]);
+                   set(gcf,'color','white');
+                   img11 = getframe(gcf);
+                   img11 = imresize(img11.cdata, [100 100]);  % expected dimension
+                   img11 = rgb2gray(img11);
+                   img11 = im2double(img11);
+                   imwrite(img11, path.goalFile11);
+                end
+                   imshow(img11)
+                   label2012.image{n}(100001:110000, m) = single(img11(:));
                 
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                 [day, hour] = colLocation(label2012.absIdx{n}(m, 2) ,'2012-01-01');
@@ -750,7 +783,7 @@ for g = 1 : groupTotal
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % convert feature into 4D matrices for CNN training
     numTemp = size(feature{g}.image, 2);
-    feature{g}.image = reshape(feature{g}.image, [100, 100, 10, numTemp]);
+    feature{g}.image = reshape(feature{g}.image, [100, 100, 11, numTemp]);
     % for define output layer size
     feature{g}.label.activeLabelNum = length(unique(vec2ind(feature{g}.label.manual)));
 end
@@ -771,7 +804,7 @@ for g = 1 : groupTotal
         feature{g}.trainRatio = 50/100;
         feature{g}.trainSize = floor(size(feature{g}.image,4) * feature{g}.trainRatio);
         % design architecture of CNN
-        layers = [imageInputLayer([100 100 10])
+        layers = [imageInputLayer([100 100 11])
                   
                   % design 1
                   convolution2dLayer(sizeFilter, numFilter)
