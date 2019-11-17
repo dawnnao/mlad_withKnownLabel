@@ -54,7 +54,7 @@ for day = dayStart : dayEnd
             colormap('gray')
             
             position = get(gcf, 'Position');
-            set(gcf,'Units', 'pixels','Position', [position(1), position(2), 100, 100]);  % control figure's position
+            set(gcf,'Units', 'pixels','Position', [position(1), position(2), 200, 200]);  % control figure's position
             set(gca,'Units', 'normalized', 'Position', [0 0 1 1]);  % control axis's position in figure
             set(gca, 'visible', 'off');
 %                 xlim([0 max(t)]);
