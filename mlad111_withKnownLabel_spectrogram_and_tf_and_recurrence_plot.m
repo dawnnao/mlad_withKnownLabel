@@ -368,8 +368,8 @@ while goNext == 0
                 publicImagesetPath_recurrence_plot = 'C:/results/results_mlad_withKnownLabel/publicImageset_recurrence_plot/2012-01-01--2012-12-31_sensor_1-38_fusion/';
                 path.sourceFolder3 = sprintf('%ssensor%02d/0-all/',publicImagesetPath_recurrence_plot , label2012.absIdx{n}(m, 1));
                 
-                path.sourceFile11 = sprintf('%s0-all_absIdx_%d_%d_rp.png', path.sourceFolder3, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
-                path.goalFile11 = sprintf('%s%s/%s_absIdx_%02d_%d_rp.png', dirName.trainSetByType, labelName{n}, labelName{n}, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
+                path.sourceFile11 = sprintf('%s0-all_absIdx_%d_%d_recurrence_plot.png', path.sourceFolder3, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
+                path.goalFile11 = sprintf('%s%s/%s_absIdx_%02d_%d_recurrence_plot.png', dirName.trainSetByType, labelName{n}, labelName{n}, label2012.absIdx{n}(m, 1), label2012.absIdx{n}(m, 2));
                 
                 if exist(path.sourceFile1, 'file')
                    fprintf('\nGenerating training set... %s Now: %d Total: %d\n', labelName{n}, m, label2012.trainNum(n))
